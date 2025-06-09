@@ -1,7 +1,7 @@
 import { createElement } from 'lwc';
-import SacCharts from 'c/sacCharts';
+import DynamicCharts from 'c/dynamicCharts';
 
-describe('c-sac-charts', () => {
+describe('c-dynamic-charts', () => {
     afterEach(() => {
         // The jsdom instance is shared across test cases in a single file so reset the DOM
         while (document.body.firstChild) {
@@ -10,12 +10,22 @@ describe('c-sac-charts', () => {
     });
 
     it('renders chart container', () => {
-        const element = createElement('c-sac-charts', {
-            is: SacCharts
+        const element = createElement('c-dynamic-charts', {
+            is: DynamicCharts
         });
         document.body.appendChild(element);
 
         const chartDiv = element.shadowRoot.querySelector('div.chart1');
+        expect(chartDiv).not.toBeNull();
+    });
+
+    it('renders second chart container', () => {
+        const element = createElement('c-dynamic-charts', {
+            is: DynamicCharts
+        });
+        document.body.appendChild(element);
+
+        const chartDiv = element.shadowRoot.querySelector('div.chart2');
         expect(chartDiv).not.toBeNull();
     });
 });

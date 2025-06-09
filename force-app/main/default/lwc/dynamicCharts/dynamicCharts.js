@@ -40,13 +40,15 @@ export default class SacCharts extends LightningElement {
         }
     }
 
-    // Option queries
+    // Option queries with cross-filtering
     get hostQuery() {
         if (this.datasetIds) {
             const id = this.datasetIds.exped;
-            return {
-                query: `q = load "${id}"; q = group q by 'host'; q = foreach q generate q.'host' as host;`
-            };
+            let saql = `q = load "${id}";\n`;
+            saql += this.getFilters({ exclude: ['host'] });
+            saql += "q = group q by 'host';\n";
+            saql += "q = foreach q generate q.'host' as host;";
+            return { query: saql };
         }
         return undefined;
     }
@@ -54,9 +56,11 @@ export default class SacCharts extends LightningElement {
     get nationQuery() {
         if (this.datasetIds) {
             const id = this.datasetIds.exped;
-            return {
-                query: `q = load "${id}"; q = group q by 'nation'; q = foreach q generate q.'nation' as nation;`
-            };
+            let saql = `q = load \"${id}\";\n`;
+            saql += this.getFilters({ exclude: ['nation'] });
+            saql += "q = group q by 'nation';\n";
+            saql += "q = foreach q generate q.'nation' as nation;";
+            return { query: saql };
         }
         return undefined;
     }
@@ -64,9 +68,11 @@ export default class SacCharts extends LightningElement {
     get seasonQuery() {
         if (this.datasetIds) {
             const id = this.datasetIds.exped;
-            return {
-                query: `q = load "${id}"; q = group q by 'season'; q = foreach q generate q.'season' as season;`
-            };
+            let saql = `q = load \"${id}\";\n`;
+            saql += this.getFilters({ exclude: ['season'] });
+            saql += "q = group q by 'season';\n";
+            saql += "q = foreach q generate q.'season' as season;";
+            return { query: saql };
         }
         return undefined;
     }
@@ -107,6 +113,20 @@ export default class SacCharts extends LightningElement {
         return { query: saql };
     }
 
+    get chartBQuery() {
+        if (!this.datasetIds) {
+            return undefined;
+        }
+        const id = this.datasetIds.exped;
+        let saql = `q = load "${id}";\n`;
+        saql += this.getFilters({ inverseHosts: true, inverseNations: true });
+        saql += "q = group q by 'nation';\n";
+        saql += "q = foreach q generate q.'nation' as nation, count(q) as Climbs;\n";
+        saql += "q = order q by 'Climbs' desc;\n";
+        saql += 'q = limit q 2000;';
+        return { query: saql };
+    }
+
     @wire(executeQuery, { query: '$chartAQuery' })
     onChartA({ data, error }) {
         if (data) {
@@ -125,9 +145,30 @@ export default class SacCharts extends LightningElement {
         }
     }
 
+    @wire(executeQuery, { query: '$chartBQuery' })
+    onChartB({ data, error }) {
+        if (data) {
+            const labels = [];
+            const values = [];
+            data.results.records.forEach(r => {
+                labels.push(r.nation);
+                values.push(r.Climbs);
+            });
+            const options = { ...this.chartAOptions };
+            options.xaxis.categories = labels;
+            options.series = [{ name: 'Climbs', data: values }];
+            if (this.chartObject.chartB) {
+                this.chartObject.chartB.updateOptions(options);
+            }
+        }
+    }
+
     renderedCallback() {
         if (!this.chartObject.chartA) {
             this.initChart('.chart1', this.chartAOptions, 'chartA');
+        }
+        if (!this.chartObject.chartB) {
+            this.initChart('.chart2', this.chartAOptions, 'chartB');
         }
     }
 
@@ -159,22 +200,26 @@ export default class SacCharts extends LightningElement {
     }
 
     filtersUpdated() {
-        // trigger refresh of chart
+        // trigger refresh of charts
         this.onChartA({ data: undefined, error: undefined });
+        this.onChartB({ data: undefined, error: undefined });
     }
 
-    getFilters() {
+    getFilters(options = {}) {
+        const { inverseHosts = false, inverseNations = false, exclude = [] } = options;
         let saql = '';
-        if (this.hostSelections.length > 0) {
-            saql += `q = filter q by 'host' in ${JSON.stringify(this.hostSelections)};\n`;
+        if (this.hostSelections.length > 0 && !exclude.includes('host')) {
+            const notStr = inverseHosts ? 'not ' : '';
+            saql += `q = filter q by 'host' ${notStr}in ${JSON.stringify(this.hostSelections)};\n`;
         }
-        if (this.nationSelections.length > 0) {
-            saql += `q = filter q by 'nation' in ${JSON.stringify(this.nationSelections)};\n`;
+        if (this.nationSelections.length > 0 && !exclude.includes('nation')) {
+            const notStr = inverseNations ? 'not ' : '';
+            saql += `q = filter q by 'nation' ${notStr}in ${JSON.stringify(this.nationSelections)};\n`;
         }
-        if (this.seasonSelections.length > 0) {
+        if (this.seasonSelections.length > 0 && !exclude.includes('season')) {
             saql += `q = filter q by 'season' in ${JSON.stringify(this.seasonSelections)};\n`;
         }
-        if (this.skiSelection.length > 0) {
+        if (this.skiSelection.length > 0 && !exclude.includes('ski')) {
             saql += `q = filter q by 'ski' ${this.skiSelection};\n`;
         }
         return saql;
