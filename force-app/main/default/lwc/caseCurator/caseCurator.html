@@ -1,0 +1,51 @@
+<template>
+    <lightning-tabset>
+        <lightning-tab label="Case Search">
+            <lightning-button label="Search" slot="actions"></lightning-button>
+            
+            <table>
+                <tbody>
+                    <tr>
+                        <td style="width:50%">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <p class="slds-p-horizontal_small"><lightning-combobox
+                                            name="AMC"
+                                            label="AMC"
+                                            options={optionsAMC} ></lightning-combobox></p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                        <td style="width:50%">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <p class="slds-p-horizontal_small"><lightning-input name="textSearch" type="text" label="Search for free text"></lightning-input></p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><p class="slds-p-horizontal_small"><lightning-checkbox-group
+                                            name="textSearchFields"
+                                            label="Search these fields:"
+                                            value={value}
+                                            options={optionsFields} ></lightning-checkbox-group></p></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </lightning-tab>
+        <lightning-tab label="Selected">
+            Two Content !
+        </lightning-tab>
+    </lightning-tabset>
+
+
+</template>
