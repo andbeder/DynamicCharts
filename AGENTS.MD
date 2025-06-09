@@ -68,3 +68,52 @@ staticresources/
 ## Extensibility
 - **New Charts**: Add a `chartType` parameter in `dynamicCharts.js` and adjust ApexCharts `options`.  
 - **Server Logic**: Flesh out `DPOStateMachine.cls` and invoke via `@wire` or imperative Apex.
+
+## Agents
+### dashboardReader
+- **Description**: Ingests a CRM Analytics dashboard JSON and extracts chart definitions.
+- **Behavior**:
+  - Input: Dashboard JSON file from CRM Analytics.
+  - Parses and extracts each chart’s:
+    - Type (e.g., bar, line, pie)
+    - Title
+    - Dimensions (e.g., x-axis, y-axis fields)
+    - SAQL query or underlying data query
+  - Checks existing LWC component for charts with the same title or identifier.
+    - If a chart exists, compares definitions and flags modifications if the JSON has changed.
+
+### lwcBuilder
+- **Description**: Takes the output from `dashboardReader` and updates the LWC component.
+- **Behavior**:
+  - Input: List of chart definitions from `dashboardReader`.
+  - Updates `dynamicCharts.html`:
+    - Adds new `<div>` containers for each chart.
+    - Ensures correct Lightning markup (e.g., `<lightning-card>` wrappers).
+  - Updates `dynamicCharts.js`:
+    - Injects or updates SAQL queries and series configuration.
+    - Applies filter hooks so charts refresh correctly.
+  - Modifies existing chart definitions if flagged by `dashboardReader`.
+
+### sfdcDeployer
+- **Description**: Automates deployment of LWC code to a Salesforce org.
+- **Behavior**:
+  - Uses Salesforce CLI (`sfdx`) commands:
+    - `sfdx force:source:push` to deploy local source to the scratch/org.
+    - `sfdx force:org:open` to preview the deployed component.
+    - `npm run test:unit` to execute local Jest tests.
+    - Optionally `npm run lint` to enforce code quality.
+  - Reports success or failure of each step.
+
+## Workflow
+1. **dashboardReader**  
+   - Run against the target dashboard JSON.  
+   - Outputs a normalized list of chart definitions (type, title, dimensions, query).  
+
+2. **lwcBuilder**  
+   - Consumes chart definitions from `dashboardReader`.  
+   - Updates LWC markup and JavaScript to reflect new or modified charts.  
+
+3. **sfdcDeployer**  
+   - Deploys the updated LWC code to Salesforce via SFDX.  
+   - Runs tests and opens the org for verification.
+
