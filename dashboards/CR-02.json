@@ -1,0 +1,390 @@
+{
+    "label": "CR-02",
+    "mobileDisabled": false,
+    "state": {
+        "dataSourceLinksInfo": {
+            "enableAutomaticLinking": true,
+            "excludeRelationships": [],
+            "links": []
+        },
+        "filters": [],
+        "gridLayouts": [
+            {
+                "name": "Default",
+                "numColumns": 12,
+                "pages": [
+                    {
+                        "label": "Untitled",
+                        "name": "3dc5ab3d-f380-407c-81b7-fcc5eb59a75f",
+                        "navigationHidden": false,
+                        "widgets": [
+                            {
+                                "colspan": 7,
+                                "column": 0,
+                                "name": "chart_1",
+                                "row": 0,
+                                "rowspan": 13,
+                                "widgetStyle": {}
+                            }
+                        ]
+                    }
+                ],
+                "rowHeight": "normal",
+                "selectors": [],
+                "style": {
+                    "alignmentX": "left",
+                    "alignmentY": "top",
+                    "backgroundColor": "#F2F6FA",
+                    "cellSpacingX": 8,
+                    "cellSpacingY": 8,
+                    "fit": "original",
+                    "gutterColor": "#C5D3E0"
+                },
+                "version": 1
+            }
+        ],
+        "layouts": [],
+        "steps": {
+            "Days_per_Peak_1": {
+                "broadcastFacet": true,
+                "datasets": [
+                    {
+                        "id": "0Fbaj0000017XbNCAU",
+                        "label": "exped",
+                        "name": "exped",
+                        "url": "/services/data/v63.0/wave/datasets/0Fbaj0000017XbNCAU"
+                    }
+                ],
+                "isGlobal": false,
+                "label": "Days per Peak",
+                "query": {
+                    "aggregateFilters": [],
+                    "columnGroups": [],
+                    "columnTotals": [],
+                    "limit": 2000,
+                    "orders": [
+                        {
+                            "name": "E",
+                            "filters": [],
+                            "ascending": false
+                        }
+                    ],
+                    "rowTotals": [],
+                    "sourceFilters": {},
+                    "sources": [
+                        {
+                            "columns": [
+                                {
+                                    "field": [
+                                        "min",
+                                        "totdays"
+                                    ],
+                                    "name": "A"
+                                },
+                                {
+                                    "formula": "percentile_disc(0.25) within group (order by totdays)",
+                                    "name": "B"
+                                },
+                                {
+                                    "formula": "percentile_disc(0.75) within group (order by totdays)",
+                                    "name": "C"
+                                },
+                                {
+                                    "field": [
+                                        "max",
+                                        "totdays"
+                                    ],
+                                    "name": "D"
+                                },
+                                {
+                                    "field": [
+                                        "count",
+                                        "*"
+                                    ],
+                                    "name": "E"
+                                }
+                            ],
+                            "filters": [],
+                            "groups": [
+                                "peakid"
+                            ],
+                            "joins": [],
+                            "name": "exped"
+                        }
+                    ]
+                },
+                "receiveFacetSource": {
+                    "mode": "all",
+                    "steps": []
+                },
+                "selectMode": "single",
+                "type": "aggregateflex",
+                "useGlobal": true,
+                "visualizationParameters": {
+                    "parameters": {
+                        "autoFitMode": "keepLabels",
+                        "bins": {
+                            "breakpoints": {
+                                "high": 100,
+                                "low": 0
+                            },
+                            "bands": {
+                                "high": {
+                                    "color": "#008000",
+                                    "label": ""
+                                },
+                                "low": {
+                                    "color": "#B22222",
+                                    "label": ""
+                                },
+                                "medium": {
+                                    "color": "#ffa500",
+                                    "label": ""
+                                }
+                            }
+                        },
+                        "legend": {
+                            "descOrder": false,
+                            "showHeader": true,
+                            "show": true,
+                            "customSize": "auto",
+                            "position": "right-top",
+                            "inside": false
+                        },
+                        "axisMode": "sync",
+                        "tooltip": {
+                            "content": {
+                                "legend": {
+                                    "showBinLabel": true,
+                                    "measures": [],
+                                    "showNullValues": true,
+                                    "customizeLegend": false,
+                                    "showPercentage": true,
+                                    "showDimensions": true,
+                                    "showMeasures": true,
+                                    "dimensions": []
+                                }
+                            }
+                        },
+                        "visualizationType": "hbar",
+                        "title": {
+                            "fontSize": 14,
+                            "subtitleFontSize": 11,
+                            "label": "",
+                            "align": "center",
+                            "subtitleLabel": ""
+                        },
+                        "binValues": false,
+                        "trellis": {
+                            "flipLabels": false,
+                            "showGridLines": true,
+                            "size": [
+                                100,
+                                100
+                            ],
+                            "enable": false,
+                            "type": "x",
+                            "chartsPerLine": 4
+                        },
+                        "columnProperties": {},
+                        "columnMap": {
+                            "trellis": [],
+                            "dimensionAxis": [
+                                "peakid"
+                            ],
+                            "plots": [
+                                "A",
+                                "B",
+                                "C",
+                                "D"
+                            ]
+                        },
+                        "showActionMenu": true,
+                        "measureAxis2": {
+                            "sqrtScale": false,
+                            "showTitle": true,
+                            "showAxis": true,
+                            "title": "",
+                            "customDomain": {
+                                "showDomain": false
+                            }
+                        },
+                        "valueType": "compactNumber",
+                        "measureAxis1": {
+                            "sqrtScale": false,
+                            "showTitle": true,
+                            "showAxis": true,
+                            "title": "",
+                            "customDomain": {
+                                "showDomain": false
+                            }
+                        },
+                        "theme": "wave",
+                        "compactDecimalDigits": -1,
+                        "dimensionAxis": {
+                            "showTitle": true,
+                            "customSize": "auto",
+                            "showAxis": true,
+                            "title": "",
+                            "icons": {
+                                "useIcons": false,
+                                "iconProps": {
+                                    "fit": "cover",
+                                    "column": "",
+                                    "type": "round"
+                                }
+                            }
+                        },
+                        "applyConditionalFormatting": true
+                    },
+                    "type": "chart",
+                    "options": {}
+                }
+            }
+        },
+        "widgetStyle": {
+            "backgroundColor": "#FFFFFF",
+            "borderColor": "#747474",
+            "borderEdges": [],
+            "borderRadius": 0,
+            "borderWidth": 1,
+            "tooltipStyle": {
+                "backgroundColor": "#16325c",
+                "labelColor": "#9faab5",
+                "valueColor": "#ffffff"
+            }
+        },
+        "widgets": {
+            "chart_1": {
+                "parameters": {
+                    "autoFitMode": "keepLabels",
+                    "bins": {
+                        "breakpoints": {
+                            "high": 100,
+                            "low": 0
+                        },
+                        "bands": {
+                            "high": {
+                                "color": "#008000",
+                                "label": ""
+                            },
+                            "low": {
+                                "color": "#B22222",
+                                "label": ""
+                            },
+                            "medium": {
+                                "color": "#ffa500",
+                                "label": ""
+                            }
+                        }
+                    },
+                    "legend": {
+                        "descOrder": false,
+                        "showHeader": true,
+                        "show": true,
+                        "customSize": "auto",
+                        "position": "right-top",
+                        "inside": false
+                    },
+                    "axisMode": "sync",
+                    "tooltip": {
+                        "content": {
+                            "legend": {
+                                "showBinLabel": true,
+                                "measures": [],
+                                "showNullValues": true,
+                                "customizeLegend": false,
+                                "showPercentage": true,
+                                "showDimensions": true,
+                                "showMeasures": true,
+                                "dimensions": []
+                            }
+                        }
+                    },
+                    "visualizationType": "hbar",
+                    "exploreLink": true,
+                    "title": {
+                        "fontSize": 14,
+                        "subtitleFontSize": 11,
+                        "label": "",
+                        "align": "center",
+                        "subtitleLabel": ""
+                    },
+                    "binValues": false,
+                    "trellis": {
+                        "flipLabels": false,
+                        "showGridLines": true,
+                        "size": [
+                            100,
+                            100
+                        ],
+                        "enable": false,
+                        "type": "x",
+                        "chartsPerLine": 4
+                    },
+                    "columnProperties": {},
+                    "columnMap": {
+                        "trellis": [],
+                        "dimensionAxis": [
+                            "peakid"
+                        ],
+                        "plots": [
+                            "A",
+                            "B",
+                            "C",
+                            "D"
+                        ]
+                    },
+                    "showActionMenu": true,
+                    "measureAxis2": {
+                        "sqrtScale": false,
+                        "showTitle": true,
+                        "showAxis": true,
+                        "title": "",
+                        "customDomain": {
+                            "showDomain": false
+                        }
+                    },
+                    "valueType": "compactNumber",
+                    "measureAxis1": {
+                        "sqrtScale": false,
+                        "showTitle": true,
+                        "showAxis": true,
+                        "title": "",
+                        "customDomain": {
+                            "showDomain": false
+                        }
+                    },
+                    "theme": "wave",
+                    "step": "Days_per_Peak_1",
+                    "compactDecimalDigits": -1,
+                    "dimensionAxis": {
+                        "showTitle": true,
+                        "customSize": "auto",
+                        "showAxis": true,
+                        "title": "",
+                        "icons": {
+                            "useIcons": false,
+                            "iconProps": {
+                                "fit": "cover",
+                                "column": "",
+                                "type": "round"
+                            }
+                        }
+                    },
+                    "applyConditionalFormatting": true
+                },
+                "type": "chart"
+            }
+        },
+        "parameters": []
+    },
+    "datasets": [
+        {
+            "id": "0Fbaj0000017XbNCAU",
+            "label": "exped",
+            "name": "exped",
+            "url": "/services/data/v63.0/wave/datasets/0Fbaj0000017XbNCAU"
+        }
+    ]
+}
