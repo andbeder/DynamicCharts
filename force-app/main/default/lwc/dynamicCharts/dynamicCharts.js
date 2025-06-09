@@ -127,6 +127,32 @@ export default class SacCharts extends LightningElement {
         return { query: saql };
     }
 
+    get chartCQuery() {
+        if (!this.datasetIds) {
+            return undefined;
+        }
+        const id = this.datasetIds.exped;
+        let saql = `q = load \"${id}\";\n`;
+        saql += this.getFilters();
+        saql += "q = group q by 'peakid';\n";
+        saql += "q = foreach q generate q.'peakid' as peakid, min(q.'totdays') as A, percentile_disc(0.25) within group (order by q.'totdays') as B, percentile_disc(0.75) within group (order by q.'totdays') as C, max(q.'totdays') as D;\n";
+        saql += 'q = limit q 2000;';
+        return { query: saql };
+    }
+
+    get chartDQuery() {
+        if (!this.datasetIds) {
+            return undefined;
+        }
+        const id = this.datasetIds.exped;
+        let saql = `q = load \"${id}\";\n`;
+        saql += this.getFilters({ inverseHosts: true, inverseNations: true });
+        saql += "q = group q by 'peakid';\n";
+        saql += "q = foreach q generate q.'peakid' as peakid, min(q.'totdays') as A, percentile_disc(0.25) within group (order by q.'totdays') as B, percentile_disc(0.75) within group (order by q.'totdays') as C, max(q.'totdays') as D;\n";
+        saql += 'q = limit q 2000;';
+        return { query: saql };
+    }
+
     @wire(executeQuery, { query: '$chartAQuery' })
     onChartA({ data, error }) {
         if (data) {
@@ -163,12 +189,60 @@ export default class SacCharts extends LightningElement {
         }
     }
 
+    @wire(executeQuery, { query: '$chartCQuery' })
+    onChartC({ data, error }) {
+        if (data) {
+            const records = data.results.records.map(r => ({
+                x: r.peakid,
+                y: [
+                    r.A,
+                    r.B,
+                    (r.B + r.C) / 2,
+                    r.C,
+                    r.D
+                ]
+            }));
+            const options = { ...this.chartBoxOptions };
+            options.series = [{ name: 'Days', data: records }];
+            if (this.chartObject.chartC) {
+                this.chartObject.chartC.updateOptions(options);
+            }
+        }
+    }
+
+    @wire(executeQuery, { query: '$chartDQuery' })
+    onChartD({ data, error }) {
+        if (data) {
+            const records = data.results.records.map(r => ({
+                x: r.peakid,
+                y: [
+                    r.A,
+                    r.B,
+                    (r.B + r.C) / 2,
+                    r.C,
+                    r.D
+                ]
+            }));
+            const options = { ...this.chartBoxOptions };
+            options.series = [{ name: 'Days', data: records }];
+            if (this.chartObject.chartD) {
+                this.chartObject.chartD.updateOptions(options);
+            }
+        }
+    }
+
     renderedCallback() {
         if (!this.chartObject.chartA) {
             this.initChart('.chart1', this.chartAOptions, 'chartA');
         }
         if (!this.chartObject.chartB) {
             this.initChart('.chart2', this.chartAOptions, 'chartB');
+        }
+        if (!this.chartObject.chartC) {
+            this.initChart('.chart3', this.chartBoxOptions, 'chartC');
+        }
+        if (!this.chartObject.chartD) {
+            this.initChart('.chart4', this.chartBoxOptions, 'chartD');
         }
     }
 
@@ -203,6 +277,8 @@ export default class SacCharts extends LightningElement {
         // trigger refresh of charts
         this.onChartA({ data: undefined, error: undefined });
         this.onChartB({ data: undefined, error: undefined });
+        this.onChartC({ data: undefined, error: undefined });
+        this.onChartD({ data: undefined, error: undefined });
     }
 
     getFilters(options = {}) {
@@ -229,6 +305,13 @@ export default class SacCharts extends LightningElement {
         chart: { type: 'bar', height: 410 },
         series: [],
         xaxis: { categories: [] },
+        noData: { text: 'Loading...' }
+    };
+
+    chartBoxOptions = {
+        chart: { type: 'boxPlot', height: 410 },
+        series: [],
+        xaxis: { type: 'category' },
         noData: { text: 'Loading...' }
     };
 }

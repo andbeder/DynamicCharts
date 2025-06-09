@@ -28,4 +28,16 @@ describe('c-dynamic-charts', () => {
         const chartDiv = element.shadowRoot.querySelector('div.chart2');
         expect(chartDiv).not.toBeNull();
     });
+
+    it('renders box plot containers', () => {
+        const element = createElement('c-dynamic-charts', {
+            is: DynamicCharts
+        });
+        document.body.appendChild(element);
+
+        const chart3 = element.shadowRoot.querySelector('div.chart3');
+        const chart4 = element.shadowRoot.querySelector('div.chart4');
+        expect(chart3).not.toBeNull();
+        expect(chart4).not.toBeNull();
+    });
 });
