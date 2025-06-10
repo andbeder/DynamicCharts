@@ -70,8 +70,60 @@ staticresources/
 - **Server Logic**: Flesh out `DPOStateMachine.cls` and invoke via `@wire` or imperative Apex.
 
 ## Agents
+### dashboardRetriever
+- **Description**: Retrieves the full CRM Analytics (Wave) dashboard JSON definition from Salesforce using the REST API and extracts the editable `state` object to save locally.
+
+- **Inputs**:
+  - `dashboardApiName`: The API name (`DeveloperName`) of the CRM Analytics dashboard (e.g., `My_Dashboard`).
+
+- **Behavior**:
+  1. Authenticates into the Salesforce org (must have Wave API access and token).
+  2. Retrieves the dashboard ID by querying the `WaveDashboard` object:
+     ```bash
+     sf data query --query "SELECT Id FROM WaveDashboard WHERE DeveloperName = '${dashboardApiName}'" --json
+     ```
+     - Parses the `records[0].Id` as `dashboardId`.
+  3. Uses the Salesforce REST API to fetch the full dashboard definition:
+     - Makes a GET request to:
+       ```
+       /services/data/v60.0/wave/dashboards/${dashboardId}
+       ```
+     - Authenticated using `Bearer ${ACCESS_TOKEN}`
+     - The response structure looks like:
+       ```json
+       {
+         "id": "...",
+         "name": "...",
+         "state": {
+           ...dashboard definition here...
+         }
+       }
+       ```
+  4. Extracts the `state` object from the response JSON.
+  5. Saves the `state` as a standalone JSON file:
+     - File path: `dashboards/${dashboardApiName}.json`
+     - File content:
+       ```json
+       { ... contents of "state" ... }
+       ```
+  6. Reports success or failure:
+     - Fails if the dashboard is not found, token is invalid, or the response lacks a `state` object.
+     - Warns if the file could not be written.
+
+- **Preconditions**:
+  - The user is authenticated to Salesforce and has permissions for:
+    - SOQL query on `WaveDashboard`
+    - GET access to `/wave/dashboards/{dashboardId}`
+  - The environment must expose:
+    - `ACCESS_TOKEN`: Salesforce OAuth bearer token
+    - `INSTANCE_URL`: Salesforce instance domain (e.g., `myorg.my.salesforce.com`)
+  - A local directory `dashboards/` exists or will be created.
+
+- **Output**:
+  - A local JSON file named `dashboards/${dashboardApiName}.json` containing the dashboard's editable state.
+
 ### dashboardReader
-- **Description**: Ingests a CRM Analytics dashboard JSON and extracts chart definitions.
+- **Description**: takes the output from `dashboardRetriever` and extracts chart definitions.
 - **Behavior**:
   - Input: Dashboard JSON file from CRM Analytics.
   - Parses and extracts each chart’s:
@@ -97,23 +149,38 @@ staticresources/
 ### sfdcDeployer
 - **Description**: Automates deployment of LWC code to a Salesforce org.
 - **Behavior**:
-  - Uses Salesforce CLI (`sfdx`) commands:
-    - `sfdx force:source:push` to deploy local source to the scratch/org.
-    - `sfdx force:org:open` to preview the deployed component.
+  - Uses Salesforce CLI v2 (`sf`) commands when available, with fallback to `sfdx`:
+    - `sf project deploy start --source-dir force-app` to deploy source to the default org.
+    - `sf org open` (or `sfdx force:org:open`) to preview the deployed component.
     - `npm run test:unit` to execute local Jest tests.
     - Optionally `npm run lint` to enforce code quality.
   - Reports success or failure of each step.
+  - If no default org is configured, runs:
+    - `sf org login web --set-default --alias myOrg` to authenticate via browser.
+
+- **Fallback Logic (optional)**:
+  - If `sf` is not installed or fails, uses `sfdx force:source:push` instead.
+
+- **Preconditions**:
+  - Node.js and npm are installed.
+  - Salesforce CLI (`sf`) is installed and accessible in PATH.
+  - Project includes valid `force-app/` source directory.
 
 ## Workflow
-1. **dashboardReader**  
+1. **dashboardRetriever**
+   - Retrieves the dashboard JSON from the target org
+   - Extracts "state" object
+   - Saves dashboard locally for next step
+
+2. **dashboardReader**  
    - Run against the target dashboard JSON.  
    - Outputs a normalized list of chart definitions (type, title, dimensions, query).  
 
-2. **lwcBuilder**  
+3. **lwcBuilder**  
    - Consumes chart definitions from `dashboardReader`.  
    - Updates LWC markup and JavaScript to reflect new or modified charts.  
 
-3. **sfdcDeployer**  
+4. **sfdcDeployer**  
    - Deploys the updated LWC code to Salesforce via SFDX.  
    - Runs tests and opens the org for verification.
 
