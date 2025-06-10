@@ -95,7 +95,7 @@ staticresources/
   1. Installs Salesforce CLI globally:
 
      ```bash
-     npm install -g @salesforce/cli
+     npm install -g @salesforce/cli --silent
      ```
   2. Logs into Salesforce via JWT:
 
@@ -186,6 +186,25 @@ staticresources/
   * Creates new LWC components.
   * Refectors existing LWC components.
   * Ensures code transparency, efficiency and reliability.
+
+### lwcTester
+
+* **Description**: Test LWC Components to ensure reliability.
+* **Behavior**:
+
+  1. Ensures `sfdcAuthorizer` has run to authenticate.
+  2. Loads Jest plugin for SF:
+
+     ```bash
+     npm install --save-dev sfdx-lwc-jest
+     ```
+  3. Develops testing scripts
+  4. Executes Tests
+  5. Reports success or failure.
+
+* **Preconditions**:
+
+  * Authenticated org via `sfdcAuthorizer`.
 
 ### sfdcDeployer
 
