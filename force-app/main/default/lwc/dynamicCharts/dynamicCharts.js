@@ -152,7 +152,7 @@ export default class SacCharts extends LightningElement {
 
     @wire(executeQuery, { query: '$climbsByCountryQuery' })
     onClimbsByCountry({ data, error }) {
-        if (data) {
+        if (data && data.results.records.length > 0) {
             const labels = [];
             const values = [];
             data.results.records.forEach(r => {
@@ -171,7 +171,7 @@ export default class SacCharts extends LightningElement {
 
     @wire(executeQuery, { query: '$climbsByCountryAoQuery' })
     onClimbsByCountryAo({ data, error }) {
-        if (data) {
+        if (data && data.results.records.length > 0) {
             const labels = [];
             const values = [];
             data.results.records.forEach(r => {
@@ -190,7 +190,7 @@ export default class SacCharts extends LightningElement {
 
     @wire(executeQuery, { query: '$totalTimeByPeakQuery' })
     onTotalTimeByPeak({ data, error }) {
-        if (data) {
+        if (data && data.results.records.length > 0) {
             const records = data.results.records.map(r => ({
                 x: r.peakid,
                 y: [
@@ -212,7 +212,7 @@ export default class SacCharts extends LightningElement {
 
     @wire(executeQuery, { query: '$totalTimeByPeakAoQuery' })
     onTotalTimeByPeakAo({ data, error }) {
-        if (data) {
+        if (data && data.results.records.length > 0) {
             const records = data.results.records.map(r => ({
                 x: r.peakid,
                 y: [
