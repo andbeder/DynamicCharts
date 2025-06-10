@@ -34,6 +34,25 @@
         "font": "default",
         "effects": []
       }
+    },
+    {
+      "dashboard": "CR_02",
+      "id": "DaysPerPeak",
+      "type": "bar",
+      "title": "Days per Peak",
+      "fieldMappings": {
+        "A": "Min",
+        "B": "Q1",
+        "C": "Q3",
+        "D": "Max",
+        "peakid": "Peak ID"
+      },
+      "saql": "q = load \"<datasetId>\";\n<filters>\nq = group q by 'peakid';\nq = foreach q generate q.'peakid' as peakid, min(q.'totdays') as A, percentile_disc(0.25) within group (order by q.'totdays') as B, percentile_disc(0.75) within group (order by q.'totdays') as C, max(q.'totdays') as D;\nq = order q by A asc;\nq = limit q 20;",
+      "style": {
+        "seriesColors": "default",
+        "font": "default",
+        "effects": []
+      }
     }
   ]
 }

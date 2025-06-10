@@ -168,6 +168,21 @@ export default class SacCharts extends LightningElement {
     return { query: saql };
   }
 
+  get daysPerPeakQuery() {
+    if (!this.datasetIds) {
+      return undefined;
+    }
+    const id = this.datasetIds.exped;
+    let saql = `q = load \"${id}\";\n`;
+    saql += this.getFilters();
+    saql += "q = group q by 'peakid';\n";
+    saql +=
+      "q = foreach q generate q.'peakid' as peakid, min(q.'totdays') as A, percentile_disc(0.25) within group (order by q.'totdays') as B, percentile_disc(0.75) within group (order by q.'totdays') as C, max(q.'totdays') as D;\n";
+    saql += "q = order q by A asc;\n";
+    saql += "q = limit q 20;";
+    return { query: saql };
+  }
+
   @wire(executeQuery, { query: "$climbsByNationQuery" })
   onClimbsByNation({ data, error }) {
     if (data) {
@@ -234,6 +249,35 @@ export default class SacCharts extends LightningElement {
     }
   }
 
+  @wire(executeQuery, { query: "$daysPerPeakQuery" })
+  onDaysPerPeak({ data, error }) {
+    if (data) {
+      const labels = [];
+      const minVals = [];
+      const q1Vals = [];
+      const q3Vals = [];
+      const maxVals = [];
+      data.results.records.forEach((r) => {
+        labels.push(r.peakid);
+        minVals.push(r.A);
+        q1Vals.push(r.B);
+        q3Vals.push(r.C);
+        maxVals.push(r.D);
+      });
+      const options = { ...this.chartBarOptions };
+      options.xaxis.categories = labels;
+      options.series = [
+        { name: "Min", data: minVals },
+        { name: "Q1", data: q1Vals },
+        { name: "Q3", data: q3Vals },
+        { name: "Max", data: maxVals }
+      ];
+      if (this.chartObject.DaysPerPeak) {
+        this.chartObject.DaysPerPeak.updateOptions(options);
+      }
+    }
+  }
+
   renderedCallback() {
     if (!this.chartObject.ClimbsByNation) {
       this.initChart(".ClimbsByNation", this.chartAOptions, "ClimbsByNation");
@@ -246,6 +290,9 @@ export default class SacCharts extends LightningElement {
     }
     if (!this.chartObject.TimeByPeakAO) {
       this.initChart(".TimeByPeakAO", this.chartBoxOptions, "TimeByPeakAO");
+    }
+    if (!this.chartObject.DaysPerPeak) {
+      this.initChart(".DaysPerPeak", this.chartBarOptions, "DaysPerPeak");
     }
   }
 
@@ -283,6 +330,7 @@ export default class SacCharts extends LightningElement {
     this.onClimbsByNationAO({ data: undefined, error: undefined });
     this.onTimeByPeak({ data: undefined, error: undefined });
     this.onTimeByPeakAO({ data: undefined, error: undefined });
+    this.onDaysPerPeak({ data: undefined, error: undefined });
   }
 
   getFilters(options = {}) {
@@ -311,6 +359,14 @@ export default class SacCharts extends LightningElement {
 
   chartAOptions = {
     chart: { type: "bar", height: 410 },
+    series: [],
+    xaxis: { categories: [] },
+    noData: { text: "Loading..." }
+  };
+
+  chartBarOptions = {
+    chart: { type: "bar", height: 410 },
+    plotOptions: { bar: { horizontal: true } },
     series: [],
     xaxis: { categories: [] },
     noData: { text: "Loading..." }

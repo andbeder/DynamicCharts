@@ -2,7 +2,7 @@
 
 ## Overview
 SAC Charts is implemented as a Lightning Web Component (LWC) named `dynamicCharts`. The component obtains data from CRM Analytics using wire adapters, generates SAQL queries based on user-selected filters, and renders charts with the ApexCharts JavaScript library.
-Two pairs of charts are rendered. The first pair shows bar charts with and without the selected filters, while the second pair displays box plots built from the same filter logic. Chart containers are named `ClimbsByNation`, `ClimbsByNationAO`, `TimeByPeak`, and `TimeByPeakAO` to highlight how each pair relates.
+Three groups of charts are rendered. The first group shows bar charts with and without the selected filters, the second group displays a horizontal bar chart of days per peak, and the third group contains box plots built from the same filter logic. Chart containers are named `ClimbsByNation`, `ClimbsByNationAO`, `DaysPerPeak`, `TimeByPeak`, and `TimeByPeakAO` to highlight how each relates.
 
 The project follows the Salesforce DX structure with source located under `force-app/main/default` and uses `sfdx-lwc-jest` for unit testing.
 
@@ -27,20 +27,18 @@ The project follows the Salesforce DX structure with source located under `force
 ```
 
 ### Key Components
-- **dynamicCharts.js**: Core logic for loading datasets, handling filter selections, generating SAQL, cross-filtering available options, and rendering four charts with ApexCharts.
-- **dynamicCharts.html**: Presents filter controls and four chart containers arranged in two side-by-side pairs.
+- **dynamicCharts.js**: Core logic for loading datasets, handling filter selections, generating SAQL, cross-filtering available options, and rendering five charts with ApexCharts.
+- **dynamicCharts.html**: Presents filter controls and five chart containers arranged in multiple cards.
 - **dynamicCharts.js-meta.xml**: Exposes the component to App, Record, and Home pages.
 - **DPOStateMachine.cls**: Placeholder Apex class reserved for future enhancements or server-side processing.
-- **charts.json**: Generated from the LWC to list supported charts. Only primary
-  charts (`ClimbsByNation` and `TimeByPeak`) are included, while `AO` variants
-  are ignored.
+ - **charts.json**: Generated from the LWC to list supported charts. Primary charts (`ClimbsByNation`, `TimeByPeak`, and `DaysPerPeak`) are included, while `AO` variants are ignored.
 
 ## Data Flow
 1. `getDatasets` retrieves dataset IDs when the component initializes.
 2. Dual list boxes and combo box capture filter selections from the user.
 3. Option queries apply the currently selected filters (excluding the field being queried) so that each filter only displays valid values.
 4. `executeQuery` runs SAQL queries for all charts using the selected filters.
-5. The first chart in each pair uses the filters as selected; the second chart applies the inverse of the `host` and `nation` filters.
+5. The first bar chart uses the filters as selected; the second applies the inverse of the `host` and `nation` filters.
 6. Updating filters triggers `filtersUpdated`, which refreshes every chart with new query data.
 
 ## Dependencies
@@ -49,7 +47,7 @@ The project follows the Salesforce DX structure with source located under `force
 - **Salesforce LWC**: Standard library for creating Lightning Web Components.
 
 ## Testing
-Unit tests reside under `force-app/main/default/lwc/dynamicCharts/__tests__` and use `sfdx-lwc-jest`. Additional Apex test classes are stored in the `force-app/test` package to validate server-side code. The sample tests verify that both chart containers render when the component is created.
+Unit tests reside under `force-app/main/default/lwc/dynamicCharts/__tests__` and use `sfdx-lwc-jest`. Additional Apex test classes are stored in the `force-app/test` package to validate server-side code. The sample tests verify that all chart containers render when the component is created.
 
 ## Future Considerations
 - Implement additional chart types (line, pie, etc.) using ApexCharts options.
