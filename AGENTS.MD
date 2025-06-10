@@ -25,6 +25,9 @@ force-app/
 staticresources/
 └─ ApexCharts.resource             ← ApexCharts JS library
 ```
+### Important Files
+
+1. **charts.json**: Intemediary output of chart processing holding chart configuration details. This is updated by the `dashboardReader` agent and read by the `chartBuilder` agent
 
 ## Environment Setup
 
@@ -242,14 +245,15 @@ staticresources/
 
 ### Chart update Workflow
 
-1. **User Request**: "I've added a new chart to the CR-02 dashboard. Pleaes push this change to the org."
+1. **User Request**: "Please read the dashboard `CR-02` and use it to refactor the LWC code, and push it to the org."
 2. **Agent Chain**:
 
   1. `sfdcAuthorizer` installs jest, sf plugin and authorizes org
   2. `dashboardRetriever` finds the dashboard, downloads the current version and saves the STATE locally
   3. `dashboardReader` parses the dashboard JSON, isolates charts and updates charts.json based on them.
   4. `chartBuilder` analyzes the LWC and charts.json, determines changes and makes them
-  5. `sfdcDeployer` pushes changes to org
+  5. `lwcTester` validates the code and functionality
+  6. `sfdcDeployer` pushes changes to org
 
 ### JSON Engineer Workflow
 

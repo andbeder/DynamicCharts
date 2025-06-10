@@ -1,9 +1,11 @@
 # SAC Charts System Requirements
 
 ## Purpose
+
 SAC Charts is a Lightning application for Salesforce that enables users to quickly generate interactive charts in the Salesforce UI. The application leverages the ApexCharts JavaScript library to render charts and retrieves data from CRM Analytics (Wave) datasets using SAQL queries.
 
 ## Functional Requirements
+
 1. **Dataset Retrieval**
    - The system shall fetch available CRM Analytics datasets using the `getDatasets` wire adapter.
    - Only datasets of type `Default` or `Live` with license type `EinsteinAnalytics` shall be returned.
@@ -21,7 +23,6 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - The first chart in each pair shall use the selected filters directly.
    - The second chart in each pair shall apply the inverse of the `host` and `nation` filters while honoring `season` and `ski` selections.
    - Chart data shall refresh whenever the user updates filter selections and clicks **Render**.
-   - Chart definitions shall be stored in `charts.json`, generated from the LWC. Only the primary charts (`ClimbsByNation` and `TimeByPeak`) are listed.
 5. **User Interface**
    - The component shall expose a Lightning App Page, Record Page, and Home Page target as defined in the metadata file.
    - Chart content shall appear within `<lightning-card>` containers that include four `<div>` elements with classes `ClimbsByNation`, `ClimbsByNationAO`, `TimeByPeak`, and `TimeByPeakAO`.
@@ -29,6 +30,7 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - The application shall be compatible with Salesforce API version 59.0 as specified in the `sfdx-project.json` configuration.
 
 ## Non‑Functional Requirements
+
 1. **Performance**
    - Chart rendering shall occur within one second after the ApexCharts library loads and the SAQL query completes.
 2. **Security**
@@ -39,7 +41,7 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - The system should allow additional chart types and datasets to be introduced with minimal code changes.
 
 ## Out of Scope
+
 - Complex state management beyond the provided filters.
 - Server-side Apex logic aside from the placeholder `DPOStateMachine` class.
 - Advanced chart features such as drill‑down or cross‑filtering between multiple charts.
-
