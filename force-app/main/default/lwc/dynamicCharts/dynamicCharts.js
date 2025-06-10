@@ -9,11 +9,10 @@ export default class SacCharts extends LightningElement {
     hostSelections = [];
     nationSelections = [];
     seasonSelections = [];
-    skiSelection = [];
+    skiSelections = [];
 
     hostOptions;
     nationOptions;
-    seasonOptions;
     skiOptions = [
         { label: 'All', value: 'in all' },
         { label: 'Yes', value: '== "Yes"' },
@@ -65,14 +64,14 @@ export default class SacCharts extends LightningElement {
         return undefined;
     }
 
-    get seasonQuery() {
+    get seasonQueryString() {
         if (this.datasetIds) {
             const id = this.datasetIds.exped;
             let saql = `q = load \"${id}\";\n`;
             saql += this.getFilters({ exclude: ['season'] });
             saql += "q = group q by 'season';\n";
             saql += "q = foreach q generate q.'season' as season;";
-            return { query: saql };
+            return saql;
         }
         return undefined;
     }
@@ -91,12 +90,6 @@ export default class SacCharts extends LightningElement {
         }
     }
 
-    @wire(executeQuery, { query: '$seasonQuery' })
-    onSeasonQuery({ data, error }) {
-        if (data) {
-            this.seasonOptions = data.results.records.map(r => ({ label: r.season, value: r.season }));
-        }
-    }
 
     // Chart query
     get climbsByCountryQuery() {
@@ -274,7 +267,7 @@ export default class SacCharts extends LightningElement {
         this.seasonSelections = event.detail.value;
     }
     handleSkiChange(event) {
-        this.skiSelection = event.detail.value;
+        this.skiSelections = event.detail.value;
     }
 
     filtersUpdated() {
@@ -299,8 +292,8 @@ export default class SacCharts extends LightningElement {
         if (this.seasonSelections.length > 0 && !exclude.includes('season')) {
             saql += `q = filter q by 'season' in ${JSON.stringify(this.seasonSelections)};\n`;
         }
-        if (this.skiSelection.length > 0 && !exclude.includes('ski')) {
-            saql += `q = filter q by 'ski' ${this.skiSelection};\n`;
+        if (this.skiSelections.length > 0 && !exclude.includes('ski')) {
+            saql += `q = filter q by 'ski' ${this.skiSelections[0]};\n`;
         }
         return saql;
     }

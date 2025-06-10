@@ -9,8 +9,8 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - Only datasets of type `Default` or `Live` with license type `EinsteinAnalytics` shall be returned.
 2. **Filter Options**
    - Users shall filter chart results by `host`, `nation`, `season`, and `ski` attributes.
-   - Dual list boxes shall be provided for `host`, `nation`, and `season` selections.
-   - A combo box shall be provided for the `ski` selection with the choices **All**, **Yes**, and **No**.
+   - Dual list boxes shall be provided for `host` and `nation` selections.
+   - A reusable `multiSelectPicklist` component shall be used for `season` and `ski` selections. The ski picklist is limited to a single choice (**All**, **Yes**, or **No**).
    - Selecting a value in any filter shall refresh the remaining filter options so that only valid values are displayed.
 3. **Dynamic Query Generation**
    - The component shall build a SAQL query based on selected filter values.

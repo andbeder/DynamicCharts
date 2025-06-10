@@ -1,0 +1,42 @@
+<template>
+    <div class="slds-form-element">
+        <label class="slds-form-element__label" for="searchInput">{label}</label>
+        <div class="slds-combobox_container">
+            <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" onblur={handleBlur}>
+                <div class="slds-combobox__form-element" role="none">
+                    <lightning-input type="text" id="searchInput" value={searchTerm} onchange={handleSearch} onclick={toggleDropdown} placeholder={placeholder}></lightning-input>
+                </div>
+                <div if:true={isOpen} class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                    <div class="slds-p-horizontal_small slds-text-color_weak slds-text-title_caps">
+                        <a href="javascript:void(0);" onclick={selectAll}>Select All</a> |
+                        <a href="javascript:void(0);" onclick={clearAll}>Clear All</a>
+                    </div>
+                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                        <template for:each={filteredOptions} for:item="option">
+                            <li key={option.id} role="presentation" class="slds-listbox__item">
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <lightning-input type="checkbox" checked={option.isChecked} data-id={option.id} onchange={handleSelect}></lightning-input>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <span class="slds-truncate" title={option.label}>{option.label}</span>
+                                    </div>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="slds-m-top_x-small">
+            <template if:true={selectedItems.length}>
+                <template for:each={selectedItems} for:item="pill">
+                    <lightning-pill key={pill.id} label={pill.label} onremove={removePill} name={pill.id}></lightning-pill>
+                </template>
+            </template>
+            <template if:false={selectedItems.length}>
+                <span class="slds-text-color_weak">None Selected</span>
+            </template>
+        </div>
+    </div>
+</template>

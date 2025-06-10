@@ -30,12 +30,13 @@ The project follows the Salesforce DX structure with source located under `force
 - **dynamicCharts.js**: Core logic for loading datasets, handling filter selections, generating SAQL, cross-filtering available options, and rendering four charts with ApexCharts.
 - **dynamicCharts.html**: Presents filter controls and four chart containers arranged in two side-by-side pairs.
 - **dynamicCharts.js-meta.xml**: Exposes the component to App, Record, and Home pages.
+- **multiSelectPicklist**: Reusable search-based picklist used for the Season and Ski filters.
 - **DPOStateMachine.cls**: Placeholder Apex class reserved for future enhancements or server-side processing.
 - **chartRequirements.json**: Defines chart metadata such as type, dimensions, titles, colors, and effects used by the LWC.
 
 ## Data Flow
 1. `getDatasets` retrieves dataset IDs when the component initializes.
-2. Dual list boxes and combo box capture filter selections from the user.
+2. Dual list boxes capture `host` and `nation` selections while a reusable `multiSelectPicklist` component handles `season` and `ski` filters.
 3. Option queries apply the currently selected filters (excluding the field being queried) so that each filter only displays valid values.
 4. `executeQuery` runs SAQL queries for all charts using the selected filters and limits each result set to 20 rows.
 5. The first chart in each pair uses the filters as selected; the second chart applies the inverse of the `host` and `nation` filters.
