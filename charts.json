@@ -2,7 +2,7 @@
   "charts": [
     {
       "dashboard": "CR_02",
-      "id": "chartA",
+      "id": "ClimbsByNation",
       "type": "bar",
       "title": "Climbs by Nation",
       "fieldMappings": {
@@ -18,7 +18,7 @@
     },
     {
       "dashboard": "CR_02",
-      "id": "chartC",
+      "id": "TimeByPeak",
       "type": "box-and-whisker",
       "title": "Total Days to Summit (Box Plot)",
       "fieldMappings": {
