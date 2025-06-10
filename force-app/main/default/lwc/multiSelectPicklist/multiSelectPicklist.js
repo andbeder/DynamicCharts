@@ -8,7 +8,7 @@ export default class MultiSelectPicklist extends LightningElement {
     @api query; // SAQL query to retrieve options if no options passed
     @api defaultOptions = [];
 
-    @track options = [];
+    @api options = [];
     @track filteredOptions = [];
     @track selectedItems = [];
     @track searchTerm = '';
@@ -43,7 +43,12 @@ export default class MultiSelectPicklist extends LightningElement {
     @wire(executeQuery, { query: '$builtQuery' })
     wiredOptions({ data }) {
         if (data && data.results) {
-            this.options = data.results.records.map(r => ({ id: r.id || r.label, label: r.label || r.value, isChecked: false }));
+            this.options = data.results.records.map(r => {
+                const keys = Object.keys(r);
+                const label = r.label || r.value || (keys.length ? r[keys[0]] : '');
+                const id = r.id || label;
+                return { id, label, isChecked: false };
+            });
             this.filterOptions();
         }
     }

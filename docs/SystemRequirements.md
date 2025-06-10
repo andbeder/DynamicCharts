@@ -12,6 +12,7 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - Dual list boxes shall be provided for `host` and `nation` selections.
    - A reusable `multiSelectPicklist` component shall be used for `season` and `ski` selections. The ski picklist is limited to a single choice (**All**, **Yes**, or **No**).
    - Selecting a value in any filter shall refresh the remaining filter options so that only valid values are displayed.
+   - The picklist shall derive option labels from the first field of query results when no `label` field exists.
 3. **Dynamic Query Generation**
    - The component shall build a SAQL query based on selected filter values.
    - Filters shall be combined using the `filter q by` SAQL syntax.
