@@ -37,7 +37,7 @@ The project follows the Salesforce DX structure with source located under `force
 1. `getDatasets` retrieves dataset IDs when the component initializes.
 2. Dual list boxes and combo box capture filter selections from the user.
 3. Option queries apply the currently selected filters (excluding the field being queried) so that each filter only displays valid values.
-4. `executeQuery` runs SAQL queries for all charts using the selected filters.
+4. `executeQuery` runs SAQL queries for all charts using the selected filters and limits each result set to 20 rows.
 5. The first chart in each pair uses the filters as selected; the second chart applies the inverse of the `host` and `nation` filters.
 6. Updating filters triggers `filtersUpdated`, which refreshes every chart with new query data.
 

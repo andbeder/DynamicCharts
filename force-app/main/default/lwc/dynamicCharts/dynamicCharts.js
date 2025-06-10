@@ -109,7 +109,7 @@ export default class SacCharts extends LightningElement {
         saql += "q = group q by 'nation';\n";
         saql += "q = foreach q generate q.'nation' as nation, count(q) as Climbs;\n";
         saql += "q = order q by 'Climbs' desc;\n";
-        saql += 'q = limit q 2000;';
+        saql += 'q = limit q 20;';
         return { query: saql };
     }
 
@@ -123,7 +123,7 @@ export default class SacCharts extends LightningElement {
         saql += "q = group q by 'nation';\n";
         saql += "q = foreach q generate q.'nation' as nation, count(q) as Climbs;\n";
         saql += "q = order q by 'Climbs' desc;\n";
-        saql += 'q = limit q 2000;';
+        saql += 'q = limit q 20;';
         return { query: saql };
     }
 
@@ -136,7 +136,7 @@ export default class SacCharts extends LightningElement {
         saql += this.getFilters();
         saql += "q = group q by 'peakid';\n";
         saql += "q = foreach q generate q.'peakid' as peakid, min(q.'totdays') as A, percentile_disc(0.25) within group (order by q.'totdays') as B, percentile_disc(0.75) within group (order by q.'totdays') as C, max(q.'totdays') as D;\n";
-        saql += 'q = limit q 2000;';
+        saql += 'q = limit q 20;';
         return { query: saql };
     }
 
@@ -149,7 +149,7 @@ export default class SacCharts extends LightningElement {
         saql += this.getFilters({ inverseHosts: true, inverseNations: true });
         saql += "q = group q by 'peakid';\n";
         saql += "q = foreach q generate q.'peakid' as peakid, min(q.'totdays') as A, percentile_disc(0.25) within group (order by q.'totdays') as B, percentile_disc(0.75) within group (order by q.'totdays') as C, max(q.'totdays') as D;\n";
-        saql += 'q = limit q 2000;';
+        saql += 'q = limit q 20;';
         return { query: saql };
     }
 
