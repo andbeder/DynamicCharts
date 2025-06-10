@@ -1,5 +1,16 @@
 import { createElement } from 'lwc';
 import DynamicCharts from 'c/dynamicCharts';
+import { loadScript } from 'lightning/platformResourceLoader';
+
+jest.mock('lightning/platformResourceLoader', () => {
+    return {
+        loadScript: jest.fn(() => Promise.resolve())
+    };
+});
+
+beforeAll(() => {
+    global.ApexCharts = jest.fn(() => ({ render: jest.fn(), updateOptions: jest.fn() }));
+});
 
 describe('c-dynamic-charts', () => {
     afterEach(() => {
@@ -46,5 +57,19 @@ describe('c-dynamic-charts', () => {
         const file = fs.readFileSync(require.resolve('c/dynamicCharts'), 'utf8');
         const matches = file.match(/limit q 20/g) || [];
         expect(matches.length).toBe(4);
+    });
+
+    it('loads ApexCharts script only once', () => {
+        const element1 = createElement('c-dynamic-charts', {
+            is: DynamicCharts
+        });
+        const element2 = createElement('c-dynamic-charts', {
+            is: DynamicCharts
+        });
+        document.body.appendChild(element1);
+        document.body.appendChild(element2);
+        return Promise.resolve().then(() => {
+            expect(loadScript.mock.calls.length).toBe(1);
+        });
     });
 });

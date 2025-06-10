@@ -3,6 +3,9 @@ import { getDatasets, executeQuery } from 'lightning/analyticsWaveApi';
 import apexchartJs from '@salesforce/resourceUrl/ApexCharts';
 import { loadScript } from 'lightning/platformResourceLoader';
 
+let apexChartsLoaded = false;
+let apexChartsPromise;
+
 export default class SacCharts extends LightningElement {
     datasetIds;
 
@@ -244,7 +247,14 @@ export default class SacCharts extends LightningElement {
     }
 
     initChart(selector, options, name) {
-        loadScript(this, apexchartJs + '/dist/apexcharts.js')
+        if (!apexChartsPromise) {
+            apexChartsPromise = loadScript(this, apexchartJs + '/dist/apexcharts.js')
+                .then(() => {
+                    apexChartsLoaded = true;
+                });
+        }
+
+        apexChartsPromise
             .then(() => {
                 const div = this.template.querySelector(selector);
                 const chart = new ApexCharts(div, options);
