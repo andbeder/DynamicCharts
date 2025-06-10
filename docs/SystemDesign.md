@@ -2,7 +2,7 @@
 
 ## Overview
 SAC Charts is implemented as a Lightning Web Component (LWC) named `dynamicCharts`. The component obtains data from CRM Analytics using wire adapters, generates SAQL queries based on user-selected filters, and renders charts with the ApexCharts JavaScript library.
-Two pairs of charts are rendered. The first pair shows bar charts with and without the selected filters, while the second pair displays box plots built from the same filter logic.
+Two pairs of charts are rendered: **ClimbsByCountry** and **ClimbsByCountryAO** for the bar series, and **TotalTimeByPeak** and **TotalTimeByPeakAO** for the box plot series.
 
 The project follows the Salesforce DX structure with source located under `force-app/main/default` and uses `sfdx-lwc-jest` for unit testing.
 
@@ -31,6 +31,7 @@ The project follows the Salesforce DX structure with source located under `force
 - **dynamicCharts.html**: Presents filter controls and four chart containers arranged in two side-by-side pairs.
 - **dynamicCharts.js-meta.xml**: Exposes the component to App, Record, and Home pages.
 - **DPOStateMachine.cls**: Placeholder Apex class reserved for future enhancements or server-side processing.
+- **chartRequirements.json**: Defines chart metadata such as type, dimensions, titles, colors, and effects used by the LWC.
 
 ## Data Flow
 1. `getDatasets` retrieves dataset IDs when the component initializes.
