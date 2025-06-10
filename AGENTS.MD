@@ -193,7 +193,7 @@ staticresources/
      ```
 * **Preconditions**:
 
-  * Authenticated org via `sfdcAuthorizer`.
+  * Installed CLI Plugins and Authenticated org via `sfdcAuthorizer`.
   * Node.js, npm, and Salesforce CLI installed.
   * `force-app/` directory present.
 
