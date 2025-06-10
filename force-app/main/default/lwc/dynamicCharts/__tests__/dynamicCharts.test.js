@@ -72,4 +72,20 @@ describe('c-dynamic-charts', () => {
             expect(loadScript.mock.calls.length).toBe(1);
         });
     });
+
+    it('skips update when no results returned', () => {
+        const element = createElement('c-dynamic-charts', {
+            is: DynamicCharts
+        });
+        document.body.appendChild(element);
+
+        const chart = element.chartObject;
+        element.chartObject.ClimbsByCountry = {
+            updateOptions: jest.fn()
+        };
+
+        element.onClimbsByCountry({ data: { results: { records: [] } }, error: undefined });
+
+        expect(element.chartObject.ClimbsByCountry.updateOptions).not.toHaveBeenCalled();
+    });
 });
