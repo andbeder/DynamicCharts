@@ -31,6 +31,9 @@ The project follows the Salesforce DX structure with source located under `force
 - **dynamicCharts.html**: Presents filter controls and four chart containers arranged in two side-by-side pairs.
 - **dynamicCharts.js-meta.xml**: Exposes the component to App, Record, and Home pages.
 - **DPOStateMachine.cls**: Placeholder Apex class reserved for future enhancements or server-side processing.
+- **charts.json**: Generated from the LWC to list supported charts. Only primary
+  charts (`ClimbsByNation` and `TimeByPeak`) are included, while `AO` variants
+  are ignored.
 
 ## Data Flow
 1. `getDatasets` retrieves dataset IDs when the component initializes.

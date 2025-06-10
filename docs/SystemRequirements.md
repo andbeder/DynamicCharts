@@ -21,6 +21,7 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - The first chart in each pair shall use the selected filters directly.
    - The second chart in each pair shall apply the inverse of the `host` and `nation` filters while honoring `season` and `ski` selections.
    - Chart data shall refresh whenever the user updates filter selections and clicks **Render**.
+   - Chart definitions shall be stored in `charts.json`, generated from the LWC. Only the primary charts (`ClimbsByNation` and `TimeByPeak`) are listed.
 5. **User Interface**
    - The component shall expose a Lightning App Page, Record Page, and Home Page target as defined in the metadata file.
    - Chart content shall appear within `<lightning-card>` containers that include four `<div>` elements with classes `ClimbsByNation`, `ClimbsByNationAO`, `TimeByPeak`, and `TimeByPeakAO`.
