@@ -99,7 +99,7 @@ export default class SacCharts extends LightningElement {
     }
 
     // Chart query
-    get chartAQuery() {
+    get climbsByCountryQuery() {
         if (!this.datasetIds) {
             return undefined;
         }
@@ -109,11 +109,11 @@ export default class SacCharts extends LightningElement {
         saql += "q = group q by 'nation';\n";
         saql += "q = foreach q generate q.'nation' as nation, count(q) as Climbs;\n";
         saql += "q = order q by 'Climbs' desc;\n";
-        saql += 'q = limit q 2000;';
+        saql += 'q = limit q 20;';
         return { query: saql };
     }
 
-    get chartBQuery() {
+    get climbsByCountryAoQuery() {
         if (!this.datasetIds) {
             return undefined;
         }
@@ -123,11 +123,11 @@ export default class SacCharts extends LightningElement {
         saql += "q = group q by 'nation';\n";
         saql += "q = foreach q generate q.'nation' as nation, count(q) as Climbs;\n";
         saql += "q = order q by 'Climbs' desc;\n";
-        saql += 'q = limit q 2000;';
+        saql += 'q = limit q 20;';
         return { query: saql };
     }
 
-    get chartCQuery() {
+    get totalTimeByPeakQuery() {
         if (!this.datasetIds) {
             return undefined;
         }
@@ -136,11 +136,11 @@ export default class SacCharts extends LightningElement {
         saql += this.getFilters();
         saql += "q = group q by 'peakid';\n";
         saql += "q = foreach q generate q.'peakid' as peakid, min(q.'totdays') as A, percentile_disc(0.25) within group (order by q.'totdays') as B, percentile_disc(0.75) within group (order by q.'totdays') as C, max(q.'totdays') as D;\n";
-        saql += 'q = limit q 2000;';
+        saql += 'q = limit q 20;';
         return { query: saql };
     }
 
-    get chartDQuery() {
+    get totalTimeByPeakAoQuery() {
         if (!this.datasetIds) {
             return undefined;
         }
@@ -149,12 +149,12 @@ export default class SacCharts extends LightningElement {
         saql += this.getFilters({ inverseHosts: true, inverseNations: true });
         saql += "q = group q by 'peakid';\n";
         saql += "q = foreach q generate q.'peakid' as peakid, min(q.'totdays') as A, percentile_disc(0.25) within group (order by q.'totdays') as B, percentile_disc(0.75) within group (order by q.'totdays') as C, max(q.'totdays') as D;\n";
-        saql += 'q = limit q 2000;';
+        saql += 'q = limit q 20;';
         return { query: saql };
     }
 
-    @wire(executeQuery, { query: '$chartAQuery' })
-    onChartA({ data, error }) {
+    @wire(executeQuery, { query: '$climbsByCountryQuery' })
+    onClimbsByCountry({ data, error }) {
         if (data) {
             const labels = [];
             const values = [];
@@ -162,17 +162,18 @@ export default class SacCharts extends LightningElement {
                 labels.push(r.nation);
                 values.push(r.Climbs);
             });
-            const options = { ...this.chartAOptions };
+            const options = { ...this.barChartOptions };
+            options.title = { text: 'Climbs By Country' };
             options.xaxis.categories = labels;
             options.series = [{ name: 'Climbs', data: values }];
-            if (this.chartObject.chartA) {
-                this.chartObject.chartA.updateOptions(options);
+            if (this.chartObject.ClimbsByCountry) {
+                this.chartObject.ClimbsByCountry.updateOptions(options);
             }
         }
     }
 
-    @wire(executeQuery, { query: '$chartBQuery' })
-    onChartB({ data, error }) {
+    @wire(executeQuery, { query: '$climbsByCountryAoQuery' })
+    onClimbsByCountryAo({ data, error }) {
         if (data) {
             const labels = [];
             const values = [];
@@ -180,17 +181,18 @@ export default class SacCharts extends LightningElement {
                 labels.push(r.nation);
                 values.push(r.Climbs);
             });
-            const options = { ...this.chartAOptions };
+            const options = { ...this.barChartOptions };
+            options.title = { text: 'Climbs By Country (All Other)' };
             options.xaxis.categories = labels;
             options.series = [{ name: 'Climbs', data: values }];
-            if (this.chartObject.chartB) {
-                this.chartObject.chartB.updateOptions(options);
+            if (this.chartObject.ClimbsByCountryAO) {
+                this.chartObject.ClimbsByCountryAO.updateOptions(options);
             }
         }
     }
 
-    @wire(executeQuery, { query: '$chartCQuery' })
-    onChartC({ data, error }) {
+    @wire(executeQuery, { query: '$totalTimeByPeakQuery' })
+    onTotalTimeByPeak({ data, error }) {
         if (data) {
             const records = data.results.records.map(r => ({
                 x: r.peakid,
@@ -202,16 +204,17 @@ export default class SacCharts extends LightningElement {
                     r.D
                 ]
             }));
-            const options = { ...this.chartBoxOptions };
+            const options = { ...this.boxPlotOptions };
             options.series = [{ name: 'Days', data: records }];
-            if (this.chartObject.chartC) {
-                this.chartObject.chartC.updateOptions(options);
+            options.title = { text: 'Total Time By Peak' };
+            if (this.chartObject.TotalTimeByPeak) {
+                this.chartObject.TotalTimeByPeak.updateOptions(options);
             }
         }
     }
 
-    @wire(executeQuery, { query: '$chartDQuery' })
-    onChartD({ data, error }) {
+    @wire(executeQuery, { query: '$totalTimeByPeakAoQuery' })
+    onTotalTimeByPeakAo({ data, error }) {
         if (data) {
             const records = data.results.records.map(r => ({
                 x: r.peakid,
@@ -223,26 +226,27 @@ export default class SacCharts extends LightningElement {
                     r.D
                 ]
             }));
-            const options = { ...this.chartBoxOptions };
+            const options = { ...this.boxPlotOptions };
             options.series = [{ name: 'Days', data: records }];
-            if (this.chartObject.chartD) {
-                this.chartObject.chartD.updateOptions(options);
+            options.title = { text: 'Total Time By Peak (All Other)' };
+            if (this.chartObject.TotalTimeByPeakAO) {
+                this.chartObject.TotalTimeByPeakAO.updateOptions(options);
             }
         }
     }
 
     renderedCallback() {
-        if (!this.chartObject.chartA) {
-            this.initChart('.chart1', this.chartAOptions, 'chartA');
+        if (!this.chartObject.ClimbsByCountry) {
+            this.initChart('#ClimbsByCountry', this.barChartOptions, 'ClimbsByCountry');
         }
-        if (!this.chartObject.chartB) {
-            this.initChart('.chart2', this.chartAOptions, 'chartB');
+        if (!this.chartObject.ClimbsByCountryAO) {
+            this.initChart('#ClimbsByCountryAO', this.barChartOptions, 'ClimbsByCountryAO');
         }
-        if (!this.chartObject.chartC) {
-            this.initChart('.chart3', this.chartBoxOptions, 'chartC');
+        if (!this.chartObject.TotalTimeByPeak) {
+            this.initChart('#TotalTimeByPeak', this.boxPlotOptions, 'TotalTimeByPeak');
         }
-        if (!this.chartObject.chartD) {
-            this.initChart('.chart4', this.chartBoxOptions, 'chartD');
+        if (!this.chartObject.TotalTimeByPeakAO) {
+            this.initChart('#TotalTimeByPeakAO', this.boxPlotOptions, 'TotalTimeByPeakAO');
         }
     }
 
@@ -275,10 +279,10 @@ export default class SacCharts extends LightningElement {
 
     filtersUpdated() {
         // trigger refresh of charts
-        this.onChartA({ data: undefined, error: undefined });
-        this.onChartB({ data: undefined, error: undefined });
-        this.onChartC({ data: undefined, error: undefined });
-        this.onChartD({ data: undefined, error: undefined });
+        this.onClimbsByCountry({ data: undefined, error: undefined });
+        this.onClimbsByCountryAo({ data: undefined, error: undefined });
+        this.onTotalTimeByPeak({ data: undefined, error: undefined });
+        this.onTotalTimeByPeakAo({ data: undefined, error: undefined });
     }
 
     getFilters(options = {}) {
@@ -301,15 +305,23 @@ export default class SacCharts extends LightningElement {
         return saql;
     }
 
-    chartAOptions = {
-        chart: { type: 'bar', height: 410 },
+    barChartOptions = {
+        chart: {
+            type: 'bar',
+            height: 410,
+            dropShadow: { enabled: true, top: 2, left: 2, blur: 4, opacity: 0.3 }
+        },
         series: [],
         xaxis: { categories: [] },
         noData: { text: 'Loading...' }
     };
 
-    chartBoxOptions = {
-        chart: { type: 'boxPlot', height: 410 },
+    boxPlotOptions = {
+        chart: {
+            type: 'boxPlot',
+            height: 410,
+            dropShadow: { enabled: true, top: 2, left: 2, blur: 4, opacity: 0.3 }
+        },
         series: [],
         xaxis: { type: 'category' },
         noData: { text: 'Loading...' }

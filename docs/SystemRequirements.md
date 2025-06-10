@@ -21,9 +21,11 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - The first chart in each pair shall use the selected filters directly.
    - The second chart in each pair shall apply the inverse of the `host` and `nation` filters while honoring `season` and `ski` selections.
    - Chart data shall refresh whenever the user updates filter selections and clicks **Render**.
+   - Each chart shall display no more than the top 20 results as determined by the query order.
 5. **User Interface**
    - The component shall expose a Lightning App Page, Record Page, and Home Page target as defined in the metadata file.
-   - Chart content shall appear within `<lightning-card>` containers that include four `<div>` elements with classes `chart1`, `chart2`, `chart3`, and `chart4`.
+   - Chart content shall appear within `<lightning-card>` containers that include four `<div>` elements identified by `ClimbsByCountry`, `ClimbsByCountryAO`, `TotalTimeByPeak`, and `TotalTimeByPeakAO`.
+   - Charts shall render with a drop shadow effect for visual emphasis.
 6. **Compatibility**
    - The application shall be compatible with Salesforce API version 59.0 as specified in the `sfdx-project.json` configuration.
 
@@ -36,6 +38,7 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - Code shall be written in modern JavaScript and Apex standards to ease future modifications.
 4. **Extensibility**
    - The system should allow additional chart types and datasets to be introduced with minimal code changes.
+   - Chart metadata shall be maintained in `config/chartRequirements.json` so that chart options persist across iterations.
 
 ## Out of Scope
 - Complex state management beyond the provided filters.

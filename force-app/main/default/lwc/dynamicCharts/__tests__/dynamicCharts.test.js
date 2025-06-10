@@ -40,4 +40,11 @@ describe('c-dynamic-charts', () => {
         expect(chart3).not.toBeNull();
         expect(chart4).not.toBeNull();
     });
+
+    it('contains SAQL limit of 20 for each chart query', () => {
+        const fs = require('fs');
+        const file = fs.readFileSync(require.resolve('c/dynamicCharts'), 'utf8');
+        const matches = file.match(/limit q 20/g) || [];
+        expect(matches.length).toBe(4);
+    });
 });
