@@ -48,7 +48,7 @@ staticresources/
 - **UI**:  
   - Dual list boxes for **host**, **nation**, **season**  
   - Combo box for **ski** with options **All**, **Yes**, **No**  
-  - `<lightning-card>` wrapper and `<div class="chart1">` for the bar chart  
+  - `<lightning-card>` wrapper and `<div class="ClimbsByNation">` for the bar chart
 
 ## Commands Reference
 - **Push source**: `sfdx force:source:push`  

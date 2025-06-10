@@ -110,7 +110,7 @@ export default class SacCharts extends LightningElement {
   }
 
   // Chart query
-  get chartAQuery() {
+  get climbsByNationQuery() {
     if (!this.datasetIds) {
       return undefined;
     }
@@ -125,7 +125,7 @@ export default class SacCharts extends LightningElement {
     return { query: saql };
   }
 
-  get chartBQuery() {
+  get climbsByNationAOQuery() {
     if (!this.datasetIds) {
       return undefined;
     }
@@ -140,7 +140,7 @@ export default class SacCharts extends LightningElement {
     return { query: saql };
   }
 
-  get chartCQuery() {
+  get timeByPeakQuery() {
     if (!this.datasetIds) {
       return undefined;
     }
@@ -154,7 +154,7 @@ export default class SacCharts extends LightningElement {
     return { query: saql };
   }
 
-  get chartDQuery() {
+  get timeByPeakAOQuery() {
     if (!this.datasetIds) {
       return undefined;
     }
@@ -168,8 +168,8 @@ export default class SacCharts extends LightningElement {
     return { query: saql };
   }
 
-  @wire(executeQuery, { query: "$chartAQuery" })
-  onChartA({ data, error }) {
+  @wire(executeQuery, { query: "$climbsByNationQuery" })
+  onClimbsByNation({ data, error }) {
     if (data) {
       const labels = [];
       const values = [];
@@ -180,14 +180,14 @@ export default class SacCharts extends LightningElement {
       const options = { ...this.chartAOptions };
       options.xaxis.categories = labels;
       options.series = [{ name: "Climbs", data: values }];
-      if (this.chartObject.chartA) {
-        this.chartObject.chartA.updateOptions(options);
+      if (this.chartObject.ClimbsByNation) {
+        this.chartObject.ClimbsByNation.updateOptions(options);
       }
     }
   }
 
-  @wire(executeQuery, { query: "$chartBQuery" })
-  onChartB({ data, error }) {
+  @wire(executeQuery, { query: "$climbsByNationAOQuery" })
+  onClimbsByNationAO({ data, error }) {
     if (data) {
       const labels = [];
       const values = [];
@@ -198,14 +198,14 @@ export default class SacCharts extends LightningElement {
       const options = { ...this.chartAOptions };
       options.xaxis.categories = labels;
       options.series = [{ name: "Climbs", data: values }];
-      if (this.chartObject.chartB) {
-        this.chartObject.chartB.updateOptions(options);
+      if (this.chartObject.ClimbsByNationAO) {
+        this.chartObject.ClimbsByNationAO.updateOptions(options);
       }
     }
   }
 
-  @wire(executeQuery, { query: "$chartCQuery" })
-  onChartC({ data, error }) {
+  @wire(executeQuery, { query: "$timeByPeakQuery" })
+  onTimeByPeak({ data, error }) {
     if (data) {
       const records = data.results.records.map((r) => ({
         x: r.peakid,
@@ -213,14 +213,14 @@ export default class SacCharts extends LightningElement {
       }));
       const options = { ...this.chartBoxOptions };
       options.series = [{ name: "Days", data: records }];
-      if (this.chartObject.chartC) {
-        this.chartObject.chartC.updateOptions(options);
+      if (this.chartObject.TimeByPeak) {
+        this.chartObject.TimeByPeak.updateOptions(options);
       }
     }
   }
 
-  @wire(executeQuery, { query: "$chartDQuery" })
-  onChartD({ data, error }) {
+  @wire(executeQuery, { query: "$timeByPeakAOQuery" })
+  onTimeByPeakAO({ data, error }) {
     if (data) {
       const records = data.results.records.map((r) => ({
         x: r.peakid,
@@ -228,24 +228,24 @@ export default class SacCharts extends LightningElement {
       }));
       const options = { ...this.chartBoxOptions };
       options.series = [{ name: "Days", data: records }];
-      if (this.chartObject.chartD) {
-        this.chartObject.chartD.updateOptions(options);
+      if (this.chartObject.TimeByPeakAO) {
+        this.chartObject.TimeByPeakAO.updateOptions(options);
       }
     }
   }
 
   renderedCallback() {
-    if (!this.chartObject.chartA) {
-      this.initChart(".chart1", this.chartAOptions, "chartA");
+    if (!this.chartObject.ClimbsByNation) {
+      this.initChart(".ClimbsByNation", this.chartAOptions, "ClimbsByNation");
     }
-    if (!this.chartObject.chartB) {
-      this.initChart(".chart2", this.chartAOptions, "chartB");
+    if (!this.chartObject.ClimbsByNationAO) {
+      this.initChart(".ClimbsByNationAO", this.chartAOptions, "ClimbsByNationAO");
     }
-    if (!this.chartObject.chartC) {
-      this.initChart(".chart3", this.chartBoxOptions, "chartC");
+    if (!this.chartObject.TimeByPeak) {
+      this.initChart(".TimeByPeak", this.chartBoxOptions, "TimeByPeak");
     }
-    if (!this.chartObject.chartD) {
-      this.initChart(".chart4", this.chartBoxOptions, "chartD");
+    if (!this.chartObject.TimeByPeakAO) {
+      this.initChart(".TimeByPeakAO", this.chartBoxOptions, "TimeByPeakAO");
     }
   }
 
@@ -279,10 +279,10 @@ export default class SacCharts extends LightningElement {
 
   filtersUpdated() {
     // trigger refresh of charts
-    this.onChartA({ data: undefined, error: undefined });
-    this.onChartB({ data: undefined, error: undefined });
-    this.onChartC({ data: undefined, error: undefined });
-    this.onChartD({ data: undefined, error: undefined });
+    this.onClimbsByNation({ data: undefined, error: undefined });
+    this.onClimbsByNationAO({ data: undefined, error: undefined });
+    this.onTimeByPeak({ data: undefined, error: undefined });
+    this.onTimeByPeakAO({ data: undefined, error: undefined });
   }
 
   getFilters(options = {}) {
