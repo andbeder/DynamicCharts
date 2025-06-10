@@ -22,22 +22,12 @@
                         onchange={handleNationChange}></lightning-dual-listbox>
                     </td>
                     <td width="25%">
-                        <lightning-dual-listbox name="season"
-                        label="Season"
-                        source-label="Available"
-                        selected-label="Selected"
-                        field-level-help="Select Seasons to filter to"
-                        options={seasonOptions}
-                        onchange={handleSeasonChange}></lightning-dual-listbox>
+                        <c-multi-select-picklist label="Season" query={seasonQueryString}
+                            value={seasonSelections} onchange={handleSeasonChange}></c-multi-select-picklist>
                     </td>
                     <td>
-                        <lightning-combobox
-                            name="progress"
-                            label="Ski"
-                            value="in all"
-                            placeholder="Select Ski"
-                            options={skiOptions}
-                            onchange={handleSkiChange}></lightning-combobox>
+                        <c-multi-select-picklist label="Ski" default-options={skiOptions}
+                            value={skiSelections} max-selections="1" onchange={handleSkiChange}></c-multi-select-picklist>
                     </td>
                 </tr>
                 <tr>
