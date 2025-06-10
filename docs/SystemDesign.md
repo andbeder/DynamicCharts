@@ -43,7 +43,9 @@ The project follows the Salesforce DX structure with source located under `force
 6. Updating filters triggers `filtersUpdated`, which refreshes every chart with new query data.
 
 ## Dependencies
-- **ApexCharts**: Loaded from the static resource `ApexCharts` at runtime.
+- **ApexCharts**: Loaded from the static resource `ApexCharts` at runtime. The library
+  is cached with a shared promise so it loads only once, preventing `Apex._chartInstances`
+  errors when the component renders multiple times.
 - **lightning/analyticsWaveApi**: Provides `getDatasets` and `executeQuery` wire adapters.
 - **Salesforce LWC**: Standard library for creating Lightning Web Components.
 
