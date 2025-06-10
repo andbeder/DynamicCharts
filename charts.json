@@ -1,0 +1,39 @@
+{
+  "charts": [
+    {
+      "dashboard": "CR_02",
+      "id": "chartA",
+      "type": "bar",
+      "title": "Climbs by Nation",
+      "fieldMappings": {
+        "nation": "Nation",
+        "Climbs": "Climbs"
+      },
+      "saql": "q = load \"<datasetId>\";\n<filters>\nq = group q by 'nation';\nq = foreach q generate q.'nation' as nation, count(q) as Climbs;\nq = order q by 'Climbs' desc;\nq = limit q 20;",
+      "style": {
+        "seriesColors": "default",
+        "font": "default",
+        "effects": []
+      }
+    },
+    {
+      "dashboard": "CR_02",
+      "id": "chartC",
+      "type": "box-and-whisker",
+      "title": "Total Days to Summit (Box Plot)",
+      "fieldMappings": {
+        "peakid": "Peak ID",
+        "A": "Min",
+        "B": "Q1",
+        "C": "Q3",
+        "D": "Max"
+      },
+      "saql": "q = load \"<datasetId>\";\n<filters>\nq = group q by 'peakid';\nq = foreach q generate q.'peakid' as peakid, min(q.'totdays') as A, percentile_disc(0.25) within group (order by q.'totdays') as B, percentile_disc(0.75) within group (order by q.'totdays') as C, max(q.'totdays') as D;\nq = limit q 20;",
+      "style": {
+        "seriesColors": "default",
+        "font": "default",
+        "effects": []
+      }
+    }
+  ]
+}
