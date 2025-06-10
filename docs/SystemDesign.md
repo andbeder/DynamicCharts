@@ -34,7 +34,7 @@ The project follows the Salesforce DX structure with source located under `force
 - **dynamicCharts.html**: Presents filter controls and five chart containers arranged in multiple cards.
 - **dynamicCharts.js-meta.xml**: Exposes the component to App, Record, and Home pages.
 - **DPOStateMachine.cls**: Placeholder Apex class reserved for future enhancements or server-side processing.
-- **charts.json**: Generated from the LWC to list supported charts. Primary charts (`ClimbsByNation`, `TimeByPeak`, and `DaysPerPeak`) are included, while `AO` variants are ignored.
+- **charts.json**: Generated from the CRM Analytics dashboards to list supported charts. Primary charts are included, while `AO` variants are ignored.
 
 ## Data Flow
 

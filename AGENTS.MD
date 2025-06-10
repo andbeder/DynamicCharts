@@ -42,7 +42,7 @@ staticresources/
    * Install Salesforce CLI:
 
      ```bash
-     npm install -g @salesforce/cli
+     npm install -g @salesforce/cli --silent
      ```
 3. **Authentication & Org**:
 
@@ -92,172 +92,258 @@ staticresources/
 
 ### sfdcAuthorizer
 
-* **Description**: Installs required Salesforce CLI plugins and authenticates into the target org using JWT.
-* **Behavior**:
+   **Description**:  
+   Installs required Salesforce CLI plugins and authenticates into the target Salesforce org using JWT-based authorization.
 
-  1. Installs Salesforce CLI globally:
+   **Behavior**:
 
-     ```bash
-     npm install -g @salesforce/cli --silent
-     ```
-  2. Logs into Salesforce via JWT:
+   1. Installs Salesforce CLI globally:
 
-     ```bash
-     sf org login jwt \
-       -i 3MVG9XgkMlifdwVAA3YLU.YAgszhXc3HIDrpHaKyzpUhgusGKYXhm92lAgKYPvfviYQmosjdr.FqBtXfe.UB_ \
-       --jwt-key-file ./jwt.key \
-       --username andbeder@gmail.com \
-       --alias myJwtOrg \
-       --instance-url https://mcicvermont7-dev-ed.develop.my.salesforce.com \
-       --set-default
-     ```
-* **Preconditions**:
+      ```bash
+      npm install -g @salesforce/cli --silent
+      ```
 
-  * `jwt.key` file exists in project root.
-  * npm and Node.js are installed.
-* **Output**: Salesforce CLI ready in PATH, default org alias `myJwtOrg` is authenticated.
+   2. Logs into Salesforce using JWT authentication:
+
+      ```bash
+      sf org login jwt \
+      -i 3MVG9XgkMlifdwVAA3YLU.YAgszhXc3HIDrpHaKyzpUhgusGKYXhm92lAgKYPvfviYQmosjdr.FqBtXfe.UB_ \
+      --jwt-key-file ./jwt.key \
+      --username andbeder@gmail.com \
+      --alias myJwtOrg \
+      --instance-url https://mcicvermont7-dev-ed.develop.my.salesforce.com \
+      --set-default
+      ```
+
+   **Preconditions**:
+
+   - `jwt.key` file exists in the project root.
+   - Node.js and npm are installed.
+
+   **Output**:  
+   Salesforce CLI is globally available in the PATH, and the default org alias `myJwtOrg` is authenticated and ready.
+
+   ---
 
 ### dashboardRetriever
 
-* **Description**: Retrieves the CRM Analytics dashboard JSON definition (editable `state`) from Salesforce.
-* **Inputs**:
+   **Description**:  
+   Retrieves the editable `state` JSON definition of a CRM Analytics dashboard from Salesforce.
 
-  * `dashboardApiName`: DeveloperName of the dashboard.
-* **Behavior**:
+   **Inputs**:
 
-  1. Ensures `sfdcAuthorizer` has run to authenticate.
-  2. Queries `WaveDashboard` to get `Id`:
+   - `dashboardApiName`: The `DeveloperName` of the target dashboard.
 
-     ```bash
-     sf data query --query "SELECT Id FROM WaveDashboard WHERE DeveloperName='${dashboardApiName}'" --json
-     ```
-  3. Fetches full dashboard definition via REST API:
+   **Behavior**:
 
-     ```bash
-     sf rest /services/data/v60.0/wave/dashboards/${dashboardId}
-     ```
-  4. Extracts `state` from response and saves:
+   1. Confirms authenticated session via `sfdcAuthorizer`.
+   2. Queries Salesforce to retrieve the dashboard ID:
 
-     * Path: `dashboards/${dashboardApiName}.json`
-  5. Reports success or failure.
-* **Preconditions**:
+      ```bash
+      sf data query --query "SELECT Id FROM WaveDashboard WHERE DeveloperName='${dashboardApiName}'" --json
+      ```
 
-  * Authenticated org via `sfdcAuthorizer`.
-  * `dashboards/` directory exists or is created.
+   3. Fetches the full dashboard definition using the REST API:
+
+      ```bash
+      sf rest /services/data/v60.0/wave/dashboards/${dashboardId}
+      ```
+
+   4. Extracts the `state` object from the response and saves it to:
+
+      - `dashboards/${dashboardApiName}.json`
+
+   5. Reports success or failure after the operation.
+
+   **Preconditions**:
+
+   - Salesforce org is authenticated via `sfdcAuthorizer`.
+   - The `dashboards/` directory exists or is automatically created if missing.
 
 ### dashboardReader
 
-* **Description**: Parses dashboard JSON to extract chart definitions.
-* **Behavior**:
+  **Description**  
+  Parses Salesforce dashboard JSON files to extract structured chart definitions compatible with ApexCharts. Produces normalized entries in `charts.json` that are consumable by Lightning Web Components (LWC).
 
-  * Reads `dashboards/${dashboardApiName}.json`.
-  * Creates JSON chart definition based on `CHART_JSON_DEFINITION.MD`
-  * Updates dashboard entries in `charts.json` to reflect new state
+  **Behavior**  
+  - Reads input from `dashboards/${dashboardApiName}.json`
+  - Applies parsing rules defined in `DASHBOARD_PARSING_INSTRUCTIONS.MD`
+  - Outputs chart definitions to `charts.json`, replacing or appending entries by `chart.id`
+
+  **Assumptions**  
+  - `title` is converted to kebab-case and used as `chart.id`
+  - `subtitle` contains chart config as semi-colon-separated key-value pairs
+  - Color names not in the defined scheme are treated as valid CSS colors
+
+  **Error Handling**  
+  - Skips and logs any chart definitions that are missing required fields or contain invalid subtitle metadata
+  - Handles missing dashboard files or unrecognized steps gracefully
+
+  **Dependencies**  
+  - `DASHBOARD_PARSING_INSTRUCTIONS.MD`
+  - `charts.json` (output file)
+
 
 ### lwcReader
 
-* **Description**: Parses LWC components and writes `charts.json`
-* **Behavior**
+  **Description**  
+  Parses Lightning Web Components (LWCs) to reverse-engineer and regenerate `charts.json` definitions based on existing chart configurations used in code.
 
-  * Reads LWC files
-  * Parses out charts, ignoring AO charts
-  * Writes `charts.json` based on `CHART_JSON_DEFINITION.MD`
+  **Behavior**  
+  - Scans the LWC component directory for references to chart components
+  - Identifies and extracts relevant chart metadata
+  - Ignores ambient or auxiliary charts (e.g., those marked as "AO" or not tied to visualizations)
+  - Writes structured chart definitions to `charts.json` using the rules defined in `CHART_JSON_DEFINITION.MD`
 
-### updateAnalyzer
+  **Assumptions**  
+  - Each chart component contains sufficient metadata to reconstruct chart definitions
+  - Chart IDs are inferred from component usage and matched against internal naming conventions
+  - Color and display properties are aligned with those specified in the subtitle format
 
-* **Description**: Analyzes chart content of `charts.json` based on `CHART_JSON_DEFINITION.MD` and compares it against the existing code base.
-* **Behavior**:
+  **Error Handling**  
+  - Logs and skips malformed chart references or components lacking necessary metadata
+  - Avoids overwriting valid `charts.json` entries unless explicitly matched by chart ID
 
-  * Reads `charts.json` and parses chart metadata
-  * Analyzes current state of LWC files
-  * Recommends changes to the LWC
+  **Dependencies**  
+  - LWC component files (source of truth)
+  - `CHART_JSON_DEFINITION.MD` (parsing rules)
+  - `charts.json` (output file)
 
-### chartBuilder
 
-* **Description**: Updates LWC component with the charts from `updateAnalyzer`.
-* **Behavior**:
+### chartSynchronizer
 
-  * Adds or updates `<div>` containers in `dynamicCharts.html`.
-  * Injects SAQL queries and series into `dynamicCharts.js`.
-  * Ensures filter hooks and Lightning markup consistency.
+**Description**:  
+Synchronizes the `dynamicCharts` Lightning Web Component (LWC) with chart definitions in `charts.json`, ensuring consistency across metadata, HTML markup, and JavaScript logic.
 
-### lwcRefector
+**Behavior**:
 
-* **Description**: Updates LWC component based on instructions from codex.
-* **Behavior**:
+- **Analyze & Compare**:
+  - Parses chart metadata from `charts.json` using the `CHART_JSON_DEFINITION.MD` specification.
+  - Scans the current LWC source files (`dynamicCharts.html` and `dynamicCharts.js`) to detect missing, outdated, or misaligned chart elements.
 
-  * Creates new LWC components.
-  * Refectors existing LWC components.
-  * Ensures code transparency, efficiency and reliability.
+- **Update & Inject**:
+  - Adds or updates `<div>` containers in `dynamicCharts.html` to reflect each chart specified in `charts.json`.
+  - For each chart, creates two versions:
+    - A primary version based on selected filter values.
+    - An AO (Alternate Output) version that applies inverse logic for the `host` and `nation` filters.
+  - Injects or updates SAQL query strings and chart rendering logic in `dynamicCharts.js`.
+  - Ensures charts are correctly wired to filter change events and that rendering hooks are consistent across chart types.
+  - Applies style configurations and series formatting as defined in `charts.json`.
+
+**Outcome**:  
+Ensures the `dynamicCharts` component remains fully synchronized with the central chart metadata file, supporting scalable updates and minimizing manual intervention.
+
+### lwcRefactor
+
+  **Description**:  
+  Refactors and generates Lightning Web Components (LWC) based on codex-driven instructions to improve maintainability, performance, and scalability.
+
+  **Behavior**:
+
+  - Creates new LWC components based on defined architecture or codex output.
+  - Refactors existing LWC components to align with best practices.
+  - Optimizes for code readability, modularity, and performance.
+  - Ensures resulting code is transparent, efficient, and reliable.
+
+  ---
 
 ### lwcTester
 
-* **Description**: Test LWC Components to ensure reliability.
-* **Behavior**:
+  **Description**:  
+  Validates Lightning Web Components by executing Jest-based unit tests to ensure functional reliability and deployment readiness.
 
-  1. Ensures `sfdcAuthorizer` has run to authenticate.
-  2. Loads Jest plugin for SF:
+  **Behavior**:
 
-     ```bash
-     npm install --save-dev sfdx-lwc-jest
-     ```
-  3. Develops testing scripts
-  4. Executes Tests
-  5. Reports success or failure.
+  1. Verifies that the org is authenticated via `sfdcAuthorizer`.
+  2. Installs the Salesforce Jest testing plugin (if not already present):
 
-* **Preconditions**:
+    ```bash
+    npm install --save-dev sfdx-lwc-jest --silent
+    ```
 
-  * Authenticated org via `sfdcAuthorizer`.
+  3. Generates or updates Jest test scripts for the target LWC components.
+  4. Executes the full test suite.
+  5. Captures and reports test outcomes, including success/failure diagnostics.
+
+  **Preconditions**:
+
+  - An authenticated Salesforce org via `sfdcAuthorizer`.
+
 
 ### sfdcDeployer
 
-* **Description**: Deploys the updated LWC code to Salesforce.
-* **Behavior**:
+   **Description**:  
+   Deploys the updated LWC codebase to a Salesforce org and validates the deployment through automated tests and optional linting.
 
-  1. Ensures `sfdcAuthorizer` has run.
-  2. Deploys source:
+   **Behavior**:
 
-     ```bash
-     sf project deploy start --source-dir force-app
-     ```
-  3. Opens org for verification:
+   1. Confirms authentication via `sfdcAuthorizer`.
+   2. Deploys source code from the `force-app` directory:
 
-     ```bash
-     sf org open
-     ```
-  4. Runs local unit tests:
+      ```bash
+      sf project deploy start --source-dir force-app
+      ```
 
-     ```bash
-     npm run test:unit
-     ```
-  5. Optionally runs lint:
+   3. Opens the Salesforce org for visual verification:
 
-     ```bash
-     npm run lint
-     ```
-* **Preconditions**:
+      ```bash
+      sf org open
+      ```
 
-  * Installed CLI Plugins and Authenticated org via `sfdcAuthorizer`.
-  * Node.js, npm, and Salesforce CLI installed.
-  * `force-app/` directory present.
+   4. Executes local unit tests to validate the deployed code:
+
+      ```bash
+      npm run test:unit
+      ```
+
+   5. Optionally runs linting checks:
+
+      ```bash
+      npm run lint
+      ```
+
+   **Preconditions**:
+
+   - Salesforce CLI and Node.js installed.
+   - Required CLI plugins installed.
+   - Authenticated Salesforce org via `sfdcAuthorizer`.
+   - `force-app/` directory exists and is correctly configured.
 
 ## Workflows
 
-### Chart update Workflow
+### 📈 Chart Update Workflow
 
-1. **User Request**: "Please read the dashboard `CR-02` and use it to refactor the LWC code, and push it to the org."
-2. **Agent Chain**:
+  **User Request**:  
+  _"Please read the dashboard `CR-02` and use it to refactor the LWC code, and push it to the org."_
 
-  1. `sfdcAuthorizer` installs jest, sf plugin and authorizes org
-  2. `dashboardRetriever` finds the dashboard, downloads the current version and saves the STATE locally
-  3. `dashboardReader` parses the dashboard JSON, isolates charts and updates charts.json based on them.
-  4. `chartBuilder` analyzes the LWC and charts.json, determines changes and makes them
-  5. `lwcTester` validates the code and functionality
-  6. `sfdcDeployer` pushes changes to org
+  **Agent Sequence**:
 
-### JSON Engineer Workflow
+  1. **`sfdcAuthorizer`**  
+    Installs required Salesforce CLI plugins and authenticates into the target org.
 
-1. **User Request**: "Please refactor `charts.json` based on LWC"
-2. ** Agent Chain**:
+  2. **`dashboardRetriever`**  
+    Retrieves the `CR-02` dashboard from Salesforce and saves its editable `state` as a JSON file.
 
-  1. `lwcReader`: Parses LWC components and reverse-engineers `charts.json`
+  3. **`dashboardReader`**  
+    Parses the downloaded dashboard JSON and generates normalized chart definitions into `charts.json`.
+
+  4. **`chartSynchronizer`**  
+    Compares `charts.json` with existing LWC code and updates `dynamicCharts.html` and `dynamicCharts.js` accordingly.
+
+  5. **`lwcTester`**  
+    Runs Jest-based unit tests to validate correctness of the updated LWC implementation.
+
+  6. **`sfdcDeployer`**  
+    Deploys the updated LWC code to the authenticated Salesforce org and opens the org for manual verification.
+
+  ---
+
+### 🧠 JSON Engineer Workflow
+
+  **User Request**:  
+  _"Please refactor `charts.json` based on the LWC."_
+
+  **Agent Sequence**:
+
+  1. **`lwcReader`**  
+    Scans the existing LWC components, reverse-engineers chart configurations, and updates `charts.json` using metadata extracted from the code.

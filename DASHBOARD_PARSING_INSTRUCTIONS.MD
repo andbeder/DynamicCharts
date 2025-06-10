@@ -1,12 +1,22 @@
-# dashboard_parsing_instructions.md
+# DASHBOARD_PARSING_INSTRUCTIONS.MD
 
 ## Dashboard Layout
 
-* Dashboards are divided in the layout into two columns
-* The left column holds a chart, the right a text area containing notes for that chart
-* The style of the chart is not important, only the query, dimensions and measures selected
-* The chart type, title, colors, etc. are contained in the chart notes
-* The title of the chart on the left is meant to be used as the chart ID in the json file, this allows is to control the mapping between charts in dashboards and charts in LWC components
+1. **Layout Matters** The order of the layout, as indicated by the `column` value of the layout object, indicates the order the chart is to appear in the JSON list
+2. **Chart Title** The title of the chart is used as the chart ID in the json file, this allows is to control the mapping between charts in dashboards and charts in LWC components. The title will be in kebab-case.
+3. **Widget** Only specific details of the widget are important:
+
+    Extract the following from the widget object:
+    - `step` indicating which query to examine
+    - `dimensions` which are shown and which are hidden
+    Ignore all other fields.
+4. **Step** Read the step as a SAQL query. If it is in compact format, convert to a SAQL query
+5. **Subtitle** Contains instructions for setting up the ApexCharts chart type and styling.
+
+    * Subtitle Format:
+        - Semi-colon separated fields: `type=bar; colors=red,blue; title=Monthly Revenue; x-axis-font-size=10pt; y-axis-font-size=10pt; font-color=dark grey`
+
+6. **Color Schema** Use the `Color Schema` below to map color names to specific hex values. Any colors not mentioned should be assumed to be CSS colors and passed through as they are
 
 ## Color Scheme
 
