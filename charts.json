@@ -4,23 +4,23 @@
       "dashboard": "CR_02",
       "id": "ClimbsByNation",
       "type": "bar",
-      "title": "Climbs by Nation",
+      "title": "Top 20 Climbs by Nation",
       "fieldMappings": {
         "nation": "Nation",
         "Climbs": "Climbs"
       },
       "saql": "q = load \"<datasetId>\";\n<filters>\nq = group q by 'nation';\nq = foreach q generate q.'nation' as nation, count(q) as Climbs;\nq = order q by 'Climbs' desc;\nq = limit q 20;",
       "style": {
-        "seriesColors": "default",
+        "seriesColors": "#002060",
         "font": "default",
-        "effects": []
+        "effects": ["shadow"]
       }
     },
     {
       "dashboard": "CR_02",
       "id": "TimeByPeak",
       "type": "box-and-whisker",
-      "title": "Total Days to Summit (Box Plot)",
+      "title": "Days per Peak by Top 20 Climbs",
       "fieldMappings": {
         "peakid": "Peak ID",
         "A": "Min",
@@ -30,9 +30,9 @@
       },
       "saql": "q = load \"<datasetId>\";\n<filters>\nq = group q by 'peakid';\nq = foreach q generate q.'peakid' as peakid, min(q.'totdays') as A, percentile_disc(0.25) within group (order by q.'totdays') as B, percentile_disc(0.75) within group (order by q.'totdays') as C, max(q.'totdays') as D;\nq = limit q 20;",
       "style": {
-        "seriesColors": "default",
+        "seriesColors": "#97C1DA,#002060",
         "font": "default",
-        "effects": []
+        "effects": ["shadow"]
       }
     },
     {
@@ -52,6 +52,23 @@
         "seriesColors": "default",
         "font": "default",
         "effects": []
+      }
+    }
+    ,
+    {
+      "dashboard": "CR_02",
+      "id": "CampsByPeak",
+      "type": "bar",
+      "title": "Average Number of Camps per Peak",
+      "fieldMappings": {
+        "peakid": "Peak ID",
+        "A": "Average Camps"
+      },
+      "saql": "q = load \"<datasetId>\";\n<filters>\nq = group q by 'peakid';\nq = foreach q generate q.'peakid' as peakid, avg(q.'camps') as A;\nq = order q by A desc;\nq = limit q 20;",
+      "style": {
+        "seriesColors": "#175F68",
+        "font": "default",
+        "effects": ["shadow"]
       }
     }
   ]
