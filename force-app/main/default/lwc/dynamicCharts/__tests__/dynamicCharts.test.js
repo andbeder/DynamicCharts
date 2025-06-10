@@ -12,6 +12,10 @@ beforeAll(() => {
     global.ApexCharts = jest.fn(() => ({ render: jest.fn(), updateOptions: jest.fn() }));
 });
 
+beforeEach(() => {
+    global.fetch = jest.fn(() => Promise.resolve({ json: () => Promise.resolve({}) }));
+});
+
 describe('c-dynamic-charts', () => {
     afterEach(() => {
         // The jsdom instance is shared across test cases in a single file so reset the DOM
@@ -87,5 +91,27 @@ describe('c-dynamic-charts', () => {
         element.onClimbsByCountry({ data: { results: { records: [] } }, error: undefined });
 
         expect(element.chartObject.ClimbsByCountry.updateOptions).not.toHaveBeenCalled();
+    });
+
+    it('uses metadata titles when updating charts', () => {
+        global.fetch = jest.fn(() => Promise.resolve({ json: () => Promise.resolve({
+            ClimbsByCountry: { title: 'Meta Title' }
+        }) }));
+
+        const element = createElement('c-dynamic-charts', {
+            is: DynamicCharts
+        });
+        document.body.appendChild(element);
+
+        element.chartObject.ClimbsByCountry = {
+            updateOptions: jest.fn()
+        };
+
+        return Promise.resolve()
+            .then(() => Promise.resolve())
+            .then(() => {
+                element.onClimbsByCountry({ data: { results: { records: [{ nation: 'A', Climbs: 1 }] } }, error: undefined });
+                expect(element.chartObject.ClimbsByCountry.updateOptions.mock.calls[0][0].title.text).toBe('Meta Title');
+            });
     });
 });

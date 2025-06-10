@@ -41,7 +41,7 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - Code shall be written in modern JavaScript and Apex standards to ease future modifications.
 4. **Extensibility**
    - The system should allow additional chart types and datasets to be introduced with minimal code changes.
-   - Chart metadata shall be maintained in `config/chartRequirements.json` so that chart options persist across iterations.
+   - Chart metadata shall be maintained in the `config/charts.json` file and deployed as a static resource so that chart options persist across iterations.
 
 ## Out of Scope
 - Complex state management beyond the provided filters.

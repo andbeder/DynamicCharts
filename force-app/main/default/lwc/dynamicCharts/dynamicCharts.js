@@ -1,6 +1,7 @@
 import { LightningElement, wire } from 'lwc';
 import { getDatasets, executeQuery } from 'lightning/analyticsWaveApi';
 import apexchartJs from '@salesforce/resourceUrl/ApexCharts';
+import chartsUrl from '@salesforce/resourceUrl/charts';
 import { loadScript } from 'lightning/platformResourceLoader';
 
 let apexChartsLoaded = false;
@@ -8,6 +9,8 @@ let apexChartsPromise;
 
 export default class SacCharts extends LightningElement {
     datasetIds;
+
+    chartMetadata;
 
     hostSelections = [];
     nationSelections = [];
@@ -21,6 +24,18 @@ export default class SacCharts extends LightningElement {
         { label: 'Yes', value: '== "Yes"' },
         { label: 'No', value: '== "No"' }
     ];
+
+    connectedCallback() {
+        fetch(chartsUrl)
+            .then(response => response.json())
+            .then(data => {
+                this.chartMetadata = data;
+            })
+            .catch(error => {
+                // eslint-disable-next-line no-console
+                console.error('Failed to load chart metadata', error);
+            });
+    }
 
     chartObject = {};
     chartsInitialized = false;
@@ -160,7 +175,11 @@ export default class SacCharts extends LightningElement {
                 values.push(r.Climbs);
             });
             const options = { ...this.barChartOptions };
-            options.title = { text: 'Climbs By Country' };
+            const meta = this.chartMetadata?.ClimbsByCountry;
+            options.title = { text: meta ? meta.title : 'Climbs By Country' };
+            if (meta && meta.colors) {
+                options.colors = meta.colors;
+            }
             options.xaxis.categories = labels;
             options.series = [{ name: 'Climbs', data: values }];
             if (this.chartObject.ClimbsByCountry) {
@@ -179,7 +198,11 @@ export default class SacCharts extends LightningElement {
                 values.push(r.Climbs);
             });
             const options = { ...this.barChartOptions };
-            options.title = { text: 'Climbs By Country (All Other)' };
+            const meta = this.chartMetadata?.ClimbsByCountryAO;
+            options.title = { text: meta ? meta.title : 'Climbs By Country (All Other)' };
+            if (meta && meta.colors) {
+                options.colors = meta.colors;
+            }
             options.xaxis.categories = labels;
             options.series = [{ name: 'Climbs', data: values }];
             if (this.chartObject.ClimbsByCountryAO) {
@@ -202,8 +225,12 @@ export default class SacCharts extends LightningElement {
                 ]
             }));
             const options = { ...this.boxPlotOptions };
+            const meta = this.chartMetadata?.TotalTimeByPeak;
             options.series = [{ name: 'Days', data: records }];
-            options.title = { text: 'Total Time By Peak' };
+            options.title = { text: meta ? meta.title : 'Total Time By Peak' };
+            if (meta && meta.colors) {
+                options.colors = meta.colors;
+            }
             if (this.chartObject.TotalTimeByPeak) {
                 this.chartObject.TotalTimeByPeak.updateOptions(options);
             }
@@ -224,8 +251,12 @@ export default class SacCharts extends LightningElement {
                 ]
             }));
             const options = { ...this.boxPlotOptions };
+            const meta = this.chartMetadata?.TotalTimeByPeakAO;
             options.series = [{ name: 'Days', data: records }];
-            options.title = { text: 'Total Time By Peak (All Other)' };
+            options.title = { text: meta ? meta.title : 'Total Time By Peak (All Other)' };
+            if (meta && meta.colors) {
+                options.colors = meta.colors;
+            }
             if (this.chartObject.TotalTimeByPeakAO) {
                 this.chartObject.TotalTimeByPeakAO.updateOptions(options);
             }

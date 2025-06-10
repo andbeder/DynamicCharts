@@ -32,7 +32,7 @@ The project follows the Salesforce DX structure with source located under `force
 - **dynamicCharts.js-meta.xml**: Exposes the component to App, Record, and Home pages.
 - **multiSelectPicklist**: Reusable search-based picklist used for the Season and Ski filters. The component now infers option labels from the first field in wire results when `label` is not provided.
 - **DPOStateMachine.cls**: Placeholder Apex class reserved for future enhancements or server-side processing.
-- **chartRequirements.json**: Defines chart metadata such as type, dimensions, titles, colors, and effects used by the LWC.
+- **charts.json** static resource: Defines chart metadata such as type, dimensions, titles, colors, and effects used by the LWC.
 
 ## Data Flow
 1. `getDatasets` retrieves dataset IDs when the component initializes.
