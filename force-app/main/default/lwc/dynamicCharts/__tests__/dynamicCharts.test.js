@@ -15,7 +15,7 @@ describe('c-dynamic-charts', () => {
         });
         document.body.appendChild(element);
 
-        const chartDiv = element.shadowRoot.querySelector('div.chart1');
+        const chartDiv = element.shadowRoot.querySelector('div.ClimbsByNation');
         expect(chartDiv).not.toBeNull();
     });
 
@@ -25,7 +25,7 @@ describe('c-dynamic-charts', () => {
         });
         document.body.appendChild(element);
 
-        const chartDiv = element.shadowRoot.querySelector('div.chart2');
+        const chartDiv = element.shadowRoot.querySelector('div.ClimbsByNationAO');
         expect(chartDiv).not.toBeNull();
     });
 
@@ -35,8 +35,8 @@ describe('c-dynamic-charts', () => {
         });
         document.body.appendChild(element);
 
-        const chart3 = element.shadowRoot.querySelector('div.chart3');
-        const chart4 = element.shadowRoot.querySelector('div.chart4');
+        const chart3 = element.shadowRoot.querySelector('div.TimeByPeak');
+        const chart4 = element.shadowRoot.querySelector('div.TimeByPeakAO');
         expect(chart3).not.toBeNull();
         expect(chart4).not.toBeNull();
     });

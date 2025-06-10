@@ -23,7 +23,7 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - Chart data shall refresh whenever the user updates filter selections and clicks **Render**.
 5. **User Interface**
    - The component shall expose a Lightning App Page, Record Page, and Home Page target as defined in the metadata file.
-   - Chart content shall appear within `<lightning-card>` containers that include four `<div>` elements with classes `chart1`, `chart2`, `chart3`, and `chart4`.
+   - Chart content shall appear within `<lightning-card>` containers that include four `<div>` elements with classes `ClimbsByNation`, `ClimbsByNationAO`, `TimeByPeak`, and `TimeByPeakAO`.
 6. **Compatibility**
    - The application shall be compatible with Salesforce API version 59.0 as specified in the `sfdx-project.json` configuration.
 
