@@ -92,17 +92,12 @@ staticresources/
 * **Description**: Installs required Salesforce CLI plugins and authenticates into the target org using JWT.
 * **Behavior**:
 
-  1. Installs LWC Jest plugin:
-
-     ```bash
-     npm install --save-dev sfdx-lwc-jest
-     ```
-  2. Installs Salesforce CLI globally:
+  1. Installs Salesforce CLI globally:
 
      ```bash
      npm install -g @salesforce/cli
      ```
-  3. Logs into Salesforce via JWT:
+  2. Logs into Salesforce via JWT:
 
      ```bash
      sf org login jwt \
