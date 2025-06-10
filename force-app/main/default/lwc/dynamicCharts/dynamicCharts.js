@@ -23,6 +23,7 @@ export default class SacCharts extends LightningElement {
     ];
 
     chartObject = {};
+    chartsInitialized = false;
 
     @wire(getDatasets, {
         datasetTypes: ['Default', 'Live'],
@@ -232,6 +233,10 @@ export default class SacCharts extends LightningElement {
     }
 
     renderedCallback() {
+        if (this.chartsInitialized) {
+            return;
+        }
+        this.chartsInitialized = true;
         if (!this.chartObject.ClimbsByCountry) {
             this.initChart('#ClimbsByCountry', this.barChartOptions, 'ClimbsByCountry');
         }

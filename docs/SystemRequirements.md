@@ -18,6 +18,7 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - Filters shall be combined using the `filter q by` SAQL syntax.
 4. **Chart Rendering**
    - The system shall load the ApexCharts library from a static resource and cache it with a shared promise so it is loaded only once, preventing `Apex._chartInstances` errors.
+   - Charts shall be initialized only on the first render to avoid duplicate ApexCharts instances when the component rerenders.
    - Two bar charts and two box plots shall be displayed side by side in pairs.
    - The first chart in each pair shall use the selected filters directly.
    - The second chart in each pair shall apply the inverse of the `host` and `nation` filters while honoring `season` and `ski` selections.
