@@ -1,0 +1,14 @@
+1. In dynamicCharts.js, update ClimbsByNation dashboard from "Unknown" to "CR_02".
+2. In dynamicCharts.js, update ClimbsByNation title from "Climbs By Nation" to "Top 20 Climbs by Nation".
+3. In dynamicCharts.js, update ClimbsByNation fieldMappings from {"nation":"nation","Climbs":"Climbs"} to {"nation":"Nation","Climbs":"Climbs"}.
+4. In dynamicCharts.js, update ClimbsByNation style from {"seriesColors":"default","font":"default","effects":[]} to {"seriesColors":"#002060","font":"default","effects":["shadow"]}.
+5. In dynamicCharts.js, update TimeByPeak dashboard from "Unknown" to "CR_02".
+6. In dynamicCharts.js, update TimeByPeak title from "Time By Peak" to "Days per Peak by Top 20 Climbs".
+7. In dynamicCharts.js, update TimeByPeak fieldMappings from {"peakid":"peakid","A":"A","B":"B","C":"C","D":"D"} to {"peakid":"Peak ID","A":"Min","B":"Q1","C":"Q3","D":"Max"}.
+8. In dynamicCharts.js, update TimeByPeak style from {"seriesColors":"default","font":"default","effects":[]} to {"seriesColors":"#97C1DA,#002060","font":"default","effects":["shadow"]}.
+9. In dynamicCharts.js, update CampsByPeak dashboard from "Unknown" to "CR_02".
+10. In dynamicCharts.js, update CampsByPeak title from "Camps By Peak" to "Average Number of Camps per Peak".
+11. In dynamicCharts.js, update CampsByPeak fieldMappings from {"peakid":"peakid","A":"A"} to {"peakid":"Peak ID","A":"Average Camps"}.
+12. In dynamicCharts.js, update CampsByPeak style from {"seriesColors":"default","font":"default","effects":[]} to {"seriesColors":"#175F68","font":"default","effects":["shadow"]}.
+13. Remove the <div class='chart-DaysPerPeak'>...</div> block from dynamicCharts.html.
+14. Remove the corresponding SAQL and render call for DaysPerPeak in dynamicCharts.js.
