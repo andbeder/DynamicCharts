@@ -15,53 +15,86 @@ All agent implementations live under `scripts/agents/`, with per-agent documenta
 | **changeRequestGenerator** | `scripts/agents/changeRequestGenerator.js` | `docs/agents/changeRequestGenerator.md` |                       |
 | **syncCharts**             | `scripts/agents/syncCharts.js`             | `docs/agents/syncCharts.md`             |                       |
 | **lwcTester**              | `scripts/agents/lwcTester.js`              | `docs/agents/lwcTester.md`              |                       |
-| **sfdcDeployer**           | `scripts/agents/sfdcDeployer.js`           | `docs/agents/sfdcDeployer.md`           | fileciteturn0file0 |
+| **sfdcDeployer**           | `scripts/agents/sfdcDeployer.js`           | `docs/agents/sfdcDeployer.md`           |  |
 
 ## Workflows
 
 
 ### generate\:charts
 
-**Sequence**:
+   **Sequence**:
 
-1. **sfdcAuthorizer**
+   1. **sfdcAuthorizer**
 
-   * Authenticates with Salesforce and caches an access token.
-2. **dashboardRetriever**
+      * Authenticates with Salesforce and caches an access token.
+   2. **dashboardRetriever**
 
-   * Retrieves dashboard state JSON (e.g., `CR-02.json`).
-3. **dashboardReader**
+      * Retrieves dashboard state JSON (e.g., `CR-02.json`).
+   3. **dashboardReader**
 
-   * Parses dashboard JSON into normalized chart definitions and writes `charts.json`.
-4. **lwcReader**
+      * Parses dashboard JSON into normalized chart definitions and writes `charts.json`.
+   4. **lwcReader**
 
-   * Reads `charts.json` and generates LWC component files (`.js`, `.html`, `.js-meta.xml`).
-5. **changeRequestGenerator**
+      * Reads `charts.json` and generates LWC component files (`.js`, `.html`, `.js-meta.xml`).
+   5. **changeRequestGenerator**
 
-   * Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json`.
+      * Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json`.
 
-**Outputs**: `charts.json`, `changeRequests.json` fileciteturn0file0
+   **Outputs**: `charts.json`, `changeRequests.json` 
 
----
+   ---
 
 ### sync\:charts
 
-1. **syncCharts**
+   1. **syncCharts**
 
-   * Reads `changeRequests.json`.
-   * Applies AST transformations to update or remove chart markup and JS options in `dynamicCharts.html` and `dynamicCharts.js`.
+      * Reads `changeRequests.json`.
+      * Applies AST transformations to update or remove chart markup and JS options in `dynamicCharts.html` and `dynamicCharts.js`.
 
-**Outputs**: Updated LWC source files. fileciteturn0file0
+   **Outputs**: Updated LWC source files. 
 
----
+   ---
 
 ### deploy\:charts
 
-1. **lwcTester**
+   1. **lwcTester**
 
-   * Runs Jest unit tests (`npm run test:unit`) to validate updated components.
-2. **sfdcDeployer**
+      * Runs Jest unit tests (`npm run test:unit`) to validate updated components.
+   2. **sfdcDeployer**
 
-   * Deploys changes in `force-app/main/default` to the Salesforce org.
+      * Deploys changes in `force-app/main/default` to the Salesforce org.
 
-**Outputs**: Test reports and deployment logs. fileciteturn0file0
+**Outputs**: Test reports and deployment logs. 
+
+
+### end-to-emnd\:charts
+
+
+   1. **sfdcAuthorizer**
+
+      * Authenticates with Salesforce and caches an access token.
+   2. **dashboardRetriever**
+
+      * Retrieves dashboard state JSON (e.g., `CR-02.json`).
+   3. **dashboardReader**
+
+      * Parses dashboard JSON into normalized chart definitions and writes `charts.json`.
+   4. **lwcReader**
+
+      * Reads `charts.json` and generates LWC component files (`.js`, `.html`, `.js-meta.xml`).
+   5. **changeRequestGenerator**
+
+      * Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json`.
+   6. **syncCharts**
+
+      * Reads `changeRequests.json`.
+      * Applies AST transformations to update or remove chart markup and JS options in `dynamicCharts.html` and `dynamicCharts.js`.
+   7. **lwcTester**
+
+      * Runs Jest unit tests (`npm run test:unit`) to validate updated components.
+   8. **sfdcDeployer**
+
+      * Deploys changes in `force-app/main/default` to the Salesforce org.
+
+  **Outputs**: `charts.json`, `changeRequests.json`, Updated LWC source files. 
+
