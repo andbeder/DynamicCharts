@@ -343,26 +343,75 @@ Ensures the `dynamicCharts` component remains fully synchronized with the centra
 
 ### lwcTester
 
-  **Description**:  
-  Validates Lightning Web Components by executing Jest-based unit tests to ensure functional reliability and deployment readiness.
+**Description**  
+Validates Lightning Web Components by executing Jest-based unit and integration tests—mocked for speed and real-bundle tests for coverage—to ensure functional reliability and deployment readiness.
 
-  **Behavior**:
+**Behavior**
 
-  1. Verifies that the org is authenticated via `sfdcAuthorizer`.
-  2. Installs the Salesforce Jest testing plugin (if not already present):
+1. **Authenticate**  
+    - Verifies that the org is authenticated via `sfdcAuthorizer`.
 
-    ```bash
-    npm install --save-dev sfdx-lwc-jest --silent
-    ```
+  2. **Ensure test tooling is installed**  
+    - Installs Salesforce’s Jest plugin if missing:  
+      ```bash
+      npm install --save-dev sfdx-lwc-jest --silent
+      ```
+    - Installs the real ApexCharts bundle and a canvas mock for integration tests:  
+      ```bash
+      npm install --save-dev apexcharts jest-canvas-mock --silent
+      ```
 
-  3. Generates or updates Jest test scripts for the target LWC components.
-  4. Executes the full test suite.
-  5. Captures and reports test outcomes, including success/failure diagnostics.
+  3. **Configure Jest**  
+    - Adds or updates **jest.config.js**:
+      ```js
+      module.exports = {
+        // …existing config…
+        moduleNameMapper: {
+          '^apexcharts$': require.resolve('apexcharts'),
+          '@salesforce/resourceUrl/ApexCharts': '<rootDir>/node_modules/apexcharts/dist/apexcharts.min.js'
+        },
+        setupFilesAfterEnv: ['<rootDir>/jest.setup.js']
+      };
+      ```
+    - Creates **jest.setup.js** (if missing) with:
+      ```js
+      import 'jest-canvas-mock';
+      ```
 
-  **Preconditions**:
+  4. **Prepare resource-loader mock**  
+    - In `__mocks__/lightning/platformResourceLoader.js`, replace the stub with:
+      ```js
+      import ApexCharts from 'apexcharts';
 
-  - An authenticated Salesforce org via `sfdcAuthorizer`.
+      export function loadScript(context, url) {
+        window.ApexCharts = ApexCharts;
+        return Promise.resolve();
+      }
+      export function loadStyle() {
+        return Promise.resolve();
+      }
+      ```
+    - Remove any `__mocks__/apexcharts.js` so Jest uses the real package.
 
+  5. **Generate or update test scripts**  
+    - **Unit tests** continue to mock ApexCharts via `loadScript` and verify `new Chart(...)` calls.
+    - **Integration tests** instantiate the real bundle and assert rendered `<canvas>`/`<svg>` output and series counts.
+
+  6. **Run the suite**  
+    - Executes the full test suite:
+      ```bash
+      npm run test:unit
+      ```
+    - Waits for all promises (e.g. using `flush-promises`) so both mock-based and real-bundle tests complete.
+
+  7. **Report results**  
+    - Captures and reports pass/fail diagnostics, including any chart-rendering errors or mismatches in series count.
+
+  **Preconditions**
+
+  - An authenticated Salesforce org via `sfdcAuthorizer`.  
+  - A valid `jest.config.js` in the project root.  
+  - `__tests__` folder alongside each LWC with both unit and integration spec files.  
 
 ### sfdcDeployer
 
