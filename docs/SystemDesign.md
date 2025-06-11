@@ -35,6 +35,7 @@ The project follows the Salesforce DX structure with source located under `force
 ### Key Components
 
 - **dynamicCharts.js**: Core logic for loading datasets, handling filter selections, generating SAQL, cross-filtering available options, and rendering six charts with ApexCharts.
+- The component applies visual effects such as drop shadows based on chart settings to enhance chart readability.
 - **dynamicCharts.html**: Presents filter controls and six chart containers arranged in multiple cards.
 - **dynamicCharts.js-meta.xml**: Exposes the component to App, Record, and Home pages.
 - **DPOStateMachine.cls**: Placeholder Apex class reserved for future enhancements or server-side processing.
