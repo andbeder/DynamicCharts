@@ -8,39 +8,71 @@ function formatValue(value) {
   return JSON.stringify(value);
 }
 
+function toColorArray(value) {
+  return value.split(',').map((c) => `'${c}'`).join(', ');
+}
+
 function generateInstructions(changeRequestsPath, outputPath) {
   const data = fs.readFileSync(changeRequestsPath, 'utf8');
   const json = JSON.parse(data);
   const lines = [];
   let step = 1;
+
+  const addLine = (line) => {
+    lines.push(`${step}. ${line}`);
+    step += 1;
+  };
+
   json.changes.forEach((change) => {
     if (change.action === 'update' && Array.isArray(change.mismatches)) {
       change.mismatches.forEach((m) => {
-        lines.push(
-          `${step}. In ${change.targetFile}, update ${change.chartId} ${m.property} from ${formatValue(
-            m.currentValue
-          )} to ${formatValue(m.expectedValue)}.`
-        );
-        step += 1;
+        if (m.property === 'title') {
+          addLine(
+            `In ${change.targetFile}, update ${change.chartId} title using ` +
+              `chart.updateOptions({ title: { text: ${formatValue(m.expectedValue)} } });`
+          );
+        } else if (m.property === 'style') {
+          const cur = m.currentValue || {};
+          const exp = m.expectedValue || {};
+          if (exp.seriesColors && exp.seriesColors !== cur.seriesColors) {
+            addLine(
+              `In ${change.targetFile}, set ${change.chartId} ApexCharts option ` +
+                `\"colors\" to [${toColorArray(exp.seriesColors)}].`
+            );
+          }
+          if (exp.font && exp.font !== 'default' && exp.font !== cur.font) {
+            addLine(
+              `In ${change.targetFile}, set ${change.chartId} option ` +
+                `\"chart.fontFamily\" to ${formatValue(exp.font)}.`
+            );
+          }
+          if (
+            Array.isArray(exp.effects) &&
+            exp.effects.includes('shadow') &&
+            (!cur.effects || !cur.effects.includes('shadow'))
+          ) {
+            addLine(
+              `In ${change.targetFile}, enable drop shadow for ${change.chartId} by ` +
+                `setting chart.dropShadow options.`
+            );
+          }
+        } else {
+          addLine(
+            `In ${change.targetFile}, update ${change.chartId} ${m.property} from ` +
+              `${formatValue(m.currentValue)} to ${formatValue(m.expectedValue)}.`
+          );
+        }
       });
     } else if (change.action === 'remove') {
-      lines.push(
-        `${step}. Remove the <div class='chart-${change.chartId}'>...</div> block from dynamicCharts.html.`
+      addLine(
+        `Remove the <div class='chart-${change.chartId}'>...</div> block from dynamicCharts.html.`
       );
-      step += 1;
-      lines.push(
-        `${step}. Remove the corresponding SAQL and render call for ${change.chartId} in dynamicCharts.js.`
+      addLine(
+        `Remove the corresponding SAQL and render call for ${change.chartId} in dynamicCharts.js.`
       );
-      step += 1;
     } else if (change.action === 'add') {
-      lines.push(
-        `${step}. Add markup for ${change.chartId} to dynamicCharts.html.`
-      );
-      step += 1;
-      lines.push(
-        `${step}. Add initialization and rendering logic for ${change.chartId} in dynamicCharts.js.`
-      );
-      step += 1;
+      addLine(`Add markup for ${change.chartId} to dynamicCharts.html.`);
+      addLine(`Add initialization and rendering logic for ${change.chartId} in dynamicCharts.js.`);
     }
   });
 
