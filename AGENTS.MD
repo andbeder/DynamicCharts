@@ -514,7 +514,7 @@ Validates Lightning Web Components by executing Jest-based unit and integration 
   5. **`changeRequestGenerator`**  
     Compares `charts.json` vs. `revEngCharts.json` and emits `changeRequests.json` with per-chart, per-property add/remove/update instructions.
 
-  6. **`changeRequestGenerator`**  
+  6. **`changeRequestInterpreter`**  
     Reads `changeRequests.json` and generates a set of LWC developer instructions to be followed to apply the changes written to `changeRequestInstructions.txt`.
 
   7. **`chartSynchronizer`**  
@@ -632,3 +632,31 @@ Validates Lightning Web Components by executing Jest-based unit and integration 
 
   **Outcome**  
   Your Lightning Web Component is updated per the instructions, validated by tests, and deployed to the target org.  
+
+### 📈 Change Request Definition Workflow
+
+  **User Request**  
+    _"Please read the dashboard `CR-02`, generate developer instructions to apply."_
+
+  **Agent Sequence**:
+
+  1. **`sfdcAuthorizer`**  
+    Installs required Salesforce CLI plugins and authenticates into the target org.
+
+  2. **`dashboardRetriever`**  
+    Retrieves the `CR-02` dashboard from Salesforce and saves its editable `state` as `dashboards/CR-02.json`.
+
+  3. **`dashboardReader`**  
+    Parses `dashboards/CR-02.json` and writes the normalized chart definitions to `charts.json`.
+
+  4. **`lwcReader`**  
+    Reverse-engineers the existing `dynamicCharts` LWC and writes its live chart definitions to `revEngCharts.json`.
+
+  5. **`changeRequestGenerator`**  
+    Compares `charts.json` vs. `revEngCharts.json` and emits `changeRequests.json` with per-chart, per-property add/remove/update instructions.
+
+  6. **`changeRequestInterpreter`**  
+    Reads `changeRequests.json` and generates a set of LWC developer instructions to be followed to apply the changes written to `changeRequestInstructions.txt`.
+
+  **Outcome**  
+  `changeRequestInstructions.txt` has been generated with step-by-step instructions to apply the change request to any LWCs.
