@@ -11,6 +11,14 @@ Chart titles were updated in change request **CR-02**:
 - **Days per Peak by Top 20 Climbs**
 - **Average Number of Camps per Peak**
 
+Field labels and color schemes were also aligned with CR-02:
+
+- `ClimbsByNation` displays the `Nation` field using color `#002060` with a shadow.
+- `TimeByPeak` maps `Peak ID` and quartile fields and uses colors `#97C1DA,#002060`.
+- `CampsByPeak` maps `Peak ID` and `Average Camps` and uses color `#175F68`.
+
+The deprecated **DaysPerPeak** chart has been removed from the LWC implementation.
+
 The project follows the Salesforce DX structure with source located under `force-app/main/default` and uses `sfdx-lwc-jest` for unit testing.
 
 ## Architecture
