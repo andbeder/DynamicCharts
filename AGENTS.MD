@@ -228,6 +228,39 @@ staticresources/
   - `revEngCharts.json` (output file)
 
 
+### changeRequestGenerator
+
+  **Description**:  
+  Compares the authoritative chart definitions in `charts.json` against the reverse-engineered definitions in `revEngCharts.json` and generates a structured change-request file that details exactly how the `dynamicCharts` LWC must be updated to match `charts.json`.
+
+  **Behavior**:  
+  1. Load normalized definitions from `charts.json`.  
+  2. Load reverse-engineered definitions from `revEngCharts.json`.  
+  3. Diff the two sets by `chart.id`, classifying each difference as:
+    - **add**: present in `charts.json` but missing in `revEngCharts.json`.  
+    - **remove**: present in `revEngCharts.json` but missing in `charts.json`.  
+    - **update**: present in both but with mismatched properties (e.g. title, SAQL, styles).  
+  4. For each difference, build a change-request object containing:
+    - `chartId`  
+    - `action` (`add` | `remove` | `update`)  
+    - `targetFile` (`dynamicCharts.html` or `dynamicCharts.js`)  
+    - `details`: human-readable instructions (e.g. “insert `<div class='chartX'>…`”, “update SAQL string in render logic”, etc.).  
+  5. Write the full array of change-request objects to `changeRequests.json` at the project root (or into a `change-requests/` folder, if preferred).
+
+  **Preconditions**:  
+  - Both `charts.json` and `revEngCharts.json` exist and are valid JSON.  
+  - A Node.js runtime with a JSON-diff library (e.g. `deep-diff`) is available.  
+  - The output directory (if using `change-requests/`) exists or can be created.
+
+  **Dependencies**:  
+  - `CHART_JSON_DEFINITION.MD` (to interpret chart property schema)  
+  - `charts.json`  
+  - `revEngCharts.json`  
+  - JSON diffing utility
+
+  **Output**:  
+  - `changeRequests.json`: a JSON array of change-request objects describing all required LWC modifications.
+
 ### chartSynchronizer
 
 **Description**:  
@@ -367,11 +400,20 @@ Ensures the `dynamicCharts` component remains fully synchronized with the centra
      Scans all relevant Lightning Web Component source files (typically `dynamicCharts.js` and `dynamicCharts.html`) and extracts structured chart metadata such as chart type, title, API mapping, and SAQL queries.  
      The agent filters out auxiliary or non-visual charts (e.g., AO-only charts), and writes the output to `revEngCharts.json` using parsing rules defined in `CHART_JSON_DEFINITION.MD`.
 
-  2. **(Optional) `dashboardReader`**  
-     Compares the regenerated `revEngCharts.json` with the latest dashboard-derived `charts.json` for alignment and detects discrepancies between declared and actual implementation.
-
-  3. **(Optional) `chartSynchronizer`**  
-     Uses `revEngCharts.json` as the input source to update or validate the LWC code, ensuring that the rendered charts match the current definitions reconstructed from code.
-
   **Outcome**:  
   Allows developers to reverse engineer and document the chart configuration directly from code when original dashboard definitions are unavailable or out of sync.
+
+  ---
+
+### 📝 Change Request Generation Workflow
+
+  **User Request**:  
+  _"Please generate a change-request file to sync the LWC with `charts.json`."_
+
+  **Agent Sequence**:
+
+  1. **`changeRequestGenerator`**  
+    Compares `charts.json` and `revEngCharts.json` and writes out `changeRequests.json`.
+
+  **Outcome**:  
+  A `changeRequests.json` file listing all additions, removals, and updates needed in `dynamicCharts.html` and `dynamicCharts.js`.
