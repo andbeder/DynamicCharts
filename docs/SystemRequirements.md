@@ -28,6 +28,8 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - Chart content shall appear within `<lightning-card>` containers that include `<div>` elements with classes matching the titles of charts within CRM Analytics dashboards.
 6. **Compatibility**
    - The application shall be compatible with Salesforce API version 59.0 as specified in the `sfdx-project.json` configuration.
+7. **Change Request Generation**
+   - The system shall compare `charts.json` with `revEngCharts.json` and output `changeRequests.json` listing required code updates.
 
 ## Non‑Functional Requirements
 
