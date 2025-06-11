@@ -127,39 +127,57 @@ staticresources/
 
 ### dashboardRetriever
 
-   **Description**:  
-   Retrieves the editable `state` JSON definition of a CRM Analytics dashboard from Salesforce.
+**Description**  
+Retrieves the editable `state` JSON definition of a CRM Analytics dashboard from Salesforce using the Wave REST API and `curl`.
 
-   **Inputs**:
+---
 
-   - `dashboardApiName`: The `DeveloperName` of the target dashboard.
+#### Inputs
 
-   **Behavior**:
+- `dashboardApiName`: The `DeveloperName` of the target dashboard.  
+- `accessToken`: OAuth access token (provided by `sfdcAuthorizer`).  
+- `instanceUrl`: Base URL of the authenticated Salesforce org (e.g., `https://yourInstance.salesforce.com`).  
 
-   1. Confirms authenticated session via `sfdcAuthorizer`.
-   2. Queries Salesforce to retrieve the dashboard ID:
+---
 
-      ```bash
-      sf data query --query "SELECT Id FROM WaveDashboard WHERE DeveloperName='${dashboardApiName}'" --json
-      ```
+#### Behavior
 
-   3. Fetches the full dashboard definition using the REST API:
+1. **Confirm Authentication**  
+   Ensure session is authenticated via `sfdcAuthorizer`, which provides:
+   - `accessToken`
+   - `instanceUrl`
 
-      ```bash
-      sf rest /services/data/v60.0/wave/dashboards/${dashboardId}
-      ```
+2. **Retrieve Full Dashboard Definition by API Name**  
+   Use the Wave REST API to retrieve the dashboard JSON directly by API name:
 
-   4. Extracts the `state` object from the response and saves it to:
+   ```bash
+   curl -s -H "Authorization: Bearer ${accessToken}" \
+     -H "Content-Type: application/json" \
+     "${instanceUrl}/services/data/v60.0/wave/dashboards/${dashboardApiName}" \
+     -o "dashboards/${dashboardApiName}_full.json"
+   ```
 
-      - `dashboards/${dashboardApiName}.json`
+3. **Extract `state` Object**  
+   Use `jq` to isolate and save the `state` object:
 
-   5. Reports success or failure after the operation.
+   ```bash
+   jq '.state' "dashboards/${dashboardApiName}_full.json" > "dashboards/${dashboardApiName}.json"
+   ```
 
-   **Preconditions**:
+4. **Report Success or Failure**  
+   Log a message based on whether `dashboards/${dashboardApiName}.json` was successfully created.
 
-   - Salesforce org is authenticated via `sfdcAuthorizer`.
-   - The `dashboards/` directory exists or is automatically created if missing.
+---
 
+#### Preconditions
+
+- Salesforce org is authenticated and valid `accessToken` and `instanceUrl` are set.
+- `jq` is installed for JSON parsing.
+- `dashboards/` directory exists or is created using:
+
+  ```bash
+  mkdir -p dashboards
+  ```
 ### dashboardReader
 
   **Description**  
