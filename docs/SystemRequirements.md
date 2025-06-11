@@ -25,6 +25,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - Chart data shall refresh whenever the user updates filter selections
    - Chart content and presentation shall be governed by CRMA dashboards referenced by a property in `charts.json`.
    - For every chart ID listed in `charts.json`, the markup shall include a pair of containers: one with the ID itself and a second with the `AO` suffix.
+   - The component currently displays three chart pairs: `ClimbsByNation`/`ClimbsByNationAO`, `TimeByPeak`/`TimeByPeakAO`, and `CampsByPeak`/`CampsByPeakAO`.
 5. **User Interface**
    - The component shall expose a Lightning App Page, Record Page, and Home Page target as defined in the metadata file.
    - Chart content shall appear within `<lightning-card>` containers that include `<div>` elements with classes matching the titles of charts within CRM Analytics dashboards.
