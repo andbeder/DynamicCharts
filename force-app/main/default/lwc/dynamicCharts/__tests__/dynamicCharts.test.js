@@ -41,9 +41,11 @@ describe("c-dynamic-charts", () => {
     const chart3 = element.shadowRoot.querySelector("div.TimeByPeak");
     const chart4 = element.shadowRoot.querySelector("div.TimeByPeakAO");
     const chart6 = element.shadowRoot.querySelector("div.CampsByPeak");
+    const chart7 = element.shadowRoot.querySelector("div.CampsByPeakAO");
     expect(chart3).not.toBeNull();
     expect(chart4).not.toBeNull();
     expect(chart6).not.toBeNull();
+    expect(chart7).not.toBeNull();
   });
 
   it("initializes ApexCharts instances for all charts", async () => {
@@ -56,7 +58,7 @@ describe("c-dynamic-charts", () => {
     await Promise.resolve();
     await flushPromises();
 
-    expect(loadScript.mock.calls.length).toBeGreaterThanOrEqual(5);
+    expect(loadScript.mock.calls.length).toBeGreaterThanOrEqual(6);
     expect(errorSpy).not.toHaveBeenCalled();
   });
 });

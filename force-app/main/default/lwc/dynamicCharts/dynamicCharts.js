@@ -226,6 +226,21 @@ export default class SacCharts extends LightningElement {
     return { query: saql };
   }
 
+  get campsByPeakAOQuery() {
+    if (!this.datasetIds) {
+      return undefined;
+    }
+    const id = this.datasetIds.exped;
+    let saql = `q = load \"${id}\";\n`;
+    saql += this.getFilters({ inverseHosts: true, inverseNations: true });
+    saql += "q = group q by 'peakid';\n";
+    saql +=
+      "q = foreach q generate q.'peakid' as peakid, avg(q.'camps') as A;\n";
+    saql += "q = order q by A desc;\n";
+    saql += "q = limit q 20;";
+    return { query: saql };
+  }
+
   @wire(executeQuery, { query: "$climbsByNationQuery" })
   onClimbsByNation({ data, error }) {
     if (data) {
@@ -320,6 +335,26 @@ export default class SacCharts extends LightningElement {
     }
   }
 
+  @wire(executeQuery, { query: "$campsByPeakAOQuery" })
+  onCampsByPeakAO({ data, error }) {
+    if (data) {
+      const labels = [];
+      const values = [];
+      data.results.records.forEach((r) => {
+        labels.push(r.peakid);
+        values.push(r.A);
+      });
+      const options = { ...this.chartAOptions };
+      options.xaxis.categories = labels;
+      options.series = [{ name: "Avg Camps", data: values }];
+      if (this.chartObject.CampsByPeakAO) {
+        this.chartObject.CampsByPeakAO.updateOptions(
+          this.applySettings(options, "CampsByPeakAO")
+        );
+      }
+    }
+  }
+
   renderedCallback() {
     if (!this.chartObject.ClimbsByNation) {
       this.initChart(".ClimbsByNation", this.chartAOptions, "ClimbsByNation");
@@ -339,6 +374,9 @@ export default class SacCharts extends LightningElement {
     }
     if (!this.chartObject.CampsByPeak) {
       this.initChart(".CampsByPeak", this.chartAOptions, "CampsByPeak");
+    }
+    if (!this.chartObject.CampsByPeakAO) {
+      this.initChart(".CampsByPeakAO", this.chartAOptions, "CampsByPeakAO");
     }
   }
 
@@ -385,6 +423,7 @@ export default class SacCharts extends LightningElement {
     this.onTimeByPeak({ data: undefined, error: undefined });
     this.onTimeByPeakAO({ data: undefined, error: undefined });
     this.onCampsByPeak({ data: undefined, error: undefined });
+    this.onCampsByPeakAO({ data: undefined, error: undefined });
   }
 
   getFilters(options = {}) {
