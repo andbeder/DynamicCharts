@@ -3,7 +3,7 @@
 ## Overview
 
 SAC Charts is implemented as a Lightning Web Component (LWC) named `dynamicCharts`. The component obtains data from CRM Analytics using wire adapters, generates SAQL queries based on user-selected filters, and renders charts with the ApexCharts JavaScript library.
-Three groups of charts are rendered. The first group shows bar charts with and without the selected filters, the second group displays a horizontal bar chart of days per peak, and the third group contains box plots built from the same filter logic. Chart containers are named `ClimbsByNation`, `ClimbsByNationAO`, `CampsByPeak`, `DaysPerPeak`, `TimeByPeak`, and `TimeByPeakAO` to highlight how each relates.
+Three groups of charts are rendered. The first group shows bar charts with and without the selected filters, the second group displays a horizontal bar chart of days per peak, and the third group contains box plots built from the same filter logic. Chart containers are named `ClimbsByNation`, `ClimbsByNationAO`, `CampsByPeak`, `DaysPerPeak`, `TimeByPeak`, and `TimeByPeakAO` to highlight how each relates. The horizontal bar chart sets its categories on `yaxis.categories` as required by ApexCharts.
 
 The component now includes a sixth chart named `CampsByPeak` showing the average number of camps per peak. Chart containers are therefore `ClimbsByNation`, `ClimbsByNationAO`, `CampsByPeak`, `DaysPerPeak`, `TimeByPeak`, and `TimeByPeakAO`.
 
