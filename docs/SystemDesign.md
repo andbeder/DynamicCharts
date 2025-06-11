@@ -60,7 +60,7 @@ The project follows the Salesforce DX structure with source located under `force
 
 ## Testing
 
-Unit tests reside under `force-app/main/default/lwc/dynamicCharts/__tests__` and use `sfdx-lwc-jest`. Additional Apex test classes are stored in the `force-app/test` package to validate server-side code. The sample tests verify that all chart containers render when the component is created.
+Unit tests reside under `force-app/main/default/lwc/dynamicCharts/__tests__` and use `sfdx-lwc-jest`. Additional Apex test classes are stored in the `force-app/test` package to validate server-side code. The root `test` directory contains integration checks—for example, verifying that chart container IDs (and their `AO` counterparts) match the chart definitions in `charts.json`.
 
 ## Future Considerations
 
