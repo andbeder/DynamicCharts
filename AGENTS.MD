@@ -155,18 +155,18 @@ staticresources/
     curl -s -H "Authorization: Bearer ${accessToken}" \
       -H "Content-Type: application/json" \
       "${instanceUrl}/services/data/v60.0/wave/dashboards/${dashboardApiName}" \
-      -o "dashboards/${dashboardApiName}_full.json"
+      -o "tmp/${dashboardApiName}_full.json"
     ```
 
   3. **Extract `state` Object**  
     Use `jq` to isolate and save the `state` object:
 
     ```bash
-    jq '.state' "dashboards/${dashboardApiName}_full.json" > "dashboards/${dashboardApiName}.json"
+    jq '.state' "tmp/${dashboardApiName}_full.json" > "tmp/${dashboardApiName}.json"
     ```
 
   4. **Report Success or Failure**  
-    Log a message based on whether `dashboards/${dashboardApiName}.json` was successfully created.
+    Log a message based on whether `tmp/${dashboardApiName}.json` was successfully created.
 
   ---
 
@@ -174,18 +174,23 @@ staticresources/
 
   - Salesforce org is authenticated and valid `accessToken` and `instanceUrl` are set.
   - `jq` is installed for JSON parsing.
-  - `dashboards/` directory exists or is created using:
+  - `tmp/` directory exists or is created using:
 
     ```bash
-    mkdir -p dashboards
+    mkdir -p tmp
     ```
+
+  #### Output
+
+  - `tmp/${dashboardApiName}.json`: the state of the dashboard requested (not under source control)
+
 ### dashboardReader
 
   **Description**  
   Parses Salesforce dashboard JSON files to extract structured chart definitions compatible with ApexCharts. Produces normalized entries in `charts.json` that are consumable by downstream agents.
 
   **Behavior**  
-  - Reads input from `dashboards/${dashboardApiName}.json`
+  - Reads input from `tmp/${dashboardApiName}.json`
   - Applies parsing rules defined in `DASHBOARD_PARSING_INSTRUCTIONS.MD`
   - Outputs chart definitions to `charts.json`, replacing or appending entries by `chart.id`
 
@@ -298,41 +303,76 @@ staticresources/
 ### changeRequestInterpreter
 
   **Description**  
-  Reads the raw JSON change requests and turns them into concrete, step-by-step LWC developer instructions.
+  Reads the structured diffs in `changeRequests.json` and produces clear, copy-&-pasteable ApexCharts edits—mapping each abstract “property” change to the real `options.*` API from the ApexCharts docs.
 
   **Inputs**  
-  - `changeRequests.json`  
-  - (optionally) the existing `dynamicCharts.html` & `dynamicCharts.js` for context  
+  - `changeRequests.json` (array of `{ chartId, action, targetFile, mismatches, instructions }`)  
+  - *(optional)* sample `dynamicCharts.js` / `dynamicCharts.html` for context  
 
   **Behavior**  
   1. **Load** and parse `changeRequests.json`.  
-  2. **For each** change-request object:  
+  2. **Fetch** or reference a local mapping of abstract property names → real ApexCharts option paths (from `https://apexcharts.com/docs/options/`):  
+    - `seriesColors` → `options.colors`  
+    - `font`         → `options.chart.fontFamily`  
+    - `effects: ["shadow"]` →  
+      ```js
+      options.chart.dropShadow = {
+        enabled:  true,
+        top:      <defaultOrUserValue>,
+        left:     <defaultOrUserValue>,
+        blur:     <defaultOrUserValue>,
+        opacity:  <defaultOrUserValue>
+      }
+      ```  
+  3. **For each** change-request object:  
     - **add**  
-      - Generate:  
-        - “In **dynamicCharts.html**, insert `<div class='chart-{{chartId}}'>…</div>` at the appropriate location.”  
-        - “In **dynamicCharts.js**, add the SAQL query and ApexCharts instantiation for `{{chartId}}`.”  
+      - Generate an HTML snippet insertion if `targetFile === 'dynamicCharts.html'`.  
+      - Or generate a JS init snippet:  
+        ```js
+        chart = new ApexCharts(elem, {
+          // …existing config…
+          colors: ['#002060'],             // from seriesColors
+          chart: { fontFamily: 'Roboto' }  // from font
+        });
+        ```  
     - **remove**  
-      - Generate:  
-        - “Remove the `<div class='chart-{{chartId}}'>…</div>` block from **dynamicCharts.html**.”  
-        - “Remove the corresponding SAQL and render call in **dynamicCharts.js**.”  
+      - Output “Remove the `<div class='chart-{{chartId}}'>…</div>` block from `dynamicCharts.html`.”  
+      - Or “Remove the corresponding `chart.updateOptions({...})` call in `dynamicCharts.js`.”  
     - **update**  
-      - For each property‐level mismatch, generate:  
-        - “In **{{targetFile}}**, update `{{property}}` from `{{currentValue}}` to `{{expectedValue}}`.”  
-        - “In **{{targetFile}}**, set dropShadow: { enabled: true } for `{{chartId}}`.”  
-        - “In **{{targetFile}}**, change the bar color to #432556 for `{{chartId}}`.”  
-  3. **Aggregate** all of those lines into a numbered list.  
-  4. **Write** the list out to `changeRequestInstructions.txt` in your project root.
-
-  **Preconditions**  
-  - A valid `changeRequests.json` file.  
-  - LWC source files are parseable.
-
-  **Output**  
-  - `changeRequestInstructions.txt`: human-readable, ordered instructions for your LWC devs.
+      - **For each** mismatch in `.mismatches`:  
+        1. **Map** `property` → real `options` path.  
+        2. **Compose** a `chart.updateOptions({ … })` call.  
+            ```diff
+            // before: colors: ApexCharts.defaults.colors
+            chart.updateOptions({
+              colors: ['#002060']
+            });
+            ```  
+            ```diff
+            // before: no dropShadow
+            chart.updateOptions({
+              chart: {
+                dropShadow: {
+                  enabled: true,
+                  top:     2,
+                  left:    2,
+                  blur:    4,
+                  opacity: 0.35
+                }
+              }
+            });
+            ```  
+  4. **Aggregate** all instructions into a **numbered list**, each entry prefaced with the target file and chart ID.  
+  5. **Write** the list to `changeRequestInstructions.txt`.  
 
   **Dependencies**  
-  - JSON parsing library or script (e.g. `jq`, a small Node.js script, etc.)  
-  - A template/helper to format and write the text file
+  - `changeRequests.json`  
+  - A lookup of ApexCharts option names and their paths (scraped or hand-curated from `/docs/options/`)  
+  - JSON parsing library (e.g. `jq` or Node.js)  
+  - Simple template engine or string builder  
+
+  **Output**  
+  - `changeRequestInstructions.txt`: a human-readable, ordered list of exact ApexCharts option edits—complete with code snippets referencing `options.*`—ready for developers to apply directly.  
 
 ### chartSynchronizer
 
@@ -503,10 +543,10 @@ Validates Lightning Web Components by executing Jest-based unit and integration 
     Installs required Salesforce CLI plugins and authenticates into the target org.
 
   2. **`dashboardRetriever`**  
-    Retrieves the `CR-02` dashboard from Salesforce and saves its editable `state` as `dashboards/CR-02.json`.
+    Retrieves the `CR-02` dashboard from Salesforce and saves its editable `state` as `tmp/${dashboardApiName}`.
 
   3. **`dashboardReader`**  
-    Parses `dashboards/CR-02.json` and writes the normalized chart definitions to `charts.json`.
+    Parses `tmp/${dashboardApiName}` and writes the normalized chart definitions to `charts.json`.
 
   4. **`lwcReader`**  
     Reverse-engineers the existing `dynamicCharts` LWC and writes its live chart definitions to `revEngCharts.json`.
