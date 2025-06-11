@@ -5,7 +5,7 @@
 SAC Charts is implemented as a Lightning Web Component (LWC) named `dynamicCharts`. The component obtains data from CRM Analytics using wire adapters, generates SAQL queries based on user-selected filters, and renders charts with the ApexCharts JavaScript library.
 The latest dashboard definition consolidates the visualization set to three charts: `ClimbsByNation`, `TimeByPeak`, and `CampsByPeak`. Two bar charts display climb counts and average camps while a box plot shows days per peak. Each chart container name matches its dashboard title.
 
-Chart titles were updated in change request **CR-02**:
+Chart titles and metadata were updated in change request **CR-02**:
 
 - **Top 20 Climbs by Nation**
 - **Days per Peak by Top 20 Climbs**
@@ -17,7 +17,9 @@ Field labels and color schemes were also aligned with CR-02:
 - `TimeByPeak` maps `Peak ID` and quartile fields and uses colors `#97C1DA,#002060`.
 - `CampsByPeak` maps `Peak ID` and `Average Camps` and uses color `#175F68`.
 
-The deprecated **DaysPerPeak** chart has been removed from the LWC implementation.
+Each chart record now includes a `dashboard` attribute set to `CR_02` to track
+its originating dashboard. The deprecated **DaysPerPeak** chart has been removed
+from the LWC implementation.
 
 The project follows the Salesforce DX structure with source located under `force-app/main/default` and uses `sfdx-lwc-jest` for unit testing.
 

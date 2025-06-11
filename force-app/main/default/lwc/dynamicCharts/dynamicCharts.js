@@ -26,12 +26,14 @@ export default class SacCharts extends LightningElement {
 
   chartSettings = {
     ClimbsByNation: {
+      dashboard: "CR_02",
       title: "Top 20 Climbs by Nation",
       fieldMappings: { nation: "Nation", Climbs: "Climbs" },
       colors: ["#002060"],
       effects: ["shadow"]
     },
     TimeByPeak: {
+      dashboard: "CR_02",
       title: "Days per Peak by Top 20 Climbs",
       fieldMappings: {
         peakid: "Peak ID",
@@ -43,17 +45,8 @@ export default class SacCharts extends LightningElement {
       colors: ["#97C1DA", "#002060"],
       effects: ["shadow"]
     },
-    DaysPerPeak: {
-      title: "Days per Peak",
-      fieldMappings: {
-        peakid: "Peak ID",
-        A: "Min",
-        B: "Q1",
-        C: "Q3",
-        D: "Max"
-      }
-    },
     CampsByPeak: {
+      dashboard: "CR_02",
       title: "Average Number of Camps per Peak",
       fieldMappings: { peakid: "Peak ID", A: "Average Camps" },
       colors: ["#175F68"],
@@ -217,20 +210,6 @@ export default class SacCharts extends LightningElement {
     return { query: saql };
   }
 
-  get daysPerPeakQuery() {
-    if (!this.datasetIds) {
-      return undefined;
-    }
-    const id = this.datasetIds.exped;
-    let saql = `q = load \"${id}\";\n`;
-    saql += this.getFilters();
-    saql += "q = group q by 'peakid';\n";
-    saql +=
-      "q = foreach q generate q.'peakid' as peakid, min(q.'totdays') as A, percentile_disc(0.25) within group (order by q.'totdays') as B, percentile_disc(0.75) within group (order by q.'totdays') as C, max(q.'totdays') as D;\n";
-    saql += "q = order q by A asc;\n";
-    saql += "q = limit q 20;";
-    return { query: saql };
-  }
 
   get campsByPeakQuery() {
     if (!this.datasetIds) {
@@ -321,37 +300,6 @@ export default class SacCharts extends LightningElement {
     }
   }
 
-  @wire(executeQuery, { query: "$daysPerPeakQuery" })
-  onDaysPerPeak({ data, error }) {
-    if (data) {
-      const labels = [];
-      const minVals = [];
-      const q1Vals = [];
-      const q3Vals = [];
-      const maxVals = [];
-      data.results.records.forEach((r) => {
-        labels.push(r.peakid);
-        minVals.push(r.A);
-        q1Vals.push(r.B);
-        q3Vals.push(r.C);
-        maxVals.push(r.D);
-      });
-      const options = { ...this.chartBarOptions };
-      options.yaxis.categories = labels;
-      options.series = [
-        { name: "Min", data: minVals },
-        { name: "Q1", data: q1Vals },
-        { name: "Q3", data: q3Vals },
-        { name: "Max", data: maxVals }
-      ];
-      if (this.chartObject.DaysPerPeak) {
-        this.chartObject.DaysPerPeak.updateOptions(
-          this.applySettings(options, "DaysPerPeak")
-        );
-      }
-    }
-  }
-
   @wire(executeQuery, { query: "$campsByPeakQuery" })
   onCampsByPeak({ data, error }) {
     if (data) {
@@ -388,9 +336,6 @@ export default class SacCharts extends LightningElement {
     }
     if (!this.chartObject.TimeByPeakAO) {
       this.initChart(".TimeByPeakAO", this.chartBoxOptions, "TimeByPeakAO");
-    }
-    if (!this.chartObject.DaysPerPeak) {
-      this.initChart(".DaysPerPeak", this.chartBarOptions, "DaysPerPeak");
     }
     if (!this.chartObject.CampsByPeak) {
       this.initChart(".CampsByPeak", this.chartAOptions, "CampsByPeak");
@@ -439,7 +384,6 @@ export default class SacCharts extends LightningElement {
     this.onClimbsByNationAO({ data: undefined, error: undefined });
     this.onTimeByPeak({ data: undefined, error: undefined });
     this.onTimeByPeakAO({ data: undefined, error: undefined });
-    this.onDaysPerPeak({ data: undefined, error: undefined });
     this.onCampsByPeak({ data: undefined, error: undefined });
   }
 
@@ -471,14 +415,6 @@ export default class SacCharts extends LightningElement {
     chart: { type: "bar", height: 410 },
     series: [],
     xaxis: { categories: [] },
-    noData: { text: "Loading..." }
-  };
-
-  chartBarOptions = {
-    chart: { type: "bar", height: 410 },
-    plotOptions: { bar: { horizontal: true } },
-    series: [],
-    yaxis: { categories: [] },
     noData: { text: "Loading..." }
   };
 

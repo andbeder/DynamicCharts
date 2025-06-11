@@ -24,7 +24,7 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - The obsolete `DaysPerPeak` chart has been removed.
    - Chart data shall refresh whenever the user updates filter selections and clicks **Render**.
    - Chart titles shall reflect the latest dashboard definitions, including "Top 20 Climbs by Nation", "Days per Peak by Top 20 Climbs", and "Average Number of Camps per Peak".
-   - Field labels and color schemes shall match change request CR-02. Each chart uses the following settings:
+   - Field labels and color schemes shall match change request CR-02. Each chart uses the following settings and stores a `dashboard` value of `CR_02`:
      - `ClimbsByNation` → color `#002060` and label `Nation`.
      - `TimeByPeak` → colors `#97C1DA,#002060` and labels `Peak ID`, `Min`, `Q1`, `Q3`, `Max`.
      - `CampsByPeak` → color `#175F68` and label `Average Camps`.
