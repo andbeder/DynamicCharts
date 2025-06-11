@@ -12,6 +12,8 @@ npm run generate:instructions
 
 The CR‑02 dashboard introduces new titles, field labels and styles for the three primary charts. It also removes the obsolete `DaysPerPeak` chart. All changes target `force-app/main/default/lwc/dynamicCharts/dynamicCharts.js`.
 
+Starting with this release, `scripts/changeRequestInterpreter.js` maps each change request to the appropriate [ApexCharts options](https://apexcharts.com/docs/options/). The generated instructions therefore include exact `chart.updateOptions` calls for properties such as `colors`, `chart.fontFamily` and `chart.dropShadow`.
+
 ## Steps
 
 1. **Update Chart Metadata**
@@ -26,10 +28,10 @@ The CR‑02 dashboard introduces new titles, field labels and styles for the thr
      - `CampsByPeak` maps `peakid` → `Peak ID`, `A` → `Average Camps`.
 
 2. **Apply Style Updates**
-   - Update `seriesColors` and effects:
-     - `ClimbsByNation` uses `#002060` with `shadow` effect.
-     - `TimeByPeak` uses `#97C1DA,#002060` with `shadow` effect.
-     - `CampsByPeak` uses `#175F68` with `shadow` effect.
+   - Map style changes to ApexCharts options:
+     - `ClimbsByNation` sets `options.colors` to `['#002060']` and enables `chart.dropShadow`.
+     - `TimeByPeak` sets `options.colors` to `['#97C1DA', '#002060']` and enables `chart.dropShadow`.
+     - `CampsByPeak` sets `options.colors` to `['#175F68']` and enables `chart.dropShadow`.
 
 3. **Remove Deprecated Chart**
    - Delete all references to the `DaysPerPeak` chart including option objects, render calls and markup containers.
