@@ -297,61 +297,49 @@ staticresources/
 
 ### chartSynchronizer
 
-  **Description**  
-  Applies the fine-grained change requests produced by `changeRequestGenerator` to the `dynamicCharts` Lightning Web Component, updating HTML markup and JS logic to bring the component into sync with `charts.json`.
+**Description**  
+Applies the fine-grained change requests produced by `changeRequestGenerator` to the `dynamicCharts` Lightning Web Component, updating HTML markup and JS logic to bring the component into sync with `charts.json`.
 
-  **Behavior**
+**Behavior**
 
-  1. **Load change requests**  
-    - Read `changeRequests.json` (or `change-requests/*.json`) as an array of change-request objects.
+1. **Load change requests**  
+   - Read `changeRequests.json` (or `change-requests/*.json`) as an array of change-request objects.
 
-  2. **Process each change-request**  
-    For each entry in the array:
-    - **add**
-      - In `dynamicCharts.html`: insert the `<div>` container snippet provided (or generate it from the request) at the appropriate location.
-      - In `dynamicCharts.js`: add initialization (SAQL string, ApexCharts instantiation, filter hooks) as specified.
-    - **remove**
-      - In `dynamicCharts.html`: remove the `<div>` block whose `chartId` matches.
-      - In `dynamicCharts.js`: remove the corresponding query string, render call, and any filter-binding logic for that chart.
-    - **update**
-      - Iterate over `mismatches[]`:
-        - If the mismatch’s `targetFile` is `dynamicCharts.html`, locate the relevant attribute or markup and replace the `currentValue` with the `expectedValue`.
-        - If the mismatch’s `targetFile` is `dynamicCharts.js`, locate the SAQL definition, option object, filter mapping, etc., and update each property from `currentValue` → `expectedValue`.
-      - Optionally: group multiple property updates for the same chart into a single patch operation.
+2. **Process each change-request**  
+   For each entry in the array:  
+   - **add**  
+     - In `dynamicCharts.html`: insert the `<div>` container snippet provided (or generate it from the request) at the appropriate location.  
+     - In `dynamicCharts.js`: add initialization (SAQL string, ApexCharts instantiation, filter hooks) as specified.  
+   - **remove**  
+     - In `dynamicCharts.html`: remove the `<div>` block whose `chartId` matches.  
+     - In `dynamicCharts.js`: remove the corresponding query string, render call, and any filter-binding logic for that chart.  
+   - **update**  
+     - Iterate over `mismatches[]`:  
+       - If the mismatch’s `targetFile` is `dynamicCharts.html`, locate the relevant attribute or markup and replace the `currentValue` with the `expectedValue`.  
+       - If the mismatch’s `targetFile` is `dynamicCharts.js`, locate the SAQL definition, option object, filter mapping, etc., and update each property from `currentValue` → `expectedValue`.  
+     - Optionally: group multiple property updates for the same chart into a single patch operation.  
+   - **Options validation**  
+     - Whenever you’re adding or updating an ApexCharts `options` object, reference the official sub-sections under **https://apexcharts.com/docs/options/** (e.g. `chart/`, `plotOptions/`, `dataLabels/`, `grid/`, `tooltip/`, `xaxis/`, `yaxis/`, etc.) to ensure you’re using the correct JSON structure and supported property names.
 
-  3. **Write changes back**  
-    - Overwrite `dynamicCharts.html` and `dynamicCharts.js` with the applied modifications.
-    - Log a summary of all applied changes (e.g., “3 adds, 2 removes, 5 updates applied”).
+3. **Write changes back**  
+   - Overwrite `dynamicCharts.html` and `dynamicCharts.js` with the applied modifications.  
+   - Log a summary of all applied changes (e.g., “3 adds, 2 removes, 5 updates applied”).
 
-  **Preconditions**  
-  - `changeRequests.json` exists and is valid.  
-  - Original `dynamicCharts.html` and `dynamicCharts.js` are parseable (e.g., well-formed HTML and JS).  
-  - A utility or parsing library (e.g., an HTML/JS AST manipulator) is available.
+**Preconditions**  
+- `changeRequests.json` exists and is valid.  
+- Original `dynamicCharts.html` and `dynamicCharts.js` are parseable (e.g., well-formed HTML and JS).  
+- A utility or parsing library (e.g., an HTML/JS AST manipulator) is available.
 
-  **Dependencies**  
-  - `changeRequests.json` (from `changeRequestGenerator`)  
-  - `dynamicCharts.html`  
-  - `dynamicCharts.js`
+**Dependencies**  
+- `changeRequests.json` (from `changeRequestGenerator`)  
+- `dynamicCharts.html`  
+- `dynamicCharts.js`
 
-  **Output**  
-  - Updated `dynamicCharts.html` and `dynamicCharts.js` reflecting all requested adds, removes, and property-level updates.
+**Output**  
+- Updated `dynamicCharts.html` and `dynamicCharts.js` reflecting all requested adds, removes, and property-level updates.
 
-**Outcome**:  
-Ensures the `dynamicCharts` component remains fully synchronized with the central chart metadata file, supporting scalable updates and minimizing manual intervention.
-
-### lwcRefactor
-
-  **Description**:  
-  Refactors and generates Lightning Web Components (LWC) based on codex-driven instructions to improve maintainability, performance, and scalability.
-
-  **Behavior**:
-
-  - Creates new LWC components based on defined architecture or codex output.
-  - Refactors existing LWC components to align with best practices.
-  - Optimizes for code readability, modularity, and performance.
-  - Ensures resulting code is transparent, efficient, and reliable.
-
-  ---
+**Outcome**  
+Ensures the `dynamicCharts` component remains fully synchronized with the central chart metadata file, supports scalable updates, and leverages the ApexCharts options docs for proper JSON configuration.
 
 ### lwcTester
 
