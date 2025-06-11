@@ -295,6 +295,45 @@ staticresources/
    **Output**  
    - `changeRequests.json`: full list of per-chart, per-property changes required to sync your LWC.
 
+### changeRequestInterpreter
+
+  **Description**  
+  Reads the raw JSON change requests and turns them into concrete, step-by-step LWC developer instructions.
+
+  **Inputs**  
+  - `changeRequests.json`  
+  - (optionally) the existing `dynamicCharts.html` & `dynamicCharts.js` for context  
+
+  **Behavior**  
+  1. **Load** and parse `changeRequests.json`.  
+  2. **For each** change-request object:  
+    - **add**  
+      - Generate:  
+        - “In **dynamicCharts.html**, insert `<div class='chart-{{chartId}}'>…</div>` at the appropriate location.”  
+        - “In **dynamicCharts.js**, add the SAQL query and ApexCharts instantiation for `{{chartId}}`.”  
+    - **remove**  
+      - Generate:  
+        - “Remove the `<div class='chart-{{chartId}}'>…</div>` block from **dynamicCharts.html**.”  
+        - “Remove the corresponding SAQL and render call in **dynamicCharts.js**.”  
+    - **update**  
+      - For each property‐level mismatch, generate:  
+        - “In **{{targetFile}}**, update `{{property}}` from `{{currentValue}}` to `{{expectedValue}}`.”  
+        - “In **{{targetFile}}**, set dropShadow: { enabled: true } for `{{chartId}}`.”  
+        - “In **{{targetFile}}**, change the bar color to #432556 for `{{chartId}}`.”  
+  3. **Aggregate** all of those lines into a numbered list.  
+  4. **Write** the list out to `changeRequestInstructions.txt` in your project root.
+
+  **Preconditions**  
+  - A valid `changeRequests.json` file.  
+  - LWC source files are parseable.
+
+  **Output**  
+  - `changeRequestInstructions.txt`: human-readable, ordered instructions for your LWC devs.
+
+  **Dependencies**  
+  - JSON parsing library or script (e.g. `jq`, a small Node.js script, etc.)  
+  - A template/helper to format and write the text file
+
 ### chartSynchronizer
 
 **Description**  
@@ -560,3 +599,16 @@ _"Please apply the pending change requests to the LWC and deploy them to the org
    ```
   **Outcome**:  
   The dynamicCharts component is updated per the change requests, validated by unit tests, and deployed to your Salesforce org.
+
+### 🔍 Change Request Interpretation Workflow
+
+**User Request**  
+_"Please generate detailed developer instructions from the existing change requests."_  
+
+**Agent Sequence**:
+
+1. **`changeRequestInterpreter`**  
+   Reads `changeRequests.json`, translates each add/remove/update into human-readable LWC steps, and writes them to `changeRequestInstructions.txt`.  
+
+**Outcome**  
+A `changeRequestInstructions.txt` file containing a numbered list of concrete edits for `dynamicCharts.html` and `dynamicCharts.js`.  
