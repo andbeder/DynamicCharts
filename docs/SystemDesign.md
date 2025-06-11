@@ -38,6 +38,7 @@ The project follows the Salesforce DX structure with source located under `force
 - **DPOStateMachine.cls**: Placeholder Apex class reserved for future enhancements or server-side processing.
 - **charts.json**: Generated from the CRM Analytics dashboards to list supported charts. Primary charts are included, while `AO` variants are ignored.
 - **revEngCharts.json**: Generated from the LWC charts to build a comparable reference of the current configuration
+- **changeRequests.json**: Output from changeRequestGenerator showing updates needed to sync the LWC with charts.json
 
 ## Data Flow
 
