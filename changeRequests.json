@@ -6,6 +6,11 @@
       "targetFile": "dynamicCharts.js",
       "mismatches": [
         {
+          "property": "dashboard",
+          "currentValue": "Unknown",
+          "expectedValue": "CR_02"
+        },
+        {
           "property": "title",
           "currentValue": "Climbs By Nation",
           "expectedValue": "Top 20 Climbs by Nation"
@@ -31,11 +36,14 @@
           "expectedValue": {
             "seriesColors": "#002060",
             "font": "default",
-            "effects": ["shadow"]
+            "effects": [
+              "shadow"
+            ]
           }
         }
       ],
       "instructions": [
+        "Update ClimbsByNation dashboard",
         "Update ClimbsByNation title",
         "Update ClimbsByNation fieldMappings",
         "Update ClimbsByNation style"
@@ -46,6 +54,11 @@
       "action": "update",
       "targetFile": "dynamicCharts.js",
       "mismatches": [
+        {
+          "property": "dashboard",
+          "currentValue": "Unknown",
+          "expectedValue": "CR_02"
+        },
         {
           "property": "title",
           "currentValue": "Time By Peak",
@@ -78,47 +91,17 @@
           "expectedValue": {
             "seriesColors": "#97C1DA,#002060",
             "font": "default",
-            "effects": ["shadow"]
+            "effects": [
+              "shadow"
+            ]
           }
         }
       ],
       "instructions": [
+        "Update TimeByPeak dashboard",
         "Update TimeByPeak title",
         "Update TimeByPeak fieldMappings",
         "Update TimeByPeak style"
-      ]
-    },
-    {
-      "chartId": "DaysPerPeak",
-      "action": "update",
-      "targetFile": "dynamicCharts.js",
-      "mismatches": [
-        {
-          "property": "title",
-          "currentValue": "Days Per Peak",
-          "expectedValue": "Days per Peak"
-        },
-        {
-          "property": "fieldMappings",
-          "currentValue": {
-            "peakid": "peakid",
-            "A": "A",
-            "B": "B",
-            "C": "C",
-            "D": "D"
-          },
-          "expectedValue": {
-            "A": "Min",
-            "B": "Q1",
-            "C": "Q3",
-            "D": "Max",
-            "peakid": "Peak ID"
-          }
-        }
-      ],
-      "instructions": [
-        "Update DaysPerPeak title",
-        "Update DaysPerPeak fieldMappings"
       ]
     },
     {
@@ -126,6 +109,11 @@
       "action": "update",
       "targetFile": "dynamicCharts.js",
       "mismatches": [
+        {
+          "property": "dashboard",
+          "currentValue": "Unknown",
+          "expectedValue": "CR_02"
+        },
         {
           "property": "title",
           "currentValue": "Camps By Peak",
@@ -152,15 +140,23 @@
           "expectedValue": {
             "seriesColors": "#175F68",
             "font": "default",
-            "effects": ["shadow"]
+            "effects": [
+              "shadow"
+            ]
           }
         }
       ],
       "instructions": [
+        "Update CampsByPeak dashboard",
         "Update CampsByPeak title",
         "Update CampsByPeak fieldMappings",
         "Update CampsByPeak style"
       ]
+    },
+    {
+      "chartId": "DaysPerPeak",
+      "action": "remove",
+      "targetFile": "dynamicCharts.js"
     }
   ]
 }
