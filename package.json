@@ -14,7 +14,10 @@
     "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "postinstall": "husky install",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "generate:charts": "node scripts/agents/sfdcAuthorizer.js && node scripts/agents/dashboardRetriever.js && node scripts/agents/dashboardReader.js && node scripts/agents/lwcReader.js && node scripts/agents/changeRequestGenerator.js",
+    "sync:charts": "node scripts/agents/syncCharts.js",
+    "deploy:charts": "npm run test:unit && node scripts/agents/lwcTester.js && node scripts/agents/sfdcDeployer.js"
   },
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^2.2.0",
