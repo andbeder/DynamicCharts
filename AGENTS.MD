@@ -399,75 +399,104 @@ staticresources/
 
 ### lwcTester
 
-**Description**  
-Validates Lightning Web Components by executing Jest-based unit and integration tests—mocked for speed and real-bundle tests for coverage—to ensure functional reliability and deployment readiness.
+  **Description**
+  Automates building, maintaining, and enhancing Jest-based unit and integration tests for the `dynamicCharts` Lightning Web Component. All test scripts are stored under the `test/lwcTester/` directory and are version-controlled alongside your application code.
 
-**Behavior**
+  **Behavior**
 
-1. **Authenticate**  
-    - Verifies that the org is authenticated via `sfdcAuthorizer`.
+  1. **Authenticate**
 
-  2. **Ensure test tooling is installed**  
-    - Installs Salesforce’s Jest plugin if missing:  
+    * Verifies that the Salesforce org is authenticated via `sfdcAuthorizer`.
+
+  2. **Install & Update Tooling**
+
+    * Ensures the following devDependencies are installed and up-to-date:
+
       ```bash
-      npm install --save-dev sfdx-lwc-jest --silent
+      npm install --save-dev sfdx-lwc-jest apexcharts jest-canvas-mock --silent
       ```
-    - Installs the real ApexCharts bundle and a canvas mock for integration tests:  
+    * Updates mocks and plugins as necessary.
+
+  3. **Scaffold Test Structure**
+
+    * Creates `test/lwcTester/` if it does not exist.
+    * Initializes subdirectories:
+
+      * `unit/` for Jest unit tests.
+      * `integration/` for real-bundle integration tests.
+      * `__mocks__/` for module mocks (e.g., `lightning/platformResourceLoader`).
+
+  4. **Generate & Update Test Templates**
+
+    * For each chart definition in `dynamicCharts.js` or `charts.json`, generates or refreshes parameterized test files:
+
+      * Verifies SAQL query assembly.
+      * Asserts correct ApexCharts instantiation and option merging.
+      * Simulates filter UI interactions and validates re-render behavior.
+    * Uses Jest snapshots where appropriate, prompting for snapshot updates when code changes.
+
+  5. **Maintain Existing Tests**
+
+    * Detects outdated or missing assertions when component code or chart configurations change.
+    * Offers to update snapshots or generate placeholder specs for untested branches.
+
+  6. **Enforce Coverage & Quality**
+
+    * Applies minimum coverage thresholds (configurable in `jest.config.js`):
+
+      * Statements: 80%
+      * Branches: 75%
+      * Functions: 80%
+      * Lines: 80%
+    * Reports missing coverage areas and creates TODO test stubs.
+    * Integrates linting for test code via `npm run lint`.
+
+  7. **Run & Watch Mode**
+
+    * Executes tests on-demand:
+
       ```bash
-      npm install --save-dev apexcharts jest-canvas-mock --silent
+      npm run test:lwc:unit
+      npm run test:lwc:integration
       ```
+    * Supports watch mode for real-time feedback:
 
-  3. **Configure Jest**  
-    - Adds or updates **jest.config.js**:
-      ```js
-      module.exports = {
-        // …existing config…
-        moduleNameMapper: {
-          '^apexcharts$': require.resolve('apexcharts'),
-          '@salesforce/resourceUrl/ApexCharts': '<rootDir>/node_modules/apexcharts/dist/apexcharts.min.js'
-        },
-        setupFilesAfterEnv: ['<rootDir>/jest.setup.js']
-      };
-      ```
-    - Creates **jest.setup.js** (if missing) with:
-      ```js
-      import 'jest-canvas-mock';
-      ```
-
-  4. **Prepare resource-loader mock**  
-    - In `__mocks__/lightning/platformResourceLoader.js`, replace the stub with:
-      ```js
-      import ApexCharts from 'apexcharts';
-
-      export function loadScript(context, url) {
-        window.ApexCharts = ApexCharts;
-        return Promise.resolve();
-      }
-      export function loadStyle() {
-        return Promise.resolve();
-      }
-      ```
-    - Remove any `__mocks__/apexcharts.js` so Jest uses the real package.
-
-  5. **Generate or update test scripts**  
-    - **Unit tests** continue to mock ApexCharts via `loadScript` and verify `new Chart(...)` calls.
-    - **Integration tests** instantiate the real bundle and assert rendered `<canvas>`/`<svg>` output and series counts.
-
-  6. **Run the suite**  
-    - Executes the full test suite:
       ```bash
-      npm run test:unit
+      npm run test:lwc:unit -- --watch
       ```
-    - Waits for all promises (e.g. using `flush-promises`) so both mock-based and real-bundle tests complete.
 
-  7. **Report results**  
-    - Captures and reports pass/fail diagnostics, including any chart-rendering errors or mismatches in series count.
+  8. **Reporting**
+
+    * Outputs test results and coverage summary to the console.
+    * Generates detailed HTML reports and saves them to `test/lwcTester/reports/`.
+
+  9. **CI Integration**
+
+    * Updates `package.json` scripts to include:
+
+      ```json
+      "test:lwc:unit": "sfdx-lwc-jest test/lwcTester/unit --coverage",
+      "test:lwc:integration": "sfdx-lwc-jest test/lwcTester/integration --runInBand",
+      "test:lwc:ci": "npm run test:lwc:unit && npm run test:lwc:integration"
+      ```
+    * Ensures headless, environment-agnostic execution for CI pipelines.
 
   **Preconditions**
 
-  - An authenticated Salesforce org via `sfdcAuthorizer`.  
-  - A valid `jest.config.js` in the project root.  
-  - `__tests__` folder alongside each LWC with both unit and integration spec files.  
+  * Authenticated Salesforce org via `sfdcAuthorizer`.
+  * Valid `jest.config.js` in project root with appropriate module mappings and setup files.
+
+  **Dependencies**
+
+  * Node.js ≥ v14.
+  * DevDependencies: `sfdx-lwc-jest`, `apexcharts`, `jest-canvas-mock`.
+  * `test/lwcTester/` directory (auto-generated if absent).
+
+  **Output**
+
+  * A comprehensive, up-to-date test suite under `test/lwcTester/`.
+  * Updated test-related scripts in `package.json`.
+  * Coverage and test reports in `test/lwcTester/reports/`.
 
 ### sfdcDeployer
 
@@ -679,3 +708,38 @@ Validates Lightning Web Components by executing Jest-based unit and integration 
 
   **Outcome**  
   `changeRequestInstructions.txt` has been generated with step-by-step instructions to apply the change request to any LWCs.
+
+
+### 🐞 LWC Testing & Bug Report Workflow
+
+  **User Request**
+  *Run the full LWC test suite and generate a consolidated bug report.*
+
+  **Agent Sequence**
+
+  1. **`lwcTester`**
+
+    * Installs/updates test tooling, scaffolds/maintains test scripts under `test/lwcTester/`, and executes both unit and integration suites using:
+
+      ```bash
+      npm run test:lwc:ci
+      ```
+    * Outputs raw Jest result JSON and coverage data in `test/lwcTester/reports/`.
+
+  2. **`bugReporter`**
+
+    * Parses the generated Jest JSON (`*.json`) and coverage summary (`coverage-summary.json`).
+    * Extracts:
+
+      * **Failures**: test names, error messages, and stack traces.
+      * **Coverage Gaps**: modules or lines below configured thresholds.
+      * **Snapshots**: any mismatches or outdated snapshots.
+    * Compiles a Markdown report at `test/lwcTester/bug-report.md` including:
+
+      * **Summary**: total tests run, passed, failed, and coverage percentages.
+      * **Details**: per-test failure details and coverage deficits.
+      * **Recommendations**: suggested areas for new or updated tests.
+
+  **Output**
+
+  * A human-readable `bug-report.md` summarizing all test failures and coverage issues, ready for developer action.
