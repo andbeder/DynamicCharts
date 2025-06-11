@@ -44,6 +44,8 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - Code shall be written in modern JavaScript and Apex standards to ease future modifications.
 4. **Extensibility**
    - The system should allow additional chart types and datasets to be introduced with minimal code changes.
+5. **Testing**
+   - Automated tests shall verify that each chart container successfully initializes an ApexCharts instance.
 
 ## Out of Scope
 
