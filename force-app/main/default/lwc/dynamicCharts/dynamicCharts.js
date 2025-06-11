@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-useless-escape */
-import { LightningElement, wire } from "lwc";
+import { LightningElement, wire, api } from "lwc";
 import { getDatasets, executeQuery } from "lightning/analyticsWaveApi";
 import apexchartJs from "@salesforce/resourceUrl/ApexCharts";
 import { loadScript } from "lightning/platformResourceLoader";
@@ -54,6 +54,7 @@ export default class SacCharts extends LightningElement {
     }
   };
 
+  @api
   applySettings(options, chartId) {
     const settings = this.chartSettings[chartId] || {};
     const updated = { ...options };
@@ -62,6 +63,14 @@ export default class SacCharts extends LightningElement {
     }
     if (settings.colors) {
       updated.colors = settings.colors;
+    }
+    if (settings.effects && settings.effects.includes("shadow")) {
+      updated.chart = updated.chart || {};
+      updated.chart.dropShadow = {
+        enabled: true,
+        blur: 4,
+        opacity: 0.35
+      };
     }
     return updated;
   }
@@ -391,6 +400,14 @@ export default class SacCharts extends LightningElement {
         }
         if (settings.colors) {
           chartOptions.colors = settings.colors;
+        }
+        if (settings.effects && settings.effects.includes("shadow")) {
+          chartOptions.chart = chartOptions.chart || {};
+          chartOptions.chart.dropShadow = {
+            enabled: true,
+            blur: 4,
+            opacity: 0.35
+          };
         }
         // eslint-disable-next-line no-undef
         const chart = new ApexCharts(div, chartOptions);
