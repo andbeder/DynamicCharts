@@ -1,8 +1,8 @@
-# SAC Charts System Requirements
+# Dynamic Charts System Requirements
 
 ## Purpose
 
-SAC Charts is a Lightning application for Salesforce that enables users to quickly generate interactive charts in the Salesforce UI. The application leverages the ApexCharts JavaScript library to render charts and retrieves data from CRM Analytics (Wave) datasets using SAQL queries.
+Dynamic Charts is a Lightning application for Salesforce that enables users to quickly generate interactive charts in the Salesforce UI. The application leverages the ApexCharts JavaScript library to render charts and retrieves data from CRM Analytics (Wave) datasets using SAQL queries.
 
 ## Functional Requirements
 

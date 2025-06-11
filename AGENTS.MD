@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-* **Name**: SAC Charts
+* **Name**: Dynamic Charts
 * **Purpose**: A Lightning Web Component (`dynamicCharts`) that fetches CRM Analytics datasets via SAQL, applies user‐selected filters, and renders interactive charts using ApexCharts.
 
 ## File Structure
@@ -303,76 +303,55 @@ staticresources/
 ### changeRequestInterpreter
 
   **Description**  
-  Reads the structured diffs in `changeRequests.json` and produces clear, copy-&-pasteable ApexCharts edits—mapping each abstract “property” change to the real `options.*` API from the ApexCharts docs.
+  Continuously synchronizes your LWC change‐request script with both the structured diffs in `changeRequests.json` and the authoritative ApexCharts Options API documentation, ensuring every abstract “property” maps to a real, up-to-date `options.*` path and sample code.
 
   **Inputs**  
   - `changeRequests.json` (array of `{ chartId, action, targetFile, mismatches, instructions }`)  
-  - *(optional)* sample `dynamicCharts.js` / `dynamicCharts.html` for context  
+  - ApexCharts Options API docs URL (`https://apexcharts.com/docs/options/`)
 
   **Behavior**  
   1. **Load** and parse `changeRequests.json`.  
-  2. **Fetch** or reference a local mapping of abstract property names → real ApexCharts option paths (from `https://apexcharts.com/docs/options/`):  
-    - `seriesColors` → `options.colors`  
-    - `font`         → `options.chart.fontFamily`  
-    - `effects: ["shadow"]` →  
+  2. **Fetch & parse** the Options API docs:  
+    - Use an HTTP client (e.g. `axios`) plus an HTML parser (e.g. `cheerio`) to retrieve and extract every option name, its full path (e.g. `chart.dropShadow`), default values, and code examples.  
+    - Build an in‐memory mapping:
       ```js
-      options.chart.dropShadow = {
-        enabled:  true,
-        top:      <defaultOrUserValue>,
-        left:     <defaultOrUserValue>,
-        blur:     <defaultOrUserValue>,
-        opacity:  <defaultOrUserValue>
+      {
+        seriesColors: { path: 'colors', example: "colors: ['#F00','#0F0']" },
+        font:         { path: 'chart.fontFamily', example: "chart: { fontFamily: 'Helvetica' }" },
+        shadow:       { path: 'chart.dropShadow', example: `chart: {
+          dropShadow: {
+            enabled: true,
+            top: 2, left: 2, blur: 4, opacity: 0.35
+          }
+        }` },
+        // ...all other documented options
       }
-      ```  
-  3. **For each** change-request object:  
+      ```
+  3. **For each** change‐request:  
     - **add**  
-      - Generate an HTML snippet insertion if `targetFile === 'dynamicCharts.html'`.  
-      - Or generate a JS init snippet:  
-        ```js
-        chart = new ApexCharts(elem, {
-          // …existing config…
-          colors: ['#002060'],             // from seriesColors
-          chart: { fontFamily: 'Roboto' }  // from font
-        });
-        ```  
+      - Generate an HTML snippet insertion (if `targetFile === 'dynamicCharts.html'`).  
+      - Or generate a JS init snippet invoking `new ApexCharts(elem, { …existingConfig, <mapped options> })`.  
     - **remove**  
-      - Output “Remove the `<div class='chart-{{chartId}}'>…</div>` block from `dynamicCharts.html`.”  
-      - Or “Remove the corresponding `chart.updateOptions({...})` call in `dynamicCharts.js`.”  
+      - Emit a “Remove the `<div class='chart-{{chartId}}'>…</div>` block from dynamicCharts.html” or “Remove the corresponding `chart.updateOptions({...})` call in dynamicCharts.js.”  
     - **update**  
       - **For each** mismatch in `.mismatches`:  
-        1. **Map** `property` → real `options` path.  
-        2. **Compose** a `chart.updateOptions({ … })` call.  
-            ```diff
-            // before: colors: ApexCharts.defaults.colors
-            chart.updateOptions({
-              colors: ['#002060']
-            });
-            ```  
-            ```diff
-            // before: no dropShadow
-            chart.updateOptions({
-              chart: {
-                dropShadow: {
-                  enabled: true,
-                  top:     2,
-                  left:    2,
-                  blur:    4,
-                  opacity: 0.35
-                }
-              }
-            });
-            ```  
-  4. **Aggregate** all instructions into a **numbered list**, each entry prefaced with the target file and chart ID.  
-  5. **Write** the list to `changeRequestInstructions.txt`.  
+        1. Look up `m.property` in the docs mapping to get the real `options` path and example shape.  
+        2. Compose a precise `chart.updateOptions({...})` call, merging in default values for any nested fields not affected by this change.  
+        3. If the docs mapping is missing a property, fall back to a generic `updateOptions({ <property>: <value> })` and log a warning to extend the mapping.  
+  4. **Monitor** the ApexCharts docs URL on a **daily** schedule (or on every run) and **refresh** the mapping so that any new options (or renamed paths) are automatically ingested.  
+  5. **Aggregate** all generated edits into a **numbered list**, prefixing each entry with file & chart ID, and **write** out `changeRequestInstructions.txt`.  
 
   **Dependencies**  
-  - `changeRequests.json`  
-  - A lookup of ApexCharts option names and their paths (scraped or hand-curated from `/docs/options/`)  
-  - JSON parsing library (e.g. `jq` or Node.js)  
-  - Simple template engine or string builder  
+  - Node.js ≥v14  
+  - npm modules:
+    - `axios` (HTTP fetch)  
+    - `cheerio` (HTML parsing)  
+    - `deep-diff` or similar (for JSON diffs)  
+    - `fs` / `path` (file I/O)  
+  - Access to `https://apexcharts.com/docs/options/`  
 
   **Output**  
-  - `changeRequestInstructions.txt`: a human-readable, ordered list of exact ApexCharts option edits—complete with code snippets referencing `options.*`—ready for developers to apply directly.  
+  - `changeRequestInstructions.txt`: a human-readable, fully-code-snippet-driven, ordered list of exact ApexCharts edits—pulled straight from the latest docs—ready for direct copy-and-paste into your LWC source.
 
 ### chartSynchronizer
 
