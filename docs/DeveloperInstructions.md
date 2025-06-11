@@ -2,6 +2,12 @@
 
 This document summarizes the updates contained in `changeRequests.json` and outlines the steps required to apply them to the `dynamicCharts` Lightning Web Component.
 
+To regenerate this list at any time, run:
+
+```bash
+npm run generate:instructions
+```
+
 ## Overview
 
 The CR‑02 dashboard introduces new titles, field labels and styles for the three primary charts. It also removes the obsolete `DaysPerPeak` chart. All changes target `force-app/main/default/lwc/dynamicCharts/dynamicCharts.js`.
