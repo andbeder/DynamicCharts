@@ -36,6 +36,7 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - The application shall be compatible with Salesforce API version 59.0 as specified in the `sfdx-project.json` configuration.
 7. **Change Request Generation**
    - The system shall compare `charts.json` with `revEngCharts.json` and output `changeRequests.json` listing required code updates.
+   - A script shall convert `changeRequests.json` into a human-readable `changeRequestInstructions.txt` file for developers.
 
 ## Non‑Functional Requirements
 
