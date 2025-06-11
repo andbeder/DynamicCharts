@@ -182,7 +182,7 @@ staticresources/
 ### dashboardReader
 
   **Description**  
-  Parses Salesforce dashboard JSON files to extract structured chart definitions compatible with ApexCharts. Produces normalized entries in `charts.json` that are consumable by Lightning Web Components (LWC).
+  Parses Salesforce dashboard JSON files to extract structured chart definitions compatible with ApexCharts. Produces normalized entries in `charts.json` that are consumable by downstream agents.
 
   **Behavior**  
   - Reads input from `dashboards/${dashboardApiName}.json`
@@ -193,6 +193,7 @@ staticresources/
   - `title` is converted to kebab-case and used as `chart.id`
   - `subtitle` contains chart config as semi-colon-separated key-value pairs
   - Color names not in the defined scheme are treated as valid CSS colors
+  - If a chart entry for that dashboard exist in `charts.json` but not on the dashboard, it should be removed from `charts.json`
 
   **Error Handling**  
   - Skips and logs any chart definitions that are missing required fields or contain invalid subtitle metadata
@@ -296,23 +297,44 @@ staticresources/
 
 ### chartSynchronizer
 
-**Description**:  
-Synchronizes the `dynamicCharts` Lightning Web Component (LWC) with chart definitions in `charts.json`, ensuring consistency across metadata, HTML markup, and JavaScript logic.
+  **Description**  
+  Applies the fine-grained change requests produced by `changeRequestGenerator` to the `dynamicCharts` Lightning Web Component, updating HTML markup and JS logic to bring the component into sync with `charts.json`.
 
-**Behavior**:
+  **Behavior**
 
-- **Analyze & Compare**:
-  - Parses chart metadata from `charts.json` using the `CHART_JSON_DEFINITION.MD` specification.
-  - Scans the current LWC source files (`dynamicCharts.html` and `dynamicCharts.js`) to detect missing, outdated, or misaligned chart elements.
+  1. **Load change requests**  
+    - Read `changeRequests.json` (or `change-requests/*.json`) as an array of change-request objects.
 
-- **Update & Inject**:
-  - Adds or updates `<div>` containers in `dynamicCharts.html` to reflect each chart specified in `charts.json`.
-  - For each chart, creates two versions:
-    - A primary version based on selected filter values.
-    - An AO (Alternate Output) version that applies inverse logic for the `host` and `nation` filters.
-  - Injects or updates SAQL query strings and chart rendering logic in `dynamicCharts.js`.
-  - Ensures charts are correctly wired to filter change events and that rendering hooks are consistent across chart types.
-  - Applies style configurations and series formatting as defined in `charts.json`.
+  2. **Process each change-request**  
+    For each entry in the array:
+    - **add**
+      - In `dynamicCharts.html`: insert the `<div>` container snippet provided (or generate it from the request) at the appropriate location.
+      - In `dynamicCharts.js`: add initialization (SAQL string, ApexCharts instantiation, filter hooks) as specified.
+    - **remove**
+      - In `dynamicCharts.html`: remove the `<div>` block whose `chartId` matches.
+      - In `dynamicCharts.js`: remove the corresponding query string, render call, and any filter-binding logic for that chart.
+    - **update**
+      - Iterate over `mismatches[]`:
+        - If the mismatch’s `targetFile` is `dynamicCharts.html`, locate the relevant attribute or markup and replace the `currentValue` with the `expectedValue`.
+        - If the mismatch’s `targetFile` is `dynamicCharts.js`, locate the SAQL definition, option object, filter mapping, etc., and update each property from `currentValue` → `expectedValue`.
+      - Optionally: group multiple property updates for the same chart into a single patch operation.
+
+  3. **Write changes back**  
+    - Overwrite `dynamicCharts.html` and `dynamicCharts.js` with the applied modifications.
+    - Log a summary of all applied changes (e.g., “3 adds, 2 removes, 5 updates applied”).
+
+  **Preconditions**  
+  - `changeRequests.json` exists and is valid.  
+  - Original `dynamicCharts.html` and `dynamicCharts.js` are parseable (e.g., well-formed HTML and JS).  
+  - A utility or parsing library (e.g., an HTML/JS AST manipulator) is available.
+
+  **Dependencies**  
+  - `changeRequests.json` (from `changeRequestGenerator`)  
+  - `dynamicCharts.html`  
+  - `dynamicCharts.js`
+
+  **Output**  
+  - Updated `dynamicCharts.html` and `dynamicCharts.js` reflecting all requested adds, removes, and property-level updates.
 
 **Outcome**:  
 Ensures the `dynamicCharts` component remains fully synchronized with the central chart metadata file, supporting scalable updates and minimizing manual intervention.
@@ -397,8 +419,9 @@ Ensures the `dynamicCharts` component remains fully synchronized with the centra
 
 ### 📈 Chart Update Workflow
 
-  **User Request**:  
-  _"Please read the dashboard `CR-02` and use it to refactor the LWC code, and push it to the org."_
+  **User Request**  
+    _"Please read the dashboard `CR-02`, generate a change-request, apply it to the LWC, and push the updated code to the org."_
+    _"Please update the charts based on dashboard `CR-02`."_
 
   **Agent Sequence**:
 
@@ -406,19 +429,28 @@ Ensures the `dynamicCharts` component remains fully synchronized with the centra
     Installs required Salesforce CLI plugins and authenticates into the target org.
 
   2. **`dashboardRetriever`**  
-    Retrieves the `CR-02` dashboard from Salesforce and saves its editable `state` as a JSON file.
+    Retrieves the `CR-02` dashboard from Salesforce and saves its editable `state` as `dashboards/CR-02.json`.
 
   3. **`dashboardReader`**  
-    Parses the downloaded dashboard JSON and generates normalized chart definitions into `charts.json`.
+    Parses `dashboards/CR-02.json` and writes the normalized chart definitions to `charts.json`.
 
-  4. **`chartSynchronizer`**  
-    Compares `charts.json` with existing LWC code and updates `dynamicCharts.html` and `dynamicCharts.js` accordingly.
+  4. **`lwcReader`**  
+    Reverse-engineers the existing `dynamicCharts` LWC and writes its live chart definitions to `revEngCharts.json`.
 
-  5. **`lwcTester`**  
-    Runs Jest-based unit tests to validate correctness of the updated LWC implementation.
+  5. **`changeRequestGenerator`**  
+    Compares `charts.json` vs. `revEngCharts.json` and emits `changeRequests.json` with per-chart, per-property add/remove/update instructions.
 
-  6. **`sfdcDeployer`**  
-    Deploys the updated LWC code to the authenticated Salesforce org and opens the org for manual verification.
+  6. **`chartSynchronizer`**  
+    Consumes `changeRequests.json` and applies all adds, removes, and property-level updates to `dynamicCharts.html` and `dynamicCharts.js`.
+
+  7. **`lwcTester`**  
+    Runs Jest-based unit tests to verify the updated LWC implementation behaves as expected.
+
+  8. **`sfdcDeployer`**  
+    Deploys the revised `force-app` source to the authenticated Salesforce org and opens the org for final verification.
+
+  **Outcome**  
+  A `dynamicCharts` component that is fully synchronized with the dashboard definition and deployed to your org.
 
   ---
 
@@ -450,3 +482,29 @@ Ensures the `dynamicCharts` component remains fully synchronized with the centra
 
   **Outcome**:  
   A `changeRequests.json` file listing all additions, removals, and updates needed in `dynamicCharts.html` and `dynamicCharts.js`.
+
+### 🔄 Change Request Apply & Deploy Workflow
+
+**User Request**  
+_"Please apply the pending change requests to the LWC and deploy them to the org."_
+
+**Agent Sequence**:
+
+1. **`sfdcAuthorizer`**  
+   Ensure the Salesforce CLI is installed and authenticate into the target org.
+
+2. **`chartSynchronizer`**  
+   Consume `changeRequests.json` and apply all add/remove/update operations to `dynamicCharts.html` and `dynamicCharts.js`.
+
+3. **`lwcTester`**  
+   Run Jest-based unit tests (`npm run test:unit` or `sfdx-lwc-jest`) to verify the updated component.
+
+4. **`sfdcDeployer`**  
+   Deploy the revised `force-app` source to the authenticated Salesforce org and open the org for final verification:
+
+   ```bash
+   sf project deploy start --source-dir force-app
+   sf org open
+   ```
+  **Outcome**:  
+  The dynamicCharts component is updated per the change requests, validated by unit tests, and deployed to your Salesforce org.

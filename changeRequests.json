@@ -1,22 +1,6 @@
 {
   "changes": [
     {
-      "chartId": "ClimbsByNationAO",
-      "action": "remove",
-      "targetFile": "dynamicCharts.js",
-      "instructions": [
-        "Remove chart ClimbsByNationAO from dynamicCharts"
-      ]
-    },
-    {
-      "chartId": "TimeByPeakAO",
-      "action": "remove",
-      "targetFile": "dynamicCharts.js",
-      "instructions": [
-        "Remove chart TimeByPeakAO from dynamicCharts"
-      ]
-    },
-    {
       "chartId": "ClimbsByNation",
       "action": "update",
       "targetFile": "dynamicCharts.js",
@@ -47,9 +31,7 @@
           "expectedValue": {
             "seriesColors": "#002060",
             "font": "default",
-            "effects": [
-              "shadow"
-            ]
+            "effects": ["shadow"]
           }
         }
       ],
@@ -96,9 +78,7 @@
           "expectedValue": {
             "seriesColors": "#97C1DA,#002060",
             "font": "default",
-            "effects": [
-              "shadow"
-            ]
+            "effects": ["shadow"]
           }
         }
       ],
@@ -172,9 +152,7 @@
           "expectedValue": {
             "seriesColors": "#175F68",
             "font": "default",
-            "effects": [
-              "shadow"
-            ]
+            "effects": ["shadow"]
           }
         }
       ],
