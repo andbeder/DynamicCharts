@@ -279,7 +279,7 @@ export default class SacCharts extends LightningElement {
         maxVals.push(r.D);
       });
       const options = { ...this.chartBarOptions };
-      options.xaxis.categories = labels;
+      options.yaxis.categories = labels;
       options.series = [
         { name: "Min", data: minVals },
         { name: "Q1", data: q1Vals },
@@ -408,7 +408,7 @@ export default class SacCharts extends LightningElement {
     chart: { type: "bar", height: 410 },
     plotOptions: { bar: { horizontal: true } },
     series: [],
-    xaxis: { categories: [] },
+    yaxis: { categories: [] },
     noData: { text: "Loading..." }
   };
 
