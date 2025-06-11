@@ -230,36 +230,69 @@ staticresources/
 
 ### changeRequestGenerator
 
-  **Description**:  
-  Compares the authoritative chart definitions in `charts.json` against the reverse-engineered definitions in `revEngCharts.json` and generates a structured change-request file that details exactly how the `dynamicCharts` LWC must be updated to match `charts.json`.
+   **Description**  
+   Compares the “authoritative” chart definitions in `charts.json` against the reverse-engineered charts in `revEngCharts.json`, and emits a `changeRequests.json` file with fine-grained, property-level instructions.
 
-  **Behavior**:  
-  1. Load normalized definitions from `charts.json`.  
-  2. Load reverse-engineered definitions from `revEngCharts.json`.  
-  3. Diff the two sets by `chart.id`, classifying each difference as:
-    - **add**: present in `charts.json` but missing in `revEngCharts.json`.  
-    - **remove**: present in `revEngCharts.json` but missing in `charts.json`.  
-    - **update**: present in both but with mismatched properties (e.g. title, SAQL, styles).  
-  4. For each difference, build a change-request object containing:
-    - `chartId`  
-    - `action` (`add` | `remove` | `update`)  
-    - `targetFile` (`dynamicCharts.html` or `dynamicCharts.js`)  
-    - `details`: human-readable instructions (e.g. “insert `<div class='chartX'>…`”, “update SAQL string in render logic”, etc.).  
-  5. Write the full array of change-request objects to `changeRequests.json` at the project root (or into a `change-requests/` folder, if preferred).
+   **Behavior**  
+   1. **Load inputs**  
+      - Read `charts.json` → _authoritativeCharts_  
+      - Read `revEngCharts.json` → _currentCharts_
 
-  **Preconditions**:  
-  - Both `charts.json` and `revEngCharts.json` exist and are valid JSON.  
-  - A Node.js runtime with a JSON-diff library (e.g. `deep-diff`) is available.  
-  - The output directory (if using `change-requests/`) exists or can be created.
+   2. **Build lookup maps**  
+      - Map each by `chart.id` for quick compare.
 
-  **Dependencies**:  
-  - `CHART_JSON_DEFINITION.MD` (to interpret chart property schema)  
-  - `charts.json`  
-  - `revEngCharts.json`  
-  - JSON diffing utility
+   3. **Detect added & removed charts**  
+      - **add**: in _authoritativeCharts_ but not in _currentCharts_  
+      - **remove**: in _currentCharts_ but not in _authoritativeCharts_
 
-  **Output**:  
-  - `changeRequests.json`: a JSON array of change-request objects describing all required LWC modifications.
+   4. **Detect updated charts**  
+      - For each `chartId` present in both sets:
+      1. Compare each schema property (e.g. `title`, `type`, `saql`, `seriesColors`, `xAxis.label`, filter settings, etc.).
+      2. For every property where `currentCharts[chartId][prop] !== authoritativeCharts[chartId][prop]`, record a mismatch:
+         ```jsonc
+         {
+            "property": "<propName>",
+            "currentValue": <value from revEngCharts.json>,
+            "expectedValue": <value from charts.json>
+         }
+         ```
+      3. If any mismatches exist, classify this as an **update**.
+
+   5. **Construct change-request objects**  
+      For each difference (`add` / `remove` / `update`), build:
+      ```json
+      {
+      "chartId": "<chart.id>",
+      "action": "add" | "remove" | "update",
+      "targetFile": "dynamicCharts.html" | "dynamicCharts.js",
+      "mismatches": [ /* only for updates: array of property diffs */ ],
+      "instructions": [
+         /* 
+            - For adds: e.g. "Insert `<div class='chart{{chartId}}'>…</div>` into dynamicCharts.html" 
+            - For removes: e.g. "Remove `<div class='chart{{chartId}}'>…</div>`" 
+            - For updates: for each mismatch, 
+            "In dynamicCharts.js, update `{{property}}` from `{{currentValue}}` to `{{expectedValue}}`"
+         */
+      ]
+      }
+      ```
+
+   6. **Write output**  
+      - Serialize the array of change-request objects to `changeRequests.json` (or under `change-requests/`).
+
+   **Preconditions**  
+   - Valid JSON in both `charts.json` and `revEngCharts.json`.  
+   - A JSON diffing helper (e.g. `deep-diff` or custom comparator) is available.  
+   - Output directory exists or is creatable.
+
+   **Dependencies**  
+   - `CHART_JSON_DEFINITION.MD` (for schema reference)  
+   - `charts.json`  
+   - `revEngCharts.json`  
+   - JSON comparison library
+
+   **Output**  
+   - `changeRequests.json`: full list of per-chart, per-property changes required to sync your LWC.
 
 ### chartSynchronizer
 
