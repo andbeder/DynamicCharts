@@ -336,49 +336,47 @@ staticresources/
 
 ### chartSynchronizer
 
-**Description**  
-Applies the fine-grained change requests produced by `changeRequestGenerator` to the `dynamicCharts` Lightning Web Component, updating HTML markup and JS logic to bring the component into sync with `charts.json`.
+  **Description**
+  Applies the detailed developer instructions from `changeRequestInstructions.txt` to the `dynamicCharts` Lightning Web Component, updating both HTML markup and JS logic according to the provided steps.
 
-**Behavior**
+  **Inputs**
 
-1. **Load change requests**  
-   - Read `changeRequests.json` (or `change-requests/*.json`) as an array of change-request objects.
+  * `changeRequestInstructions.txt` (text file with numbered, human‐readable edit steps)
+  * `dynamicCharts.html` and `dynamicCharts.js` (source files)
 
-2. **Process each change-request**  
-   For each entry in the array:  
-   - **add**  
-     - In `dynamicCharts.html`: insert the `<div>` container snippet provided (or generate it from the request) at the appropriate location.  
-     - In `dynamicCharts.js`: add initialization (SAQL string, ApexCharts instantiation, filter hooks) as specified.  
-   - **remove**  
-     - In `dynamicCharts.html`: remove the `<div>` block whose `chartId` matches.  
-     - In `dynamicCharts.js`: remove the corresponding query string, render call, and any filter-binding logic for that chart.  
-   - **update**  
-     - Iterate over `mismatches[]`:  
-       - If the mismatch’s `targetFile` is `dynamicCharts.html`, locate the relevant attribute or markup and replace the `currentValue` with the `expectedValue`.  
-       - If the mismatch’s `targetFile` is `dynamicCharts.js`, locate the SAQL definition, option object, filter mapping, etc., and update each property from `currentValue` → `expectedValue`.  
-     - Optionally: group multiple property updates for the same chart into a single patch operation.  
-   - **Options validation**  
-     - Whenever you’re adding or updating an ApexCharts `options` object, reference the official sub-sections under **https://apexcharts.com/docs/options/** (e.g. `chart/`, `plotOptions/`, `dataLabels/`, `grid/`, `tooltip/`, `xaxis/`, `yaxis/`, etc.) to ensure you’re using the correct JSON structure and supported property names.
+  **Behavior**
 
-3. **Write changes back**  
-   - Overwrite `dynamicCharts.html` and `dynamicCharts.js` with the applied modifications.  
-   - Log a summary of all applied changes (e.g., “3 adds, 2 removes, 5 updates applied”).
+  1. **Load** and read `changeRequestInstructions.txt` line by line.
+  2. **Parse** each numbered instruction into actionable edits, identifying:
 
-**Preconditions**  
-- `changeRequests.json` exists and is valid.  
-- Original `dynamicCharts.html` and `dynamicCharts.js` are parseable (e.g., well-formed HTML and JS).  
-- A utility or parsing library (e.g., an HTML/JS AST manipulator) is available.
+    * Target file (`dynamicCharts.html` or `dynamicCharts.js`)
+    * Operation type (insert, remove, update)
+    * Content snippet or property change details
+  3. **For each** instruction in order:
 
-**Dependencies**  
-- `changeRequests.json` (from `changeRequestGenerator`)  
-- `dynamicCharts.html`  
-- `dynamicCharts.js`
+    * **Open** the specified file and **apply** the edit:
 
-**Output**  
-- Updated `dynamicCharts.html` and `dynamicCharts.js` reflecting all requested adds, removes, and property-level updates.
+      * **Insert**: place the snippet at the indicated location
+      * **Remove**: locate and delete the specified block or line
+      * **Update**: find the existing value and replace it with the new value
+  4. **Write** the modified files back to disk.
+  5. **Log** a summary of applied instructions (e.g., “Applied 5 inserts, 3 removals, 4 updates”).
 
-**Outcome**  
-Ensures the `dynamicCharts` component remains fully synchronized with the central chart metadata file, supports scalable updates, and leverages the ApexCharts options docs for proper JSON configuration.
+  **Preconditions**
+
+  * A valid `changeRequestInstructions.txt` file exists with clear, numbered steps.
+  * `dynamicCharts.html` and `dynamicCharts.js` are present and well-formed.
+
+  **Dependencies**
+
+  * A text‐parsing or scripting utility (e.g., a Node.js script) capable of reading instructions and manipulating files.
+
+  **Output**
+
+  * Updated `dynamicCharts.html` and `dynamicCharts.js` reflecting all specified changes.
+
+  **Outcome**
+  Ensures your LWC source is synchronized by executing exactly the developer‐oriented instructions generated from the change requests.
 
 ### lwcTester
 
@@ -516,13 +514,16 @@ Validates Lightning Web Components by executing Jest-based unit and integration 
   5. **`changeRequestGenerator`**  
     Compares `charts.json` vs. `revEngCharts.json` and emits `changeRequests.json` with per-chart, per-property add/remove/update instructions.
 
-  6. **`chartSynchronizer`**  
-    Consumes `changeRequests.json` and applies all adds, removes, and property-level updates to `dynamicCharts.html` and `dynamicCharts.js`.
+  6. **`changeRequestGenerator`**  
+    Reads `changeRequests.json` and generates a set of LWC developer instructions to be followed to apply the changes written to `changeRequestInstructions.txt`.
 
-  7. **`lwcTester`**  
+  7. **`chartSynchronizer`**  
+    Consumes `changeRequestInstructions.txt` and makes all changes to `dynamicCharts.html` and `dynamicCharts.js`.
+
+  8. **`lwcTester`**  
     Runs Jest-based unit tests to verify the updated LWC implementation behaves as expected.
 
-  8. **`sfdcDeployer`**  
+  9. **`sfdcDeployer`**  
     Deploys the revised `force-app` source to the authenticated Salesforce org and opens the org for final verification.
 
   **Outcome**  
@@ -576,39 +577,58 @@ Validates Lightning Web Components by executing Jest-based unit and integration 
 
 ### 🔄 Change Request Apply & Deploy Workflow
 
-**User Request**  
-_"Please apply the pending change requests to the LWC and deploy them to the org."_
+  **User Request**  
+  _"Please apply the pending change requests to the LWC and deploy them to the org."_
 
-**Agent Sequence**:
+  **Agent Sequence**:
 
-1. **`sfdcAuthorizer`**  
-   Ensure the Salesforce CLI is installed and authenticate into the target org.
+  1. **`sfdcAuthorizer`**  
+    Ensure the Salesforce CLI is installed and authenticate into the target org.
 
-2. **`chartSynchronizer`**  
-   Consume `changeRequests.json` and apply all add/remove/update operations to `dynamicCharts.html` and `dynamicCharts.js`.
+  2. **`chartSynchronizer`**  
+    Consume `changeRequests.json` and apply all add/remove/update operations to `dynamicCharts.html` and `dynamicCharts.js`.
 
-3. **`lwcTester`**  
-   Run Jest-based unit tests (`npm run test:unit` or `sfdx-lwc-jest`) to verify the updated component.
+  3. **`lwcTester`**  
+    Run Jest-based unit tests (`npm run test:unit` or `sfdx-lwc-jest`) to verify the updated component.
 
-4. **`sfdcDeployer`**  
-   Deploy the revised `force-app` source to the authenticated Salesforce org and open the org for final verification:
+  4. **`sfdcDeployer`**  
+    Deploy the revised `force-app` source to the authenticated Salesforce org and open the org for final verification:
 
-   ```bash
-   sf project deploy start --source-dir force-app
-   sf org open
-   ```
-  **Outcome**:  
-  The dynamicCharts component is updated per the change requests, validated by unit tests, and deployed to your Salesforce org.
+    ```bash
+    sf project deploy start --source-dir force-app
+    sf org open
+    ```
+    **Outcome**:  
+    The dynamicCharts component is updated per the change requests, validated by unit tests, and deployed to your Salesforce org.
 
 ### 🔍 Change Request Interpretation Workflow
 
-**User Request**  
-_"Please generate detailed developer instructions from the existing change requests."_  
+  **User Request**  
+  _"Please generate detailed developer instructions from the existing change requests."_  
 
-**Agent Sequence**:
+  **Agent Sequence**:
 
-1. **`changeRequestInterpreter`**  
-   Reads `changeRequests.json`, translates each add/remove/update into human-readable LWC steps, and writes them to `changeRequestInstructions.txt`.  
+  1. **`changeRequestInterpreter`**  
+    Reads `changeRequests.json`, translates each add/remove/update into human-readable LWC steps, and writes them to `changeRequestInstructions.txt`.  
 
-**Outcome**  
-A `changeRequestInstructions.txt` file containing a numbered list of concrete edits for `dynamicCharts.html` and `dynamicCharts.js`.  
+  **Outcome**  
+  A `changeRequestInstructions.txt` file containing a numbered list of concrete edits for `dynamicCharts.html` and `dynamicCharts.js`.  
+
+### 🚀 Apply & Deploy Workflow
+
+  **User Request**  
+  _"Please apply the developer instructions, verify the changes, and deploy to the org."_  
+
+  **Agent Sequence**:
+
+  1. **`chartSynchronizer`**  
+    Reads `changeRequestInstructions.txt` and applies each edit to `dynamicCharts.html` and `dynamicCharts.js`.
+
+  2. **`lwcTester`**  
+    Runs Jest-based unit and integration tests to confirm that the updated LWC behaves as expected.
+
+  3. **`sfdcDeployer`**  
+    Deploys the revised `force-app` source to your authenticated Salesforce org and opens the org for final verification.
+
+  **Outcome**  
+  Your Lightning Web Component is updated per the instructions, validated by tests, and deployed to the target org.  
