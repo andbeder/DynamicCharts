@@ -24,6 +24,55 @@ export default class SacCharts extends LightningElement {
 
   chartObject = {};
 
+  chartSettings = {
+    ClimbsByNation: {
+      title: "Top 20 Climbs by Nation",
+      fieldMappings: { nation: "Nation", Climbs: "Climbs" },
+      colors: ["#002060"],
+      effects: ["shadow"]
+    },
+    TimeByPeak: {
+      title: "Days per Peak by Top 20 Climbs",
+      fieldMappings: {
+        peakid: "Peak ID",
+        A: "Min",
+        B: "Q1",
+        C: "Q3",
+        D: "Max"
+      },
+      colors: ["#97C1DA", "#002060"],
+      effects: ["shadow"]
+    },
+    DaysPerPeak: {
+      title: "Days per Peak",
+      fieldMappings: {
+        peakid: "Peak ID",
+        A: "Min",
+        B: "Q1",
+        C: "Q3",
+        D: "Max"
+      }
+    },
+    CampsByPeak: {
+      title: "Average Number of Camps per Peak",
+      fieldMappings: { peakid: "Peak ID", A: "Average Camps" },
+      colors: ["#175F68"],
+      effects: ["shadow"]
+    }
+  };
+
+  applySettings(options, chartId) {
+    const settings = this.chartSettings[chartId] || {};
+    const updated = { ...options };
+    if (settings.title) {
+      updated.title = { text: settings.title };
+    }
+    if (settings.colors) {
+      updated.colors = settings.colors;
+    }
+    return updated;
+  }
+
   @wire(getDatasets, {
     datasetTypes: ["Default", "Live"],
     licenseType: "EinsteinAnalytics",
@@ -191,7 +240,8 @@ export default class SacCharts extends LightningElement {
     let saql = `q = load \"${id}\";\n`;
     saql += this.getFilters();
     saql += "q = group q by 'peakid';\n";
-    saql += "q = foreach q generate q.'peakid' as peakid, avg(q.'camps') as A;\n";
+    saql +=
+      "q = foreach q generate q.'peakid' as peakid, avg(q.'camps') as A;\n";
     saql += "q = order q by A desc;\n";
     saql += "q = limit q 20;";
     return { query: saql };
@@ -210,7 +260,9 @@ export default class SacCharts extends LightningElement {
       options.xaxis.categories = labels;
       options.series = [{ name: "Climbs", data: values }];
       if (this.chartObject.ClimbsByNation) {
-        this.chartObject.ClimbsByNation.updateOptions(options);
+        this.chartObject.ClimbsByNation.updateOptions(
+          this.applySettings(options, "ClimbsByNation")
+        );
       }
     }
   }
@@ -228,7 +280,9 @@ export default class SacCharts extends LightningElement {
       options.xaxis.categories = labels;
       options.series = [{ name: "Climbs", data: values }];
       if (this.chartObject.ClimbsByNationAO) {
-        this.chartObject.ClimbsByNationAO.updateOptions(options);
+        this.chartObject.ClimbsByNationAO.updateOptions(
+          this.applySettings(options, "ClimbsByNationAO")
+        );
       }
     }
   }
@@ -243,7 +297,9 @@ export default class SacCharts extends LightningElement {
       const options = { ...this.chartBoxOptions };
       options.series = [{ name: "Days", data: records }];
       if (this.chartObject.TimeByPeak) {
-        this.chartObject.TimeByPeak.updateOptions(options);
+        this.chartObject.TimeByPeak.updateOptions(
+          this.applySettings(options, "TimeByPeak")
+        );
       }
     }
   }
@@ -258,7 +314,9 @@ export default class SacCharts extends LightningElement {
       const options = { ...this.chartBoxOptions };
       options.series = [{ name: "Days", data: records }];
       if (this.chartObject.TimeByPeakAO) {
-        this.chartObject.TimeByPeakAO.updateOptions(options);
+        this.chartObject.TimeByPeakAO.updateOptions(
+          this.applySettings(options, "TimeByPeakAO")
+        );
       }
     }
   }
@@ -287,7 +345,9 @@ export default class SacCharts extends LightningElement {
         { name: "Max", data: maxVals }
       ];
       if (this.chartObject.DaysPerPeak) {
-        this.chartObject.DaysPerPeak.updateOptions(options);
+        this.chartObject.DaysPerPeak.updateOptions(
+          this.applySettings(options, "DaysPerPeak")
+        );
       }
     }
   }
@@ -305,7 +365,9 @@ export default class SacCharts extends LightningElement {
       options.xaxis.categories = labels;
       options.series = [{ name: "Avg Camps", data: values }];
       if (this.chartObject.CampsByPeak) {
-        this.chartObject.CampsByPeak.updateOptions(options);
+        this.chartObject.CampsByPeak.updateOptions(
+          this.applySettings(options, "CampsByPeak")
+        );
       }
     }
   }
@@ -339,8 +401,16 @@ export default class SacCharts extends LightningElement {
     loadScript(this, apexchartJs + "/dist/apexcharts.js")
       .then(() => {
         const div = this.template.querySelector(selector);
+        const settings = this.chartSettings[name] || {};
+        const chartOptions = { ...options };
+        if (settings.title) {
+          chartOptions.title = { text: settings.title };
+        }
+        if (settings.colors) {
+          chartOptions.colors = settings.colors;
+        }
         // eslint-disable-next-line no-undef
-        const chart = new ApexCharts(div, options);
+        const chart = new ApexCharts(div, chartOptions);
         chart.render();
         this.chartObject[name] = chart;
       })
