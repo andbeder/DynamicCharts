@@ -28,6 +28,7 @@ staticresources/
 ### Important Files
 
 1. **charts.json**: Intemediary output of chart processing holding chart configuration details. This is updated by the `dashboardReader` agent and read by the `chartBuilder` agent
+2. **revEngCharts.json**: This version of the output reflects the LWC state of charts reverse-engingeered from their configuration
 
 ## Environment Setup
 
@@ -127,57 +128,57 @@ staticresources/
 
 ### dashboardRetriever
 
-**Description**  
-Retrieves the editable `state` JSON definition of a CRM Analytics dashboard from Salesforce using the Wave REST API and `curl`.
+  **Description**  
+  Retrieves the editable `state` JSON definition of a CRM Analytics dashboard from Salesforce using the Wave REST API and `curl`.
 
----
+  ---
 
-#### Inputs
+  #### Inputs
 
-- `dashboardApiName`: The `DeveloperName` of the target dashboard.  
-- `accessToken`: OAuth access token (provided by `sfdcAuthorizer`).  
-- `instanceUrl`: Base URL of the authenticated Salesforce org (e.g., `https://yourInstance.salesforce.com`).  
+  - `dashboardApiName`: The `DeveloperName` of the target dashboard.  
+  - `accessToken`: OAuth access token (provided by `sfdcAuthorizer`).  
+  - `instanceUrl`: Base URL of the authenticated Salesforce org (e.g., `https://yourInstance.salesforce.com`).  
 
----
+  ---
 
-#### Behavior
+  #### Behavior
 
-1. **Confirm Authentication**  
-   Ensure session is authenticated via `sfdcAuthorizer`, which provides:
-   - `accessToken`
-   - `instanceUrl`
+  1. **Confirm Authentication**  
+    Ensure session is authenticated via `sfdcAuthorizer`, which provides:
+    - `accessToken`
+    - `instanceUrl`
 
-2. **Retrieve Full Dashboard Definition by API Name**  
-   Use the Wave REST API to retrieve the dashboard JSON directly by API name:
+  2. **Retrieve Full Dashboard Definition by API Name**  
+    Use the Wave REST API to retrieve the dashboard JSON directly by API name:
 
-   ```bash
-   curl -s -H "Authorization: Bearer ${accessToken}" \
-     -H "Content-Type: application/json" \
-     "${instanceUrl}/services/data/v60.0/wave/dashboards/${dashboardApiName}" \
-     -o "dashboards/${dashboardApiName}_full.json"
-   ```
+    ```bash
+    curl -s -H "Authorization: Bearer ${accessToken}" \
+      -H "Content-Type: application/json" \
+      "${instanceUrl}/services/data/v60.0/wave/dashboards/${dashboardApiName}" \
+      -o "dashboards/${dashboardApiName}_full.json"
+    ```
 
-3. **Extract `state` Object**  
-   Use `jq` to isolate and save the `state` object:
+  3. **Extract `state` Object**  
+    Use `jq` to isolate and save the `state` object:
 
-   ```bash
-   jq '.state' "dashboards/${dashboardApiName}_full.json" > "dashboards/${dashboardApiName}.json"
-   ```
+    ```bash
+    jq '.state' "dashboards/${dashboardApiName}_full.json" > "dashboards/${dashboardApiName}.json"
+    ```
 
-4. **Report Success or Failure**  
-   Log a message based on whether `dashboards/${dashboardApiName}.json` was successfully created.
+  4. **Report Success or Failure**  
+    Log a message based on whether `dashboards/${dashboardApiName}.json` was successfully created.
 
----
+  ---
 
-#### Preconditions
+  #### Preconditions
 
-- Salesforce org is authenticated and valid `accessToken` and `instanceUrl` are set.
-- `jq` is installed for JSON parsing.
-- `dashboards/` directory exists or is created using:
+  - Salesforce org is authenticated and valid `accessToken` and `instanceUrl` are set.
+  - `jq` is installed for JSON parsing.
+  - `dashboards/` directory exists or is created using:
 
-  ```bash
-  mkdir -p dashboards
-  ```
+    ```bash
+    mkdir -p dashboards
+    ```
 ### dashboardReader
 
   **Description**  
@@ -205,13 +206,13 @@ Retrieves the editable `state` JSON definition of a CRM Analytics dashboard from
 ### lwcReader
 
   **Description**  
-  Parses Lightning Web Components (LWCs) to reverse-engineer and regenerate `charts.json` definitions based on existing chart configurations used in code.
+  Parses Lightning Web Components (LWCs) to reverse-engineer and regenerate `revEngCharts.json` definitions based on existing chart configurations used in code.
 
   **Behavior**  
   - Scans the LWC component directory for references to chart components
   - Identifies and extracts relevant chart metadata
   - Ignores ambient or auxiliary charts (e.g., those marked as "AO" or not tied to visualizations)
-  - Writes structured chart definitions to `charts.json` using the rules defined in `CHART_JSON_DEFINITION.MD`
+  - Writes structured chart definitions to `revEngCharts.json` using the rules defined in `CHART_JSON_DEFINITION.MD`
 
   **Assumptions**  
   - Each chart component contains sufficient metadata to reconstruct chart definitions
@@ -220,12 +221,11 @@ Retrieves the editable `state` JSON definition of a CRM Analytics dashboard from
 
   **Error Handling**  
   - Logs and skips malformed chart references or components lacking necessary metadata
-  - Avoids overwriting valid `charts.json` entries unless explicitly matched by chart ID
-
+  
   **Dependencies**  
   - LWC component files (source of truth)
   - `CHART_JSON_DEFINITION.MD` (parsing rules)
-  - `charts.json` (output file)
+  - `revEngCharts.json` (output file)
 
 
 ### chartSynchronizer
@@ -356,12 +356,22 @@ Ensures the `dynamicCharts` component remains fully synchronized with the centra
 
   ---
 
-### 🧠 JSON Engineer Workflow
+### 🧾 LWC Reverse Engineer Workflow
 
   **User Request**:  
-  _"Please refactor `charts.json` based on the LWC."_
+  _"Please regenerate the chart JSON configuration based on the current state of the LWC code."_
 
   **Agent Sequence**:
 
   1. **`lwcReader`**  
-    Scans the existing LWC components, reverse-engineers chart configurations, and updates `charts.json` using metadata extracted from the code.
+     Scans all relevant Lightning Web Component source files (typically `dynamicCharts.js` and `dynamicCharts.html`) and extracts structured chart metadata such as chart type, title, API mapping, and SAQL queries.  
+     The agent filters out auxiliary or non-visual charts (e.g., AO-only charts), and writes the output to `revEngCharts.json` using parsing rules defined in `CHART_JSON_DEFINITION.MD`.
+
+  2. **(Optional) `dashboardReader`**  
+     Compares the regenerated `revEngCharts.json` with the latest dashboard-derived `charts.json` for alignment and detects discrepancies between declared and actual implementation.
+
+  3. **(Optional) `chartSynchronizer`**  
+     Uses `revEngCharts.json` as the input source to update or validate the LWC code, ensuring that the rendered charts match the current definitions reconstructed from code.
+
+  **Outcome**:  
+  Allows developers to reverse engineer and document the chart configuration directly from code when original dashboard definitions are unavailable or out of sync.
