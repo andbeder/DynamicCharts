@@ -23,6 +23,7 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - The first chart in each pair shall use the selected filters directly.
    - The second chart in each pair shall apply the inverse of the `host` and `nation` filters while honoring `season` and `ski` selections.
    - Chart data shall refresh whenever the user updates filter selections and clicks **Render**.
+   - Chart titles shall reflect the latest dashboard definitions, including "Top 20 Climbs by Nation", "Days per Peak by Top 20 Climbs", "Days per Peak", and "Average Number of Camps per Peak".
 5. **User Interface**
    - The component shall expose a Lightning App Page, Record Page, and Home Page target as defined in the metadata file.
    - Chart content shall appear within `<lightning-card>` containers that include `<div>` elements with classes matching the titles of charts within CRM Analytics dashboards.

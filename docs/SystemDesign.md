@@ -7,6 +7,13 @@ Three groups of charts are rendered. The first group shows bar charts with and w
 
 The component now includes a sixth chart named `CampsByPeak` showing the average number of camps per peak. Chart containers are therefore `ClimbsByNation`, `ClimbsByNationAO`, `CampsByPeak`, `DaysPerPeak`, `TimeByPeak`, and `TimeByPeakAO`.
 
+Chart titles were updated in change request **CR-02**:
+
+- **Top 20 Climbs by Nation**
+- **Days per Peak by Top 20 Climbs**
+- **Days per Peak**
+- **Average Number of Camps per Peak**
+
 The project follows the Salesforce DX structure with source located under `force-app/main/default` and uses `sfdx-lwc-jest` for unit testing.
 
 ## Architecture
