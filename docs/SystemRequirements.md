@@ -19,16 +19,11 @@ SAC Charts is a Lightning application for Salesforce that enables users to quick
    - Filters shall be combined using the `filter q by` SAQL syntax.
 4. **Chart Rendering**
    - The system shall load the ApexCharts library from a static resource.
-
-   - Three charts shall be displayed in separate cards.
-   - The obsolete `DaysPerPeak` chart has been removed.
-   - Chart data shall refresh whenever the user updates filter selections and clicks **Render**.
-   - Chart titles shall reflect the latest dashboard definitions, including "Top 20 Climbs by Nation", "Days per Peak by Top 20 Climbs", and "Average Number of Camps per Peak".
-   - Field labels and color schemes shall match change request CR-02. Each chart uses the following settings and stores a `dashboard` value of `CR_02`:
-     - `ClimbsByNation` → color `#002060` and label `Nation`.
-     - `TimeByPeak` → colors `#97C1DA,#002060` and labels `Peak ID`, `Min`, `Q1`, `Q3`, `Max`.
-     - `CampsByPeak` → color `#175F68` and label `Average Camps`.
-   
+   - All charts shall be shown in pairs side-by-side:
+     - The original chart bound to the filters so that it is applying a positive filter
+     - A clone of the original chart with `AO` appended to the ID which shows 'All Others' or the inverse (!=) of the filters applied
+   - Chart data shall refresh whenever the user updates filter selections
+   - Chart content and presentation shall be goverened by CRMA dashboards referenced by a property in `charts.json`
 5. **User Interface**
    - The component shall expose a Lightning App Page, Record Page, and Home Page target as defined in the metadata file.
    - Chart content shall appear within `<lightning-card>` containers that include `<div>` elements with classes matching the titles of charts within CRM Analytics dashboards.
