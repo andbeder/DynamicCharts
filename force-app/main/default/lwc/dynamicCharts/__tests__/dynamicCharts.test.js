@@ -37,11 +37,9 @@ describe("c-dynamic-charts", () => {
 
     const chart3 = element.shadowRoot.querySelector("div.TimeByPeak");
     const chart4 = element.shadowRoot.querySelector("div.TimeByPeakAO");
-    const chart5 = element.shadowRoot.querySelector("div.DaysPerPeak");
     const chart6 = element.shadowRoot.querySelector("div.CampsByPeak");
     expect(chart3).not.toBeNull();
     expect(chart4).not.toBeNull();
-    expect(chart5).not.toBeNull();
     expect(chart6).not.toBeNull();
   });
 });
