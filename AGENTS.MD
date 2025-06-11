@@ -510,15 +510,30 @@ Validates Lightning Web Components by executing Jest-based unit and integration 
 ### 📝 Change Request Generation Workflow
 
   **User Request**:  
-  _"Please generate a change-request file to sync the LWC with `charts.json`."_
+  _"Please generate a change‐request file that syncs the LWC with the latest dashboard definition."_  
 
   **Agent Sequence**:
 
-  1. **`changeRequestGenerator`**  
-    Compares `charts.json` and `revEngCharts.json` and writes out `changeRequests.json`.
+  1. **`sfdcAuthorizer`**  
+    Ensure the Salesforce CLI is installed and authenticate into the target org.
+
+  2. **`dashboardRetriever`**  
+    Retrieve the specified dashboard and extract its `state` JSON to `dashboards/${dashboardApiName}.json`.
+
+  3. **`dashboardReader`**  
+    Parse `dashboards/${dashboardApiName}.json` and output the authoritative chart definitions to `charts.json`.
+
+  4. **`lwcReader`**  
+    Scan the existing `dynamicCharts` LWC and reverse‐engineer its live chart definitions into `revEngCharts.json`.
+
+  5. **`changeRequestGenerator`**  
+    Compare `charts.json` with `revEngCharts.json` and emit `changeRequests.json` containing:
+    - **add** instructions for new charts,  
+    - **remove** instructions for deprecated charts,  
+    - **update** instructions for any property mismatches at the chart‐ and option‐level.
 
   **Outcome**:  
-  A `changeRequests.json` file listing all additions, removals, and updates needed in `dynamicCharts.html` and `dynamicCharts.js`.
+  A `changeRequests.json` file listing fine‐grained instructions to align `dynamicCharts.html` and `dynamicCharts.js` with your dashboard’s current metadata.
 
 ### 🔄 Change Request Apply & Deploy Workflow
 
