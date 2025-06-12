@@ -1,41 +1,48 @@
-// authorize.js
-const { execSync } = require("child_process");
-const path = require("path");
+// sfdcAuthorizer.js
+// Loads JWT key from a Base64-encoded environment variable and uses the Salesforce CLI JWT flow without checking the key into source control.
+
+const os = require("os");
 const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
 
 function authorize() {
   const username = process.env.SFDC_USERNAME;
   const clientId = process.env.SFDC_CLIENT_ID;
   const loginUrl = process.env.SFDC_LOGIN_URL || "https://login.salesforce.com";
-  const keyFile = path.resolve(__dirname, "..", "..", "jwt.key");
+  const keyB64 = process.env.SF_JWT_KEY_BASE64;
 
-  if (!username || !clientId) {
+  if (!username || !clientId || !keyB64) {
     console.error(
-      "SFDC_USERNAME and SFDC_CLIENT_ID environment variables are required"
+      "Error: SFDC_USERNAME, SFDC_CLIENT_ID, and SF_JWT_KEY_BASE64 must be set"
     );
-    process.exitCode = 1;
-    return;
-  }
-  if (!fs.existsSync(keyFile)) {
-    console.error(`JWT key file missing at ${keyFile}`);
-    process.exitCode = 1;
-    return;
+    process.exit(1);
   }
 
-  // Use the new `sf` unified CLI for JWT auth
-  const cmd =
-    `sf org login jwt ` +
-    `--client-id ${clientId} ` +
-    `--jwt-key-file ${keyFile} ` +
-    `--username ${username} ` +
-    `--instance-url ${loginUrl} ` +
-    `--set-default`;
+  // Decode Base64 key and write to a temporary file
+  const keyFile = path.join(os.tmpdir(), "jwt.key");
+  try {
+    fs.writeFileSync(keyFile, Buffer.from(keyB64, "base64"));
+  } catch (err) {
+    console.error("Failed to write JWT key to file:", err);
+    process.exit(1);
+  }
+
+  // Construct the `sf` CLI command for JWT auth
+  const cmd = [
+    "sf org login jwt",
+    `--client-id ${clientId}`,
+    `--jwt-key-file ${keyFile}`,
+    `--username ${username}`,
+    `--instance-url ${loginUrl}`,
+    `--set-default`
+  ].join(" ");
 
   try {
     execSync(cmd, { stdio: "inherit" });
   } catch (err) {
-    console.error("Authorization failed");
-    process.exitCode = 1;
+    console.error("Authorization failed:", err);
+    process.exit(1);
   }
 }
 
