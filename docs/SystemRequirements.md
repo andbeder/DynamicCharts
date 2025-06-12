@@ -16,15 +16,17 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
 3. **Dashboard Parsing**
    - A `dashboardReader` script shall convert exported dashboard JSON into normalized chart definitions.
    - Parsed charts shall be written to `charts.json`, replacing previous definitions.
-4. **Filter Options**
+4. **Component Generation**
+   - A `lwcReader` script shall read `charts.json` and generate Lightning Web Component folders under `force-app/main/default/lwc`.
+5. **Filter Options**
    - Users shall filter chart results by `host`, `nation`, `season`, and `ski` attributes.
    - Dual list boxes shall be provided for `host`, `nation`, and `season` selections.
    - A combo box shall be provided for the `ski` selection with the choices **All**, **Yes**, and **No**.
    - Selecting a value in any filter shall refresh the remaining filter options so that only valid values are displayed.
-5. **Dynamic Query Generation**
+6. **Dynamic Query Generation**
    - The component shall build a SAQL query based on selected filter values.
    - Filters shall be combined using the `filter q by` SAQL syntax.
-6. **Chart Rendering**
+7. **Chart Rendering**
    - The system shall load the ApexCharts library from a static resource only once during component initialization.
    - All charts shall be shown in pairs side-by-side:
      - The original chart bound to the filters so that it is applying a positive filter
@@ -34,12 +36,12 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - For every chart ID listed in `charts.json`, the markup shall include a pair of containers: one with the ID itself and a second with the `AO` suffix.
    - The component currently displays three chart pairs: `ClimbsByNation`/`ClimbsByNationAO`, `TimeByPeak`/`TimeByPeakAO`, and `CampsByPeak`/`CampsByPeakAO`.
    - Charts configured with a `shadow` effect shall display drop shadows using the ApexCharts `chart.dropShadow` option.
-7. **User Interface**
+8. **User Interface**
    - The component shall expose a Lightning App Page, Record Page, and Home Page target as defined in the metadata file.
    - Chart content shall appear within `<lightning-card>` containers that include `<div>` elements with classes matching the titles of charts within CRM Analytics dashboards.
-8. **Compatibility**
+9. **Compatibility**
    - The application shall be compatible with Salesforce API version 59.0 as specified in the `sfdx-project.json` configuration.
-9. **Change Request Generation**
+10. **Change Request Generation**
    - The system shall compare `charts.json` with `revEngCharts.json` and output `changeRequests.json` listing required code updates.
    - A script shall convert `changeRequests.json` into a human-readable `changeRequestInstructions.txt` file for developers, translating style changes into their corresponding ApexCharts option paths.
 

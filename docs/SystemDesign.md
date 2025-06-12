@@ -61,6 +61,7 @@ The project follows the Salesforce DX structure with source located under `force
 - **sfdcAuthorizer**: Node script that performs JWT-based authentication so other automation agents can access the org.
 - **dashboardRetriever**: Downloads dashboard state JSON via the Salesforce CLI so parsing agents can generate `charts.json`. When a dashboard label is supplied, it queries the CRM Analytics REST API to determine the API name before export.
 - **dashboardReader**: Parses exported dashboard JSON into normalized chart definitions written to `charts.json`.
+- **lwcReader**: Creates Lightning Web Component scaffolding from `charts.json` and writes the files under `force-app/main/default/lwc`.
 
 ## Testing
 
