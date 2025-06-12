@@ -15,7 +15,7 @@
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "postinstall": "husky install",
     "precommit": "lint-staged",
-    "generate:charts": "node scripts/agents/sfdcAuthorizer.js && node scripts/agents/dashboardRetriever.js && node scripts/agents/dashboardReader.js && node scripts/agents/lwcReader.js && node scripts/agents/changeRequestGenerator.js",
+    "generate:charts": "node scripts/agents/sfdcAuthorize.js && node scripts/agents/dashboardRetriever.js && node scripts/agents/dashboardReader.js && node scripts/agents/lwcReader.js && node scripts/agents/changeRequestGenerator.js",
     "sync:charts": "node scripts/agents/syncCharts.js",
     "deploy:charts": "npm run test:unit && node scripts/agents/lwcTester.js && node scripts/agents/sfdcDeployer.js"
   },
@@ -34,7 +34,8 @@
     "jest-canvas-mock": "^2.5.2",
     "lint-staged": "^15.1.0",
     "prettier": "^3.1.0",
-    "prettier-plugin-apex": "^2.0.1"
+    "prettier-plugin-apex": "^2.0.1",
+    "sfdx-lwc-jest": "^10.10.10"
   },
   "lint-staged": {
     "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}": [

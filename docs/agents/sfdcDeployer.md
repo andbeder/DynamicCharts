@@ -4,11 +4,11 @@
 
 ## Description
 
-The `sfdcDeployer` agent orchestrates the deployment of Salesforce metadata (Lightning Web Components, Apex classes, static resources, etc.) to your target org. It leverages `sfdcAuthorizer` for authentication and uses the Salesforce CLI under the hood to perform robust, repeatable deployments with error handling and reporting.
+The `sfdcDeployer` agent orchestrates the deployment of Salesforce metadata (Lightning Web Components, Apex classes, static resources, etc.) to your target org. It leverages `sfdcAuthorize` for authentication and uses the Salesforce CLI under the hood to perform robust, repeatable deployments with error handling and reporting.
 
 ## Inputs
 
-- Authenticated Salesforce org via `sfdcAuthorizer`.
+- Authenticated Salesforce org via `sfdcAuthorize`.
 - Metadata source directory (e.g., `force-app/main/default`).
 - Optional flags:
   - `--checkonly` (`-c`): Perform a validation deployment without committing changes.
@@ -17,7 +17,7 @@ The `sfdcDeployer` agent orchestrates the deployment of Salesforce metadata (Lig
 
 ## Behavior
 
-1. **Authenticate**: Confirms valid session with Salesforce org via `sfdcAuthorizer`.
+1. **Authenticate**: Confirms valid session with Salesforce org via `sfdcAuthorize`.
 2. **Validate**: Optionally runs `sfdx force:source:deploy --checkonly` to catch errors early.
 3. **Deploy**: Executes `sfdx force:source:deploy` on the specified metadata directory.
 4. **Monitor**: Polls deployment status until completion or timeout, respecting `--wait`.
@@ -29,7 +29,7 @@ The `sfdcDeployer` agent orchestrates the deployment of Salesforce metadata (Lig
 - **Salesforce CLI** (`sfdx`) installed and configured.
 - **Node.js** ≥ 14.
 - **fs-extra** for file system operations.
-- **sfdcAuthorizer** agent for authentication.
+- **sfdcAuthorize** agent for authentication.
 
 ## CLI Usage
 

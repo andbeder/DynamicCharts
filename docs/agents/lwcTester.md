@@ -8,7 +8,7 @@ Automates building, maintaining, and enhancing Jest-based unit and integration t
 
 ## Inputs
 
-- Authenticated Salesforce org via `sfdcAuthorizer`.
+- Authenticated Salesforce org via `sfdcAuthorize`.
 - Source code for the `dynamicCharts` component.
 - Optional flags:
   - `--unit`: Run Jest unit tests only.
@@ -17,7 +17,7 @@ Automates building, maintaining, and enhancing Jest-based unit and integration t
 
 ## Behavior
 
-1. **Authenticate**: Verifies Salesforce org authentication via `sfdcAuthorizer`.
+1. **Authenticate**: Verifies Salesforce org authentication via `sfdcAuthorize`.
 2. **Install & Update Tooling**: Installs/updates devDependencies (`sfdx-lwc-jest`, `apexcharts`, `jest-canvas-mock`). fileciteturn1file0
 3. **Scaffold Test Structure**: Creates `test/lwcTester/` with `unit/`, `integration/`, and `__mocks__/`.
 4. **Generate & Update Test Templates**: For each chart definition in `dynamicCharts.js` or `charts.json`, generates or refreshes parameterized Jest test files, verifying SAQL assembly, ApexCharts instantiation, filter UI interactions, and snapshot updates. fileciteturn1file0
@@ -29,7 +29,7 @@ Automates building, maintaining, and enhancing Jest-based unit and integration t
 
 ## Preconditions
 
-- Salesforce org authenticated via `sfdcAuthorizer`.
+- Salesforce org authenticated via `sfdcAuthorize`.
 - Valid `jest.config.js` in project root with appropriate module mappings and setup files. fileciteturn1file0
 
 ## Dependencies
