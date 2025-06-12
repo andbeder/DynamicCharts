@@ -3,6 +3,8 @@ import { getDatasets, executeQuery } from "lightning/analyticsWaveApi";
 import apexchartJs from "@salesforce/resourceUrl/ApexCharts";
 import { loadScript } from "lightning/platformResourceLoader";
 
+let apexChartsPromise;
+
 export default class SacCharts extends LightningElement {
   datasetIds;
 
@@ -330,7 +332,11 @@ export default class SacCharts extends LightningElement {
     }
     this._chartsInitialized = true;
 
-    loadScript(this, apexchartJs + "/dist/apexcharts.js")
+    if (!apexChartsPromise) {
+      apexChartsPromise = loadScript(this, apexchartJs + "/dist/apexcharts.js");
+    }
+
+    apexChartsPromise
       .then(() => {
         // initialize all six charts once the script is loaded
         this.initChart(".ClimbsByNation", this.chartAOptions, "ClimbsByNation");
