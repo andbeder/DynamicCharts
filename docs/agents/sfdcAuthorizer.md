@@ -30,12 +30,12 @@ fi
 
 ## Behavior
 
-1. Validate required environment variables and presence of `jwt.key`.
+1. Validate required environment variables and presence of the `jwt.key` file at the project root.
 2. Execute the JWT auth flow:
    ```bash
    sf org login jwt \
      --client-id $SFDC_CLIENT_ID \
-     --jwt-key-file <temp-key-path> \
+     --jwt-key-file ./jwt.key \
      --username $SFDC_USERNAME \
      --instance-url $SFDC_LOGIN_URL \
      --set-default

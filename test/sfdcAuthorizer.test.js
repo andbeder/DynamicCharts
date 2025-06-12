@@ -10,7 +10,7 @@ describe("sfdcAuthorizer", () => {
     Object.assign(process.env, originalEnv);
   });
 
-  test("builds correct sfdx command with env vars", () => {
+  test("builds correct sf command with env vars", () => {
     process.env.SFDC_USERNAME = "test@example.com";
     process.env.SFDC_CLIENT_ID = "123456";
     process.env.SFDC_LOGIN_URL = "https://test.salesforce.com";
@@ -20,8 +20,8 @@ describe("sfdcAuthorizer", () => {
 
     const keyPath = path.resolve(__dirname, "..", "jwt.key");
     const expected =
-      `sfdx auth:jwt:grant --clientid 123456 --jwtkeyfile ${keyPath} ` +
-      "--username test@example.com --instanceurl https://test.salesforce.com --setdefaultusername";
+      `sf org login jwt --client-id 123456 --jwt-key-file ${keyPath} ` +
+      "--username test@example.com --instance-url https://test.salesforce.com --set-default";
 
     expect(execSync).toHaveBeenCalledWith(expected, { stdio: "inherit" });
   });
