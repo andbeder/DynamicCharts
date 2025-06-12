@@ -11,6 +11,7 @@ automation commands can locate it.
 
 | Agent Name                 | Script Path                                | Documentation                           |                       |
 | -------------------------- | ------------------------------------------ | --------------------------------------- | --------------------- |
+| **sfdcAuthorize**          | `scripts/agents/sfdcAuthorize.js`          | `docs/agents/sfdcAuthorize.md`          |                       |
 | **sfdcAuthorizer**         | `scripts/agents/sfdcAuthorizer.js`         | `docs/agents/sfdcAuthorizer.md`         |                       |
 | **dashboardRetriever**     | `scripts/agents/dashboardRetriever.js`     | `docs/agents/dashboardRetriever.md`     |                       |
 | **dashboardReader**        | `scripts/agents/dashboardReader.js`        | `docs/agents/dashboardReader.md`        |                       |
@@ -27,7 +28,7 @@ automation commands can locate it.
 
    **Sequence**:
 
-   1. **sfdcAuthorizer**
+   1. **sfdcAuthorize**
 
       * Authenticates with Salesforce and caches an access token.
    2. **dashboardRetriever**
@@ -73,7 +74,7 @@ automation commands can locate it.
 ### end-to-emnd\:charts
 
 
-   1. **sfdcAuthorizer**
+   1. **sfdcAuthorize**
 
       * Authenticates with Salesforce and caches an access token.
    2. **dashboardRetriever**
