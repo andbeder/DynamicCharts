@@ -5,6 +5,9 @@
 ## Agents
 
 All agent implementations live under `scripts/agents/`, with per-agent documentation in `docs/agents/`.
+Each agent is responsible for providing a runnable Node.js script named after the
+agent. The file must be placed at `scripts/agents/<agent name>.js` so the
+automation commands can locate it.
 
 | Agent Name                 | Script Path                                | Documentation                           |                       |
 | -------------------------- | ------------------------------------------ | --------------------------------------- | --------------------- |
