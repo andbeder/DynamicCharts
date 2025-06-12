@@ -54,11 +54,11 @@ describe("c-dynamic-charts", () => {
     });
     document.body.appendChild(element);
 
-    const errorSpy = jest.spyOn(console, 'error');
+    const errorSpy = jest.spyOn(console, "error");
     await Promise.resolve();
     await flushPromises();
 
-    expect(loadScript.mock.calls.length).toBeGreaterThanOrEqual(6);
+    expect(loadScript).toHaveBeenCalledTimes(1);
     expect(errorSpy).not.toHaveBeenCalled();
   });
 });

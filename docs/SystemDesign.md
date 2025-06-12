@@ -55,7 +55,7 @@ The project follows the Salesforce DX structure with source located under `force
 
 ## Dependencies
 
-- **ApexCharts**: Loaded from the static resource `ApexCharts` at runtime.
+- **ApexCharts**: Loaded once from the static resource `ApexCharts` on first render and reused for all charts.
 - **lightning/analyticsWaveApi**: Provides `getDatasets` and `executeQuery` wire adapters.
 - **Salesforce LWC**: Standard library for creating Lightning Web Components.
 - **sfdcAuthorize**: Node script that performs JWT-based authentication so other automation agents can access the org.
