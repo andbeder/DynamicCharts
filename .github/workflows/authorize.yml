@@ -15,28 +15,18 @@ env:
   SFDC_LOGIN_URL: ${{ secrets.SFDC_LOGIN_URL }}
 
 jobs:
-  build-and-test:
+  authorize:
     runs-on: ubuntu-latest
-
+    env:
+      SF_JWT_KEY_BASE64: ${{ secrets.SF_JWT_KEY_BASE64 }}
+      SFDC_USERNAME: ${{ secrets.SFDC_USERNAME }}
+      SFDC_CLIENT_ID: ${{ secrets.SFDC_CLIENT_ID }}
+      SFDC_LOGIN_URL: ${{ secrets.SFDC_LOGIN_URL }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: "16"
-
-      - name: Install dependencies
-        run: npm ci
-
-      # No auth step here—it’ll be picked up by any agent or script
-      # that expects SFDC_USERNAME, SFDC_CLIENT_ID, etc.
-
-      - name: Run LWC tests
-        run: npm test
-
-      - name: Deploy to Salesforce Org
-        run: |
-          # your deploy commands here, e.g.
-          sf force:source:deploy -p force-app/main/default
+      - run: npm ci
+      - name: JWT-Authorize
+        run: node scripts/agents/sfdcAuthorizer.js

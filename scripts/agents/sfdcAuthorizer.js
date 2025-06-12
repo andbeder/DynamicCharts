@@ -4,6 +4,7 @@
 
 // Load the Salesforce CLI library
 require("@salesforce/cli");
+require("dotenv").config();
 
 const os = require("os");
 const fs = require("fs");
