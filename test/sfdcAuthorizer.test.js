@@ -2,9 +2,9 @@ const path = require("path");
 jest.mock("child_process", () => ({ execSync: jest.fn() }));
 const { execSync } = require("child_process");
 
-describe("sfdcAuthorize", () => {
+describe("sfdcAuthorizer", () => {
   const originalEnv = { ...process.env };
-  const scriptPath = "../scripts/agents/sfdcAuthorize";
+  const scriptPath = "../scripts/agents/sfdcAuthorizer";
   afterEach(() => {
     jest.resetModules();
     Object.assign(process.env, originalEnv);

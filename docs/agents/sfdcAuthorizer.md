@@ -1,10 +1,10 @@
-# sfdcAuthorize Agent
+# sfdcAuthorizer Agent
 
-**Script Path**: `scripts/agents/sfdcAuthorize.js`
+**Script Path**: `scripts/agents/sfdcAuthorizer.js`
 
 ## Description
 
-The `sfdcAuthorize` agent performs a JWT-based login using the Salesforce CLI. It sets the default username for subsequent automation commands so other agents can interact with the target org.
+The `sfdcAuthorizer` agent performs a JWT-based login using the Salesforce CLI. It sets the default username for subsequent automation commands so other agents can interact with the target org.
 
 ## Installation Script
 
@@ -57,7 +57,7 @@ fi
 ## CLI Usage
 
 ```bash
-node scripts/agents/sfdcAuthorize.js
+node scripts/agents/sfdcAuthorizer.js
 ```
 
 ## Output
