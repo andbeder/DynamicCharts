@@ -31,7 +31,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - All charts shall be shown in pairs side-by-side:
      - The original chart bound to the filters so that it is applying a positive filter
      - A clone of the original chart with `AO` appended to the ID which shows 'All Others' or the inverse (!=) of the filters applied
-   - Chart data shall refresh whenever the user updates filter selections
+   - Chart data shall refresh only when the user clicks the **Render** button
    - Chart content and presentation shall be governed by CRMA dashboards referenced by a property in `charts.json`.
    - For every chart ID listed in `charts.json`, the markup shall include a pair of containers: one with the ID itself and a second with the `AO` suffix.
    - The component currently displays three chart pairs: `ClimbsByNation`/`ClimbsByNationAO`, `TimeByPeak`/`TimeByPeakAO`, and `CampsByPeak`/`CampsByPeakAO`.
