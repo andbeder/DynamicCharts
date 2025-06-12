@@ -224,7 +224,6 @@ export default class SacCharts extends LightningElement {
     return { query: saql };
   }
 
-  @wire(executeQuery, { query: "$climbsByNationQuery" })
   onClimbsByNation({ data }) {
     if (data) {
       const labels = [],
@@ -242,7 +241,6 @@ export default class SacCharts extends LightningElement {
     }
   }
 
-  @wire(executeQuery, { query: "$climbsByNationAOQuery" })
   onClimbsByNationAO({ data }) {
     if (data) {
       const labels = [],
@@ -260,7 +258,6 @@ export default class SacCharts extends LightningElement {
     }
   }
 
-  @wire(executeQuery, { query: "$timeByPeakQuery" })
   onTimeByPeak({ data }) {
     if (data) {
       const records = data.results.records.map((r) => ({
@@ -275,7 +272,6 @@ export default class SacCharts extends LightningElement {
     }
   }
 
-  @wire(executeQuery, { query: "$timeByPeakAOQuery" })
   onTimeByPeakAO({ data }) {
     if (data) {
       const records = data.results.records.map((r) => ({
@@ -290,7 +286,6 @@ export default class SacCharts extends LightningElement {
     }
   }
 
-  @wire(executeQuery, { query: "$campsByPeakQuery" })
   onCampsByPeak({ data }) {
     if (data) {
       const labels = [],
@@ -308,7 +303,6 @@ export default class SacCharts extends LightningElement {
     }
   }
 
-  @wire(executeQuery, { query: "$campsByPeakAOQuery" })
   onCampsByPeakAO({ data }) {
     if (data) {
       const labels = [],
@@ -392,14 +386,26 @@ export default class SacCharts extends LightningElement {
   handleSkiChange(event) {
     this.skiSelection = event.detail.value;
   }
-  filtersUpdated() {
-    // manually trigger the wires to rerun
-    this.onClimbsByNation({ data: undefined });
-    this.onClimbsByNationAO({ data: undefined });
-    this.onTimeByPeak({ data: undefined });
-    this.onTimeByPeakAO({ data: undefined });
-    this.onCampsByPeak({ data: undefined });
-    this.onCampsByPeakAO({ data: undefined });
+  async filtersUpdated() {
+    await this.runChartQueries();
+  }
+
+  @api
+  async runChartQueries() {
+    const pairs = [
+      [this.climbsByNationQuery, this.onClimbsByNation.bind(this)],
+      [this.climbsByNationAOQuery, this.onClimbsByNationAO.bind(this)],
+      [this.timeByPeakQuery, this.onTimeByPeak.bind(this)],
+      [this.timeByPeakAOQuery, this.onTimeByPeakAO.bind(this)],
+      [this.campsByPeakQuery, this.onCampsByPeak.bind(this)],
+      [this.campsByPeakAOQuery, this.onCampsByPeakAO.bind(this)]
+    ];
+    for (const [query, handler] of pairs) {
+      if (query) {
+        const data = await executeQuery(query);
+        handler({ data });
+      }
+    }
   }
 
   // ---- SAQL filter builder ----
