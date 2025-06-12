@@ -7,7 +7,7 @@ on:
     branches:
       - main
 
-# Inject these for every job in the workflow
+# Inject these secrets as environment variables for all jobs
 env:
   SF_JWT_KEY_BASE64: ${{ secrets.SF_JWT_KEY_BASE64 }}
   SFDC_USERNAME: ${{ secrets.SFDC_USERNAME }}
@@ -15,18 +15,15 @@ env:
   SFDC_LOGIN_URL: ${{ secrets.SFDC_LOGIN_URL }}
 
 jobs:
-  authorize:
+  inject-env-only:
     runs-on: ubuntu-latest
-    env:
-      SF_JWT_KEY_BASE64: ${{ secrets.SF_JWT_KEY_BASE64 }}
-      SFDC_USERNAME: ${{ secrets.SFDC_USERNAME }}
-      SFDC_CLIENT_ID: ${{ secrets.SFDC_CLIENT_ID }}
-      SFDC_LOGIN_URL: ${{ secrets.SFDC_LOGIN_URL }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "16"
-      - run: npm ci
-      - name: JWT-Authorize
-        run: node scripts/agents/sfdcAuthorizer.js
+      - name: Confirm secrets are injected
+        run: |
+          echo "SFDC_USERNAME is set to $SFDC_USERNAME"
+          echo "Client ID is set to $SFDC_CLIENT_ID"
+          # (Don't echo the key itself—just confirm it's non-empty)
+          if [ -z "$SF_JWT_KEY_BASE64" ]; then
+            echo "Error: SF_JWT_KEY_BASE64 is empty" && exit 1
+          fi
+          echo "SF_JWT_KEY_BASE64 is non-empty"
