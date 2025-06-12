@@ -1,5 +1,9 @@
-// sfdcAuthorizer.js
-// Loads JWT key from a Base64-encoded environment variable and uses the Salesforce CLI JWT flow without checking the key into source control.
+// authorize.js
+// Loads Salesforce CLI library, and JWT key from a Base64-encoded environment variable
+// Uses the Salesforce CLI JWT flow without checking the key into source control.
+
+// Load the Salesforce CLI library
+require("@salesforce/cli");
 
 const os = require("os");
 const fs = require("fs");
