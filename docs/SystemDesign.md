@@ -52,6 +52,7 @@ The project follows the Salesforce DX structure with source located under `force
 4. `executeQuery` runs SAQL queries for all charts using the selected filters.
 5. The first bar chart uses the filters as selected; the second applies the inverse of the `host` and `nation` filters.
 6. Updating filters triggers `filtersUpdated`, which refreshes every chart with new query data.
+7. Chart data queries are executed sequentially to honor the CRM Analytics limit of five concurrent queries.
 
 ## Dependencies
 
