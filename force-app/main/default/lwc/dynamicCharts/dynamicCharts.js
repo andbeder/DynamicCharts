@@ -1,5 +1,5 @@
 import { LightningElement, wire, api } from "lwc";
-import { getDatasets, executeQuery } from "lightning/analyticsWaveApi";
+import { getDatasets, executeQuery as wiredExecuteQuery } from "lightning/analyticsWaveApi";
 import apexchartJs from "@salesforce/resourceUrl/ApexCharts";
 import { loadScript } from "lightning/platformResourceLoader";
 
@@ -128,7 +128,7 @@ export default class SacCharts extends LightningElement {
     return undefined;
   }
 
-  @wire(executeQuery, { query: "$hostQuery" })
+  @wire(wiredExecuteQuery, { query: "$hostQuery" })
   onHostQuery({ data }) {
     if (data) {
       this.hostOptions = data.results.records.map((r) => ({
@@ -137,7 +137,7 @@ export default class SacCharts extends LightningElement {
       }));
     }
   }
-  @wire(executeQuery, { query: "$nationQuery" })
+  @wire(wiredExecuteQuery, { query: "$nationQuery" })
   onNationQuery({ data }) {
     if (data) {
       this.nationOptions = data.results.records.map((r) => ({
@@ -146,7 +146,7 @@ export default class SacCharts extends LightningElement {
       }));
     }
   }
-  @wire(executeQuery, { query: "$seasonQuery" })
+  @wire(wiredExecuteQuery, { query: "$seasonQuery" })
   onSeasonQuery({ data }) {
     if (data) {
       this.seasonOptions = data.results.records.map((r) => ({
@@ -392,6 +392,7 @@ export default class SacCharts extends LightningElement {
 
   @api
   async runChartQueries() {
+    const { executeQuery } = await import("lightning/analyticsWaveApi");
     const pairs = [
       [this.climbsByNationQuery, this.onClimbsByNation.bind(this)],
       [this.climbsByNationAOQuery, this.onClimbsByNationAO.bind(this)],
@@ -402,6 +403,7 @@ export default class SacCharts extends LightningElement {
     ];
     for (const [query, handler] of pairs) {
       if (query) {
+        // eslint-disable-next-line no-await-in-loop
         const data = await executeQuery(query);
         handler({ data });
       }

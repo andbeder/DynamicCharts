@@ -1,3 +1,4 @@
+/* eslint-disable @lwc/lwc/no-async-operation */
 import { createElement } from "lwc";
 import DynamicCharts from "c/dynamicCharts";
 import { loadScript } from "lightning/platformResourceLoader";
