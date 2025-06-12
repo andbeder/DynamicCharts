@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-useless-escape */
 import { LightningElement, wire, api } from "lwc";
 import { getDatasets, executeQuery } from "lightning/analyticsWaveApi";
 import apexchartJs from "@salesforce/resourceUrl/ApexCharts";
@@ -23,6 +21,7 @@ export default class SacCharts extends LightningElement {
   ];
 
   chartObject = {};
+  _chartsInitialized = false;
 
   chartSettings = {
     ClimbsByNation: {
@@ -64,7 +63,7 @@ export default class SacCharts extends LightningElement {
     if (settings.colors) {
       updated.colors = settings.colors;
     }
-    if (settings.effects && settings.effects.includes("shadow")) {
+    if (settings.effects?.includes("shadow")) {
       updated.chart = updated.chart || {};
       updated.chart.dropShadow = {
         enabled: true,
@@ -82,18 +81,17 @@ export default class SacCharts extends LightningElement {
     q: "exped"
   })
   onGetDataset({ data, error }) {
-    if (error) {
-      // eslint-disable-next-line no-console
-      console.log("getDatasets ERROR:", error);
-    } else if (data) {
+    if (data) {
       this.datasetIds = {};
       data.datasets.forEach((ds) => {
         this.datasetIds[ds.name] = `${ds.id}/${ds.currentVersionId}`;
       });
+    } else if (error) {
+      console.error("getDatasets ERROR:", error);
     }
   }
 
-  // Option queries with cross-filtering
+  // ---- Filter option queries ----
   get hostQuery() {
     if (this.datasetIds) {
       const id = this.datasetIds.exped;
@@ -105,11 +103,10 @@ export default class SacCharts extends LightningElement {
     }
     return undefined;
   }
-
   get nationQuery() {
     if (this.datasetIds) {
       const id = this.datasetIds.exped;
-      let saql = `q = load \"${id}\";\n`;
+      let saql = `q = load "${id}";\n`;
       saql += this.getFilters({ exclude: ["nation"] });
       saql += "q = group q by 'nation';\n";
       saql += "q = foreach q generate q.'nation' as nation;";
@@ -117,11 +114,10 @@ export default class SacCharts extends LightningElement {
     }
     return undefined;
   }
-
   get seasonQuery() {
     if (this.datasetIds) {
       const id = this.datasetIds.exped;
-      let saql = `q = load \"${id}\";\n`;
+      let saql = `q = load "${id}";\n`;
       saql += this.getFilters({ exclude: ["season"] });
       saql += "q = group q by 'season';\n";
       saql += "q = foreach q generate q.'season' as season;";
@@ -131,7 +127,7 @@ export default class SacCharts extends LightningElement {
   }
 
   @wire(executeQuery, { query: "$hostQuery" })
-  onHostQuery({ data, error }) {
+  onHostQuery({ data }) {
     if (data) {
       this.hostOptions = data.results.records.map((r) => ({
         label: r.host,
@@ -139,9 +135,8 @@ export default class SacCharts extends LightningElement {
       }));
     }
   }
-
   @wire(executeQuery, { query: "$nationQuery" })
-  onNationQuery({ data, error }) {
+  onNationQuery({ data }) {
     if (data) {
       this.nationOptions = data.results.records.map((r) => ({
         label: r.nation,
@@ -149,9 +144,8 @@ export default class SacCharts extends LightningElement {
       }));
     }
   }
-
   @wire(executeQuery, { query: "$seasonQuery" })
-  onSeasonQuery({ data, error }) {
+  onSeasonQuery({ data }) {
     if (data) {
       this.seasonOptions = data.results.records.map((r) => ({
         label: r.season,
@@ -160,43 +154,33 @@ export default class SacCharts extends LightningElement {
     }
   }
 
-  // Chart query
+  // ---- Chart data queries ----
   get climbsByNationQuery() {
-    if (!this.datasetIds) {
-      return undefined;
-    }
+    if (!this.datasetIds) return undefined;
     const id = this.datasetIds.exped;
     let saql = `q = load "${id}";\n`;
     saql += this.getFilters();
     saql += "q = group q by 'nation';\n";
     saql +=
       "q = foreach q generate q.'nation' as nation, count(q) as Climbs;\n";
-    saql += "q = order q by 'Climbs' desc;\n";
-    saql += "q = limit q 20;";
+    saql += "q = order q by 'Climbs' desc;\nq = limit q 20;";
     return { query: saql };
   }
-
   get climbsByNationAOQuery() {
-    if (!this.datasetIds) {
-      return undefined;
-    }
+    if (!this.datasetIds) return undefined;
     const id = this.datasetIds.exped;
     let saql = `q = load "${id}";\n`;
     saql += this.getFilters({ inverseHosts: true, inverseNations: true });
     saql += "q = group q by 'nation';\n";
     saql +=
       "q = foreach q generate q.'nation' as nation, count(q) as Climbs;\n";
-    saql += "q = order q by 'Climbs' desc;\n";
-    saql += "q = limit q 20;";
+    saql += "q = order q by 'Climbs' desc;\nq = limit q 20;";
     return { query: saql };
   }
-
   get timeByPeakQuery() {
-    if (!this.datasetIds) {
-      return undefined;
-    }
+    if (!this.datasetIds) return undefined;
     const id = this.datasetIds.exped;
-    let saql = `q = load \"${id}\";\n`;
+    let saql = `q = load "${id}";\n`;
     saql += this.getFilters();
     saql += "q = group q by 'peakid';\n";
     saql +=
@@ -204,13 +188,10 @@ export default class SacCharts extends LightningElement {
     saql += "q = limit q 20;";
     return { query: saql };
   }
-
   get timeByPeakAOQuery() {
-    if (!this.datasetIds) {
-      return undefined;
-    }
+    if (!this.datasetIds) return undefined;
     const id = this.datasetIds.exped;
-    let saql = `q = load \"${id}\";\n`;
+    let saql = `q = load "${id}";\n`;
     saql += this.getFilters({ inverseHosts: true, inverseNations: true });
     saql += "q = group q by 'peakid';\n";
     saql +=
@@ -218,207 +199,181 @@ export default class SacCharts extends LightningElement {
     saql += "q = limit q 20;";
     return { query: saql };
   }
-
   get campsByPeakQuery() {
-    if (!this.datasetIds) {
-      return undefined;
-    }
+    if (!this.datasetIds) return undefined;
     const id = this.datasetIds.exped;
-    let saql = `q = load \"${id}\";\n`;
+    let saql = `q = load "${id}";\n`;
     saql += this.getFilters();
     saql += "q = group q by 'peakid';\n";
     saql +=
       "q = foreach q generate q.'peakid' as peakid, avg(q.'camps') as A;\n";
-    saql += "q = order q by A desc;\n";
-    saql += "q = limit q 20;";
+    saql += "q = order q by A desc;\nq = limit q 20;";
     return { query: saql };
   }
-
   get campsByPeakAOQuery() {
-    if (!this.datasetIds) {
-      return undefined;
-    }
+    if (!this.datasetIds) return undefined;
     const id = this.datasetIds.exped;
-    let saql = `q = load \"${id}\";\n`;
+    let saql = `q = load "${id}";\n`;
     saql += this.getFilters({ inverseHosts: true, inverseNations: true });
     saql += "q = group q by 'peakid';\n";
     saql +=
       "q = foreach q generate q.'peakid' as peakid, avg(q.'camps') as A;\n";
-    saql += "q = order q by A desc;\n";
-    saql += "q = limit q 20;";
+    saql += "q = order q by A desc;\nq = limit q 20;";
     return { query: saql };
   }
 
   @wire(executeQuery, { query: "$climbsByNationQuery" })
-  onClimbsByNation({ data, error }) {
+  onClimbsByNation({ data }) {
     if (data) {
-      const labels = [];
-      const values = [];
+      const labels = [],
+        values = [];
       data.results.records.forEach((r) => {
         labels.push(r.nation);
         values.push(r.Climbs);
       });
-      const options = { ...this.chartAOptions };
-      options.xaxis.categories = labels;
-      options.series = [{ name: "Climbs", data: values }];
-      if (this.chartObject.ClimbsByNation) {
-        this.chartObject.ClimbsByNation.updateOptions(
-          this.applySettings(options, "ClimbsByNation")
-        );
-      }
+      const opts = { ...this.chartAOptions };
+      opts.xaxis.categories = labels;
+      opts.series = [{ name: "Climbs", data: values }];
+      this.chartObject.ClimbsByNation?.updateOptions(
+        this.applySettings(opts, "ClimbsByNation")
+      );
     }
   }
 
   @wire(executeQuery, { query: "$climbsByNationAOQuery" })
-  onClimbsByNationAO({ data, error }) {
+  onClimbsByNationAO({ data }) {
     if (data) {
-      const labels = [];
-      const values = [];
+      const labels = [],
+        values = [];
       data.results.records.forEach((r) => {
         labels.push(r.nation);
         values.push(r.Climbs);
       });
-      const options = { ...this.chartAOptions };
-      options.xaxis.categories = labels;
-      options.series = [{ name: "Climbs", data: values }];
-      if (this.chartObject.ClimbsByNationAO) {
-        this.chartObject.ClimbsByNationAO.updateOptions(
-          this.applySettings(options, "ClimbsByNationAO")
-        );
-      }
+      const opts = { ...this.chartAOptions };
+      opts.xaxis.categories = labels;
+      opts.series = [{ name: "Climbs", data: values }];
+      this.chartObject.ClimbsByNationAO?.updateOptions(
+        this.applySettings(opts, "ClimbsByNationAO")
+      );
     }
   }
 
   @wire(executeQuery, { query: "$timeByPeakQuery" })
-  onTimeByPeak({ data, error }) {
+  onTimeByPeak({ data }) {
     if (data) {
       const records = data.results.records.map((r) => ({
         x: r.peakid,
         y: [r.A, r.B, (r.B + r.C) / 2, r.C, r.D]
       }));
-      const options = { ...this.chartBoxOptions };
-      options.series = [{ name: "Days", data: records }];
-      if (this.chartObject.TimeByPeak) {
-        this.chartObject.TimeByPeak.updateOptions(
-          this.applySettings(options, "TimeByPeak")
-        );
-      }
+      const opts = { ...this.chartBoxOptions };
+      opts.series = [{ name: "Days", data: records }];
+      this.chartObject.TimeByPeak?.updateOptions(
+        this.applySettings(opts, "TimeByPeak")
+      );
     }
   }
 
   @wire(executeQuery, { query: "$timeByPeakAOQuery" })
-  onTimeByPeakAO({ data, error }) {
+  onTimeByPeakAO({ data }) {
     if (data) {
       const records = data.results.records.map((r) => ({
         x: r.peakid,
         y: [r.A, r.B, (r.B + r.C) / 2, r.C, r.D]
       }));
-      const options = { ...this.chartBoxOptions };
-      options.series = [{ name: "Days", data: records }];
-      if (this.chartObject.TimeByPeakAO) {
-        this.chartObject.TimeByPeakAO.updateOptions(
-          this.applySettings(options, "TimeByPeakAO")
-        );
-      }
+      const opts = { ...this.chartBoxOptions };
+      opts.series = [{ name: "Days", data: records }];
+      this.chartObject.TimeByPeakAO?.updateOptions(
+        this.applySettings(opts, "TimeByPeakAO")
+      );
     }
   }
 
   @wire(executeQuery, { query: "$campsByPeakQuery" })
-  onCampsByPeak({ data, error }) {
+  onCampsByPeak({ data }) {
     if (data) {
-      const labels = [];
-      const values = [];
+      const labels = [],
+        values = [];
       data.results.records.forEach((r) => {
         labels.push(r.peakid);
         values.push(r.A);
       });
-      const options = { ...this.chartAOptions };
-      options.xaxis.categories = labels;
-      options.series = [{ name: "Avg Camps", data: values }];
-      if (this.chartObject.CampsByPeak) {
-        this.chartObject.CampsByPeak.updateOptions(
-          this.applySettings(options, "CampsByPeak")
-        );
-      }
+      const opts = { ...this.chartAOptions };
+      opts.xaxis.categories = labels;
+      opts.series = [{ name: "Avg Camps", data: values }];
+      this.chartObject.CampsByPeak?.updateOptions(
+        this.applySettings(opts, "CampsByPeak")
+      );
     }
   }
 
   @wire(executeQuery, { query: "$campsByPeakAOQuery" })
-  onCampsByPeakAO({ data, error }) {
+  onCampsByPeakAO({ data }) {
     if (data) {
-      const labels = [];
-      const values = [];
+      const labels = [],
+        values = [];
       data.results.records.forEach((r) => {
         labels.push(r.peakid);
         values.push(r.A);
       });
-      const options = { ...this.chartAOptions };
-      options.xaxis.categories = labels;
-      options.series = [{ name: "Avg Camps", data: values }];
-      if (this.chartObject.CampsByPeakAO) {
-        this.chartObject.CampsByPeakAO.updateOptions(
-          this.applySettings(options, "CampsByPeakAO")
-        );
-      }
+      const opts = { ...this.chartAOptions };
+      opts.xaxis.categories = labels;
+      opts.series = [{ name: "Avg Camps", data: values }];
+      this.chartObject.CampsByPeakAO?.updateOptions(
+        this.applySettings(opts, "CampsByPeakAO")
+      );
     }
   }
 
   renderedCallback() {
-    if (!this.chartObject.ClimbsByNation) {
-      this.initChart(".ClimbsByNation", this.chartAOptions, "ClimbsByNation");
+    if (this._chartsInitialized) {
+      return;
     }
-    if (!this.chartObject.ClimbsByNationAO) {
-      this.initChart(
-        ".ClimbsByNationAO",
-        this.chartAOptions,
-        "ClimbsByNationAO"
-      );
-    }
-    if (!this.chartObject.TimeByPeak) {
-      this.initChart(".TimeByPeak", this.chartBoxOptions, "TimeByPeak");
-    }
-    if (!this.chartObject.TimeByPeakAO) {
-      this.initChart(".TimeByPeakAO", this.chartBoxOptions, "TimeByPeakAO");
-    }
-    if (!this.chartObject.CampsByPeak) {
-      this.initChart(".CampsByPeak", this.chartAOptions, "CampsByPeak");
-    }
-    if (!this.chartObject.CampsByPeakAO) {
-      this.initChart(".CampsByPeakAO", this.chartAOptions, "CampsByPeakAO");
-    }
-  }
+    this._chartsInitialized = true;
 
-  initChart(selector, options, name) {
     loadScript(this, apexchartJs + "/dist/apexcharts.js")
       .then(() => {
-        const div = this.template.querySelector(selector);
-        const settings = this.chartSettings[name] || {};
-        const chartOptions = { ...options };
-        if (settings.title) {
-          chartOptions.title = { text: settings.title };
-        }
-        if (settings.colors) {
-          chartOptions.colors = settings.colors;
-        }
-        if (settings.effects && settings.effects.includes("shadow")) {
-          chartOptions.chart = chartOptions.chart || {};
-          chartOptions.chart.dropShadow = {
-            enabled: true,
-            blur: 4,
-            opacity: 0.35
-          };
-        }
-        // eslint-disable-next-line no-undef
-        const chart = new ApexCharts(div, chartOptions);
-        chart.render();
-        this.chartObject[name] = chart;
+        // initialize all six charts once the script is loaded
+        this.initChart(".ClimbsByNation", this.chartAOptions, "ClimbsByNation");
+        this.initChart(
+          ".ClimbsByNationAO",
+          this.chartAOptions,
+          "ClimbsByNationAO"
+        );
+        this.initChart(".CampsByPeak", this.chartAOptions, "CampsByPeak");
+        this.initChart(".CampsByPeakAO", this.chartAOptions, "CampsByPeakAO");
+        this.initChart(".TimeByPeak", this.chartBoxOptions, "TimeByPeak");
+        this.initChart(".TimeByPeakAO", this.chartBoxOptions, "TimeByPeakAO");
       })
       .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error("Chart load failed", error);
+        console.error("Failed to load ApexCharts", error);
       });
   }
 
+  initChart(selector, options, name) {
+    const div = this.template.querySelector(selector);
+    const settings = this.chartSettings[name] || {};
+    const chartOptions = { ...options };
+    if (settings.title) {
+      chartOptions.title = { text: settings.title };
+    }
+    if (settings.colors) {
+      chartOptions.colors = settings.colors;
+    }
+    if (settings.effects?.includes("shadow")) {
+      chartOptions.chart = chartOptions.chart || {};
+      chartOptions.chart.dropShadow = {
+        enabled: true,
+        blur: 4,
+        opacity: 0.35
+      };
+    }
+    // eslint-disable-next-line no-undef
+    const chart = new ApexCharts(div, chartOptions);
+    chart.render();
+    this.chartObject[name] = chart;
+  }
+
+  // ---- UI event handlers ----
   handleHostChange(event) {
     this.hostSelections = event.detail.value;
   }
@@ -431,17 +386,17 @@ export default class SacCharts extends LightningElement {
   handleSkiChange(event) {
     this.skiSelection = event.detail.value;
   }
-
   filtersUpdated() {
-    // trigger refresh of charts
-    this.onClimbsByNation({ data: undefined, error: undefined });
-    this.onClimbsByNationAO({ data: undefined, error: undefined });
-    this.onTimeByPeak({ data: undefined, error: undefined });
-    this.onTimeByPeakAO({ data: undefined, error: undefined });
-    this.onCampsByPeak({ data: undefined, error: undefined });
-    this.onCampsByPeakAO({ data: undefined, error: undefined });
+    // manually trigger the wires to rerun
+    this.onClimbsByNation({ data: undefined });
+    this.onClimbsByNationAO({ data: undefined });
+    this.onTimeByPeak({ data: undefined });
+    this.onTimeByPeakAO({ data: undefined });
+    this.onCampsByPeak({ data: undefined });
+    this.onCampsByPeakAO({ data: undefined });
   }
 
+  // ---- SAQL filter builder ----
   getFilters(options = {}) {
     const {
       inverseHosts = false,
@@ -449,18 +404,18 @@ export default class SacCharts extends LightningElement {
       exclude = []
     } = options;
     let saql = "";
-    if (this.hostSelections.length > 0 && !exclude.includes("host")) {
+    if (this.hostSelections.length && !exclude.includes("host")) {
       const notStr = inverseHosts ? "not " : "";
       saql += `q = filter q by 'host' ${notStr}in ${JSON.stringify(this.hostSelections)};\n`;
     }
-    if (this.nationSelections.length > 0 && !exclude.includes("nation")) {
+    if (this.nationSelections.length && !exclude.includes("nation")) {
       const notStr = inverseNations ? "not " : "";
       saql += `q = filter q by 'nation' ${notStr}in ${JSON.stringify(this.nationSelections)};\n`;
     }
-    if (this.seasonSelections.length > 0 && !exclude.includes("season")) {
+    if (this.seasonSelections.length && !exclude.includes("season")) {
       saql += `q = filter q by 'season' in ${JSON.stringify(this.seasonSelections)};\n`;
     }
-    if (this.skiSelection.length > 0 && !exclude.includes("ski")) {
+    if (this.skiSelection.length && !exclude.includes("ski")) {
       saql += `q = filter q by 'ski' ${this.skiSelection};\n`;
     }
     return saql;
