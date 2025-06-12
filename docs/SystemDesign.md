@@ -59,6 +59,7 @@ The project follows the Salesforce DX structure with source located under `force
 - **lightning/analyticsWaveApi**: Provides `getDatasets` and `executeQuery` wire adapters.
 - **Salesforce LWC**: Standard library for creating Lightning Web Components.
 - **sfdcAuthorizer**: Node script that performs JWT-based authentication so other automation agents can access the org.
+- **dashboardRetriever**: Downloads dashboard state JSON via the Salesforce CLI so parsing agents can generate `charts.json`. When a dashboard label is supplied, it queries the CRM Analytics REST API to determine the API name before export.
 
 ## Testing
 
