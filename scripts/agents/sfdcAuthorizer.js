@@ -1,15 +1,33 @@
-// authorize.js
-// Loads Salesforce CLI library, and JWT key from a Base64-encoded environment variable
-// Uses the Salesforce CLI JWT flow without checking the key into source control.
-
-// Load the Salesforce CLI library
-require("@salesforce/cli");
-require("dotenv").config();
+// scripts/agents/sfdcAuthorizer.js
+// Loads JWT key from Base64 env var or .env fallback without external modules
+// Uses the Salesforce CLI JWT flow via shell
 
 const os = require("os");
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
+
+// Inline .env loader for environments where dotenv isn't installed
+(function loadEnv() {
+  const envPath = path.resolve(process.cwd(), ".env");
+  if (fs.existsSync(envPath)) {
+    fs.readFileSync(envPath, "utf8")
+      .split(/\r?\n/)
+      .forEach((line) => {
+        const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+        if (!match) return;
+        let [, key, val] = match;
+        val = val.trim();
+        if (
+          (val.startsWith('"') && val.endsWith('"')) ||
+          (val.startsWith("'") && val.endsWith("'"))
+        ) {
+          val = val.slice(1, -1);
+        }
+        if (!process.env[key]) process.env[key] = val;
+      });
+  }
+})();
 
 function authorize() {
   const username = process.env.SFDC_USERNAME;
@@ -24,16 +42,16 @@ function authorize() {
     process.exit(1);
   }
 
-  // Decode Base64 key and write to a temporary file
+  // Write the JWT key to a temp file
   const keyFile = path.join(os.tmpdir(), "jwt.key");
   try {
     fs.writeFileSync(keyFile, Buffer.from(keyB64, "base64"));
   } catch (err) {
-    console.error("Failed to write JWT key to file:", err);
+    console.error("Failed to write JWT key:", err);
     process.exit(1);
   }
 
-  // Construct the `sf` CLI command for JWT auth
+  // Run the CLI JWT auth command
   const cmd = [
     "sf org login jwt",
     `--client-id ${clientId}`,
@@ -51,8 +69,6 @@ function authorize() {
   }
 }
 
-if (require.main === module) {
-  authorize();
-}
+if (require.main === module) authorize();
 
 module.exports = authorize;
