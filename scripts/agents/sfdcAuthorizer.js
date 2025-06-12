@@ -1,8 +1,7 @@
 // scripts/agents/sfdcAuthorizer.js
-// Loads JWT key from Base64 env var or .env fallback without external modules
-// Uses the Salesforce CLI JWT flow via shell
+// Reads environment variables from a local .env file if present
+// Uses an existing jwt.key to run the Salesforce CLI JWT auth flow
 
-const os = require("os");
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
@@ -33,21 +32,17 @@ function authorize() {
   const username = process.env.SFDC_USERNAME;
   const clientId = process.env.SFDC_CLIENT_ID;
   const loginUrl = process.env.SFDC_LOGIN_URL || "https://login.salesforce.com";
-  const keyB64 = process.env.SF_JWT_KEY_BASE64;
-
-  if (!username || !clientId || !keyB64) {
+  if (!username || !clientId) {
     console.error(
-      "Error: SFDC_USERNAME, SFDC_CLIENT_ID, and SF_JWT_KEY_BASE64 must be set"
+      "Error: SFDC_USERNAME and SFDC_CLIENT_ID must be set"
     );
     process.exit(1);
   }
 
-  // Write the JWT key to a temp file
-  const keyFile = path.join(os.tmpdir(), "jwt.key");
-  try {
-    fs.writeFileSync(keyFile, Buffer.from(keyB64, "base64"));
-  } catch (err) {
-    console.error("Failed to write JWT key:", err);
+  // Path to the jwt.key generated during session setup
+  const keyFile = path.resolve(process.cwd(), "jwt.key");
+  if (!fs.existsSync(keyFile)) {
+    console.error("Error: jwt.key not found at project root");
     process.exit(1);
   }
 
