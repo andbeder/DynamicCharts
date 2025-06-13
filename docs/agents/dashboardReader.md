@@ -71,8 +71,7 @@ This agent reads an extracted dashboard `state` JSON file and produces normalize
 ### Basic Usage
 
 ```bash
-node scripts/agents/dashboardReader.js \
-  --dashboard-api-name CR-02
+node scripts/agents/dashboardReader.js --dashboard-api-name CR-02
 ```
 
 ### Custom Input & Output

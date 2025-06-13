@@ -51,5 +51,5 @@ The `dashboardRetriever` agent downloads the JSON representation of a CRM Analyt
 node scripts/agents/dashboardRetriever.js --dashboard-api-name=CR-02 --output-dir=tmp
 
 # Using dashboard label lookup
-node scripts/agents/dashboardRetriever.js --dashboard-label="Climbs By Nation" --output-dir=tmp
+node scripts/agents/dashboardReader.js --dashboard-api-name=CR_02 --output-dir=tmp
 ```

@@ -1,69 +1,59 @@
-// scripts/agents/sfdcAuthorizer.js
-// Reads environment variables from a local .env file if present
-// Uses an existing jwt.key to run the Salesforce CLI JWT auth flow
+#!/usr/bin/env node
 
+const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const { execSync } = require("child_process");
 
-// Inline .env loader for environments where dotenv isn't installed
-(function loadEnv() {
-  const envPath = path.resolve(process.cwd(), ".env");
-  if (fs.existsSync(envPath)) {
-    fs.readFileSync(envPath, "utf8")
-      .split(/\r?\n/)
-      .forEach((line) => {
-        const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
-        if (!match) return;
-        let [, key, val] = match;
-        val = val.trim();
-        if (
-          (val.startsWith('"') && val.endsWith('"')) ||
-          (val.startsWith("'") && val.endsWith("'"))
-        ) {
-          val = val.slice(1, -1);
-        }
-        if (!process.env[key]) process.env[key] = val;
-      });
-  }
-})();
-
+/**
+ * Performs a JWT-based SFDX login and writes the access token to tmp/accessToken.txt
+ */
 function authorize() {
-  const username = process.env.SFDC_USERNAME;
+  const alias = "myJwtOrg";
   const clientId = process.env.SFDC_CLIENT_ID;
-  const loginUrl = process.env.SFDC_LOGIN_URL || "https://login.salesforce.com";
-  if (!username || !clientId) {
-    console.error(
-      "Error: SFDC_USERNAME and SFDC_CLIENT_ID must be set"
-    );
-    process.exit(1);
-  }
-
-  // Path to the jwt.key generated during session setup
-  const keyFile = path.resolve(process.cwd(), "jwt.key");
-  if (!fs.existsSync(keyFile)) {
-    console.error("Error: jwt.key not found at project root");
-    process.exit(1);
-  }
-
-  // Run the CLI JWT auth command
-  const cmd = [
-    "sf org login jwt",
-    `--client-id ${clientId}`,
-    `--jwt-key-file ${keyFile}`,
-    `--username ${username}`,
-    `--instance-url ${loginUrl}`,
-    `--set-default`
-  ].join(" ");
+  const keyFile = "./jwt.key";
+  const username = process.env.SFDC_USERNAME;
+  const instanceUrl = process.env.SFDC_LOGIN_URL;
 
   try {
-    execSync(cmd, { stdio: "inherit" });
+    // 1) Log in via JWT
+    execSync(
+      `sf org login jwt \
+        -i "${clientId}" \
+        --jwt-key-file "${keyFile}" \
+        --username "${username}" \
+        --alias "${alias}" \
+        --instance-url "${instanceUrl}" \
+        --set-default`,
+      { stdio: "inherit" }
+    );
+
+    // 2) Retrieve the org info as JSON
+    const displayJson = execSync(
+      `sf org display --target-org "${alias}" --json`,
+      { encoding: "utf8" }
+    );
+    const token = JSON.parse(displayJson).result?.accessToken;
+    if (!token)
+      throw new Error("No accessToken found in sf org display output.");
+
+    // 3) Ensure tmp directory exists
+    const tmpDir = path.resolve(process.cwd(), "tmp");
+    fs.mkdirSync(tmpDir, { recursive: true });
+
+    // 4) Write token to tmp/accessToken.txt
+    const outPath = path.join(tmpDir, "accessToken.txt");
+    fs.writeFileSync(outPath, token, "utf8");
+    console.log(`✔ Access token written to ${outPath}`);
   } catch (err) {
-    console.error("Authorization failed:", err);
+    console.error("❌ Error during JWT login or token write:", err.message);
     process.exit(1);
   }
 }
 
-if (require.main === module) authorize();
+// If this script is run directly, perform the authorization immediately
+if (require.main === module) {
+  authorize();
+}
 
+// Export the authorize function for programmatic use
 module.exports = authorize;

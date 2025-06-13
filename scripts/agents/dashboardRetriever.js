@@ -1,21 +1,46 @@
+#!/usr/bin/env node
+
 // scripts/agents/dashboardRetriever.js
-// Retrieves a CRM Analytics dashboard state JSON using the Salesforce REST API only.
+// Retrieves a CRM Analytics dashboard state JSON using the Salesforce REST API only,
+// reading the access token from tmp/accessToken.txt
 
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
+
+// Path to the file where your JWT login script writes the token
+const TOKEN_PATH = path.resolve(process.cwd(), "tmp", "accessToken.txt");
+
+/**
+ * Read the access token from disk.
+ * @throws {Error} if the file doesn't exist or is empty.
+ * @returns {string} the raw access token
+ */
+function getAccessToken() {
+  try {
+    const raw = fs.readFileSync(TOKEN_PATH, "utf8").trim();
+    if (!raw) {
+      throw new Error("Token file is empty");
+    }
+    return raw;
+  } catch (err) {
+    throw new Error(
+      `Unable to read access token from ${TOKEN_PATH}: ${err.message}`
+    );
+  }
+}
 
 /**
  * If you prefer to look up by dashboard label instead of API name,
  * you can call this function first. Otherwise pass dashboardApiName directly.
  */
 function lookupApiNameByLabel(label) {
-  const token = process.env.SF_ACCESS_TOKEN;
+  const token = getAccessToken();
   const instance = process.env.SF_INSTANCE_URL;
   const apiVersion = process.env.SF_API_VERSION || "59.0";
 
-  if (!token || !instance) {
-    throw new Error("SF_ACCESS_TOKEN and SF_INSTANCE_URL must be set");
+  if (!instance) {
+    throw new Error("SF_INSTANCE_URL must be set in your environment");
   }
 
   const url = `${instance}/services/data/v${apiVersion}/wave/dashboards`;
@@ -51,12 +76,12 @@ function retrieveDashboard({
     dashboardApiName = lookupApiNameByLabel(dashboardLabel);
   }
 
-  const token = process.env.SF_ACCESS_TOKEN;
+  const token = getAccessToken();
   const instance = process.env.SF_INSTANCE_URL;
-  const apiVersion = process.env.SF_API_VERSION || "59.0";
+  const apiVersion = process.env.SF_API_VERSION || "60.0";
 
-  if (!token || !instance) {
-    throw new Error("SF_ACCESS_TOKEN and SF_INSTANCE_URL must be set");
+  if (!instance) {
+    throw new Error("SF_INSTANCE_URL must be set in your environment");
   }
 
   const outDir = path.resolve(process.cwd(), outputDir);
