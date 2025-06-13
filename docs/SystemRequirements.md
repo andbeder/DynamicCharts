@@ -62,6 +62,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - The system should allow additional chart types and datasets to be introduced with minimal code changes.
 5. **Testing**
    - Automated tests shall verify that each chart container successfully initializes an ApexCharts instance.
+   - A Node script named `lwcTester` shall run Jest unit and integration tests from `test/lwcTester` and enforce minimum coverage of 80% statements, 75% branches, 80% functions, and 80% lines before deployment.
 
 ## Out of Scope
 
