@@ -57,22 +57,46 @@ function readDashboard({
   }
 
   const dashboard = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  const widgets = dashboard.widgets || [];
+  const steps = dashboard.steps || {};
+  const widgetSource = dashboard.widgets || [];
+  const widgets = Array.isArray(widgetSource)
+    ? widgetSource
+    : Object.values(widgetSource);
+
   const charts = [];
 
   widgets.forEach((w) => {
-    const title = w.title || (w.properties && w.properties.title);
-    const saql = w.saql || (w.step && w.step.query);
+    const title =
+      w.title ||
+      (w.parameters && w.parameters.title && w.parameters.title.label) ||
+      (w.properties && w.properties.title);
+    const subtitle =
+      w.subtitle ||
+      (w.parameters && w.parameters.title && w.parameters.title.subtitleLabel);
+    const stepName =
+      (typeof w.step === 'string' && w.step) ||
+      (w.parameters && w.parameters.step);
+    let saql =
+      w.saql ||
+      (w.step && typeof w.step === 'object' && w.step.query) ||
+      (steps[stepName] && steps[stepName].query);
     if (!title || !saql) return; // skip invalid widget
 
-    const meta = parseSubtitle(w.subtitle);
-    const type = meta.type || w.type;
+    const meta = parseSubtitle(subtitle);
+    const type =
+      meta.type ||
+      w.type ||
+      (w.parameters && w.parameters.visualizationType);
     if (!type) return;
 
     const style = {};
     if (meta.colors) style.seriesColors = mapColors(meta.colors);
     if (meta.font) style.font = meta.font;
-    if (meta.shadow === 'true' || meta.effects === 'shadow') {
+    if (
+      meta.shadow === 'true' ||
+      meta.effects === 'shadow' ||
+      meta.DropShadow === 'true'
+    ) {
       style.effects = ['shadow'];
     }
 
@@ -82,7 +106,7 @@ function readDashboard({
       type,
       title: meta.title || title,
       fieldMappings: w.fieldMappings || {},
-      saql,
+      saql: typeof saql === 'object' ? JSON.stringify(saql) : saql,
       style
     };
 
