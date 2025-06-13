@@ -1,7 +1,7 @@
 import { LightningElement, wire, api } from "lwc";
 import {
   getDatasets,
-  executeQuery as wiredExecuteQuery
+  executeQuery
 } from "lightning/analyticsWaveApi";
 import apexchartJs from "@salesforce/resourceUrl/ApexCharts";
 import { loadScript } from "lightning/platformResourceLoader";
@@ -27,6 +27,14 @@ export default class SacCharts extends LightningElement {
 
   chartObject = {};
   _chartsInitialized = false;
+
+  @api
+  queryQueue = [];
+
+  @api
+  get nextQuery() {
+    return this.queryQueue[0]?.query;
+  }
 
   activePage = "ClimbsByNation";
 
@@ -143,7 +151,7 @@ export default class SacCharts extends LightningElement {
     return undefined;
   }
 
-  @wire(wiredExecuteQuery, { query: "$hostQuery" })
+  @wire(executeQuery, { query: "$hostQuery" })
   onHostQuery({ data }) {
     if (data) {
       this.hostOptions = data.results.records.map((r) => ({
@@ -152,7 +160,7 @@ export default class SacCharts extends LightningElement {
       }));
     }
   }
-  @wire(wiredExecuteQuery, { query: "$nationQuery" })
+  @wire(executeQuery, { query: "$nationQuery" })
   onNationQuery({ data }) {
     if (data) {
       this.nationOptions = data.results.records.map((r) => ({
@@ -161,7 +169,7 @@ export default class SacCharts extends LightningElement {
       }));
     }
   }
-  @wire(wiredExecuteQuery, { query: "$seasonQuery" })
+  @wire(executeQuery, { query: "$seasonQuery" })
   onSeasonQuery({ data }) {
     if (data) {
       this.seasonOptions = data.results.records.map((r) => ({
@@ -169,6 +177,18 @@ export default class SacCharts extends LightningElement {
         value: r.season
       }));
     }
+  }
+
+  @wire(executeQuery, { query: "$nextQuery" })
+  handleQueuedQuery({ data, error }) {
+    if (!this.queryQueue.length || (!data && !error)) {
+      return;
+    }
+    const { callback } = this.queryQueue[0];
+    if (callback) {
+      callback({ data, error });
+    }
+    this.queryQueue.shift();
   }
 
   // ---- Chart data queries ----
@@ -408,13 +428,12 @@ export default class SacCharts extends LightningElement {
       this.activePage = id;
     }
   }
-  async filtersUpdated() {
-    await this.runChartQueries();
+  filtersUpdated() {
+    this.runChartQueries();
   }
 
   @api
-  async runChartQueries() {
-    const { executeQuery } = await import("lightning/analyticsWaveApi");
+  runChartQueries() {
     const pairs = [
       [this.climbsByNationQuery, this.onClimbsByNation.bind(this)],
       [this.climbsByNationAOQuery, this.onClimbsByNationAO.bind(this)],
@@ -423,11 +442,9 @@ export default class SacCharts extends LightningElement {
       [this.campsByPeakQuery, this.onCampsByPeak.bind(this)],
       [this.campsByPeakAOQuery, this.onCampsByPeakAO.bind(this)]
     ];
-    for (const [query, handler] of pairs) {
+    for (const [query, callback] of pairs) {
       if (query) {
-        // eslint-disable-next-line no-await-in-loop
-        const data = await executeQuery(query);
-        handler({ data });
+        this.queryQueue.push({ query, callback });
       }
     }
   }

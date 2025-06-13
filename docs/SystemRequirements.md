@@ -51,7 +51,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
 
 1. **Performance**
    - Chart rendering shall occur within one second after the ApexCharts library loads and the SAQL query completes.
-   - No more than five CRM Analytics queries shall execute concurrently. Chart queries must run sequentially to comply with this limit.
+   - No more than five CRM Analytics queries shall execute concurrently. A query queue processes one request at a time to comply with this limit.
 2. **Security**
    - The LWC shall operate with sharing enforced through Salesforce security mechanisms.
    - A Node script named `sfdcAuthorizer` shall authenticate to Salesforce via JWT and set the default CLI username for deployment and testing automation.
