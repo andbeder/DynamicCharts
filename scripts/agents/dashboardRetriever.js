@@ -1,10 +1,14 @@
 // scripts/agents/dashboardRetriever.js
-// Retrieves a CRM Analytics dashboard state JSON using the Salesforce CLI
+// Retrieves a CRM Analytics dashboard state JSON using the Salesforce REST API only.
 
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
+/**
+ * If you prefer to look up by dashboard label instead of API name,
+ * you can call this function first. Otherwise pass dashboardApiName directly.
+ */
 function lookupApiNameByLabel(label) {
   const token = process.env.SF_ACCESS_TOKEN;
   const instance = process.env.SF_INSTANCE_URL;
@@ -15,16 +19,26 @@ function lookupApiNameByLabel(label) {
   }
 
   const url = `${instance}/services/data/v${apiVersion}/wave/dashboards`;
-  const curlCmd = `curl -s -H "Authorization: Bearer ${token}" ${url}`;
+  const curlCmd = `curl -s -H "Authorization: Bearer ${token}" "${url}"`;
   const output = execSync(curlCmd, { encoding: "utf8" });
   const dashboards = JSON.parse(output).dashboards || [];
   const match = dashboards.find((d) => d.label === label);
+
   if (!match) {
-    throw new Error(`Dashboard with label ${label} not found`);
+    throw new Error(`Dashboard with label "${label}" not found`);
   }
   return match.name;
 }
 
+/**
+ * Retrieves the dashboard JSON via the Wave REST API and writes it to disk.
+ *
+ * @param {Object} options
+ * @param {string} options.dashboardApiName - The API name of the dashboard.
+ * @param {string} [options.dashboardLabel] - Optional label to look up the API name.
+ * @param {string} [options.outputDir="tmp"] - Directory to save the JSON file.
+ * @returns {string} Description of the action performed.
+ */
 function retrieveDashboard({
   dashboardApiName,
   dashboardLabel,
@@ -37,23 +51,34 @@ function retrieveDashboard({
     dashboardApiName = lookupApiNameByLabel(dashboardLabel);
   }
 
+  const token = process.env.SF_ACCESS_TOKEN;
+  const instance = process.env.SF_INSTANCE_URL;
+  const apiVersion = process.env.SF_API_VERSION || "59.0";
+
+  if (!token || !instance) {
+    throw new Error("SF_ACCESS_TOKEN and SF_INSTANCE_URL must be set");
+  }
+
   const outDir = path.resolve(process.cwd(), outputDir);
   fs.mkdirSync(outDir, { recursive: true });
 
-  const cmd = [
-    "sf analytics:dashboard:export",
-    `--name ${dashboardApiName}`,
-    `--output-dir ${outDir}`
-  ].join(" ");
+  const url = `${instance}/services/data/v${apiVersion}/wave/dashboards/${dashboardApiName}`;
+  const curlCmd = `curl -s -H "Authorization: Bearer ${token}" "${url}"`;
 
-  execSync(cmd, { stdio: "inherit" });
-  return cmd;
+  // Fetch JSON from REST API
+  const json = execSync(curlCmd, { encoding: "utf8" });
+
+  const outPath = path.join(outDir, `${dashboardApiName}.json`);
+  fs.writeFileSync(outPath, json, "utf8");
+
+  return `REST → GET ${url} → saved to ${outPath}`;
 }
 
 if (require.main === module) {
   let apiName;
   let label;
   let dir = "tmp";
+
   process.argv.forEach((arg) => {
     if (arg.startsWith("--dashboard-api-name=")) {
       apiName = arg.split("=")[1];
@@ -63,11 +88,18 @@ if (require.main === module) {
       dir = arg.split("=")[1];
     }
   });
-  retrieveDashboard({
-    dashboardApiName: apiName,
-    dashboardLabel: label,
-    outputDir: dir
-  });
+
+  try {
+    const result = retrieveDashboard({
+      dashboardApiName: apiName,
+      dashboardLabel: label,
+      outputDir: dir
+    });
+    console.log(`✅ ${result}`);
+  } catch (err) {
+    console.error(`❌ Error: ${err.message}`);
+    process.exit(1);
+  }
 }
 
 module.exports = retrieveDashboard;
