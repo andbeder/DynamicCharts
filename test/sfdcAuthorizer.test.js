@@ -1,5 +1,9 @@
 const path = require("path");
 jest.mock("child_process", () => ({ execSync: jest.fn() }));
+jest.mock("fs", () => ({
+  existsSync: jest.fn(() => true),
+  readFileSync: jest.fn(() => "")
+}));
 const { execSync } = require("child_process");
 
 describe("sfdcAuthorizer", () => {
