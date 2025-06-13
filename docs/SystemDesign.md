@@ -64,7 +64,7 @@ All automation scripts assume a Node.js 18 runtime. Using older or unsupported v
 - **Salesforce LWC**: Standard library for creating Lightning Web Components.
 - **sfdcAuthorizer**: Node script that performs JWT-based authentication so other automation agents can access the org.
  - **dashboardRetriever**: Downloads dashboard state JSON using the CRM Analytics REST API so parsing agents can generate `charts.json`. When a dashboard label is supplied, it first queries the REST API to determine the API name.
-- **dashboardReader**: Parses exported dashboard JSON into normalized chart definitions written to `charts.json`.
+ - **dashboardReader**: Parses exported dashboard JSON into normalized chart definitions written to `charts.json`. The parser now supports dashboard files where the `widgets` section is expressed as an object rather than an array.
 - **lwcReader**: Creates Lightning Web Component scaffolding from `charts.json` and writes the files under `force-app/main/default/lwc`.
 - **changeRequestGenerator**: Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json` for synchronizing the component source.
 - **syncCharts**: Reads `changeRequests.json` and updates the `dynamicCharts` LWC by modifying the HTML and JS files via AST transforms.

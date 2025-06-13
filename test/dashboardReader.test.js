@@ -14,18 +14,26 @@ describe('dashboardReader', () => {
 
   test('parses widgets and writes charts.json', () => {
     const dashboard = {
-      widgets: [
-        {
-          title: 'Climbs By Nation',
-          saql: 'q = load "d";',
-          subtitle: 'type=bar; colors=red; title=Top 20 Climbs by Nation',
+      widgets: {
+        w1: {
+          parameters: {
+            title: {
+              label: 'Climbs By Nation',
+              subtitleLabel: 'type=bar; colors=red; title=Top 20 Climbs by Nation'
+            },
+            step: 'step1'
+          },
           fieldMappings: { nation: 'Nation', Climbs: 'Climbs' }
         },
-        {
-          title: 'Time By Peak',
-          step: { query: 'saql2' },
-          subtitle:
-            'type=box-and-whisker; colors=light blue,dark blue; title=Days per Peak by Top 20 Climbs',
+        w2: {
+          parameters: {
+            title: {
+              label: 'Time By Peak',
+              subtitleLabel:
+                'type=box-and-whisker; colors=light blue,dark blue; title=Days per Peak by Top 20 Climbs'
+            },
+            step: 'step2'
+          },
           fieldMappings: {
             peakid: 'Peak ID',
             A: 'Min',
@@ -34,8 +42,12 @@ describe('dashboardReader', () => {
             D: 'Max'
           }
         },
-        { saql: 'invalid' }
-      ]
+        w3: { saql: 'invalid' }
+      },
+      steps: {
+        step1: { query: 'saql1' },
+        step2: { query: 'saql2' }
+      }
     };
     fs.writeFileSync(inputFile, JSON.stringify(dashboard));
 
