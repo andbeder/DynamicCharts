@@ -67,6 +67,7 @@ The project follows the Salesforce DX structure with source located under `force
 - **lwcReader**: Creates Lightning Web Component scaffolding from `charts.json` and writes the files under `force-app/main/default/lwc`.
 - **changeRequestGenerator**: Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json` for synchronizing the component source.
 - **syncCharts**: Reads `changeRequests.json` and updates the `dynamicCharts` LWC by modifying the HTML and JS files via AST transforms.
+- **sfdcDeployer**: Deploys metadata in `force-app/main/default` to the target org using the `sf` CLI and writes a JSON report under `reports/`.
 
 ## Testing
 
