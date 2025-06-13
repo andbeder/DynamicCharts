@@ -18,11 +18,17 @@ describe("dashboardRetriever", () => {
     Object.assign(process.env, originalEnv);
   });
 
-  test("builds correct CLI command and creates directory", () => {
+  test("retrieves JSON using API name", () => {
+    process.env.SF_ACCESS_TOKEN = "token";
+    process.env.SF_INSTANCE_URL = "https://example.my.salesforce.com";
+    execSync.mockReturnValueOnce("{ }\n");
+
     retrieve({ dashboardApiName: "CR-02", outputDir: tempDir });
-    const expectedCmd = `sf analytics:dashboard:export --name CR-02 --output-dir ${path.resolve(tempDir)}`;
-    expect(execSync).toHaveBeenCalledWith(expectedCmd, { stdio: "inherit" });
-    expect(fs.existsSync(tempDir)).toBe(true);
+
+    const expectedCmd =
+      'curl -s -H "Authorization: Bearer token" "https://example.my.salesforce.com/services/data/v59.0/wave/dashboards/CR-02"';
+    expect(execSync).toHaveBeenCalledWith(expectedCmd, { encoding: "utf8" });
+    expect(fs.existsSync(path.join(tempDir, "CR-02.json"))).toBe(true);
   });
 
   test("looks up API name using label", () => {
@@ -31,14 +37,18 @@ describe("dashboardRetriever", () => {
     execSync.mockReturnValueOnce(
       JSON.stringify({ dashboards: [{ label: "My Dash", name: "MY_DASH" }] })
     );
+    execSync.mockReturnValueOnce("{ }\n");
+
     retrieve({ dashboardLabel: "My Dash", outputDir: tempDir });
-    const curlCmd =
-      'curl -s -H "Authorization: Bearer token" https://example.my.salesforce.com/services/data/v59.0/wave/dashboards';
-    const exportCmd = `sf analytics:dashboard:export --name MY_DASH --output-dir ${path.resolve(tempDir)}`;
-    expect(execSync).toHaveBeenNthCalledWith(1, curlCmd, { encoding: "utf8" });
-    expect(execSync).toHaveBeenNthCalledWith(2, exportCmd, {
-      stdio: "inherit"
-    });
+
+    const queryCmd =
+      'curl -s -H "Authorization: Bearer token" "https://example.my.salesforce.com/services/data/v59.0/wave/dashboards"';
+    const getCmd =
+      'curl -s -H "Authorization: Bearer token" "https://example.my.salesforce.com/services/data/v59.0/wave/dashboards/MY_DASH"';
+
+    expect(execSync).toHaveBeenNthCalledWith(1, queryCmd, { encoding: "utf8" });
+    expect(execSync).toHaveBeenNthCalledWith(2, getCmd, { encoding: "utf8" });
+    expect(fs.existsSync(path.join(tempDir, "MY_DASH.json"))).toBe(true);
   });
 
   test("throws when required args are missing", () => {
