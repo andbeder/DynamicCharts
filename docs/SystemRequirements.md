@@ -46,6 +46,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
 
 - A Node script named `changeRequestGenerator` shall compare `charts.json` with `revEngCharts.json` and output `changeRequests.json` listing required code updates.
 - A follow-on script shall convert `changeRequests.json` into a human-readable `changeRequestInstructions.txt` file for developers, translating style changes into their corresponding ApexCharts option paths.
+- A Node script named `syncCharts` shall apply `changeRequests.json` to update `dynamicCharts.html` and `dynamicCharts.js` automatically.
 
 ## Non‑Functional Requirements
 
