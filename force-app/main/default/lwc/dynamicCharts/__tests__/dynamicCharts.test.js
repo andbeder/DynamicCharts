@@ -49,6 +49,34 @@ describe("c-dynamic-charts", () => {
     expect(chart7).not.toBeNull();
   });
 
+  it("shows ClimbsByNation page by default", () => {
+    const element = createElement("c-dynamic-charts", {
+      is: DynamicCharts
+    });
+    document.body.appendChild(element);
+
+    const climbsPage = element.shadowRoot.querySelector(
+      "div[data-page='ClimbsByNation']"
+    );
+    expect(climbsPage.classList).toContain("slds-show");
+  });
+
+  it("switches pages when navigation link clicked", async () => {
+    const element = createElement("c-dynamic-charts", {
+      is: DynamicCharts
+    });
+    document.body.appendChild(element);
+
+    const link = element.shadowRoot.querySelector("a[data-id='TimeByPeak']");
+    link.click();
+    await flushPromises();
+
+    const timePage = element.shadowRoot.querySelector(
+      "div[data-page='TimeByPeak']"
+    );
+    expect(timePage.classList).toContain("slds-show");
+  });
+
   it("initializes ApexCharts instances for all charts", async () => {
     const element = createElement("c-dynamic-charts", {
       is: DynamicCharts
