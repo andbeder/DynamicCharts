@@ -10,7 +10,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - The system shall fetch available CRM Analytics datasets using the `getDatasets` wire adapter.
    - Only datasets of type `Default` or `Live` with license type `EinsteinAnalytics` shall be returned.
 2. **Dashboard Retrieval**
-   - A `dashboardRetriever` script shall export dashboard state JSON using the Salesforce CLI.
+   - A `dashboardRetriever` script shall download dashboard state JSON using the CRM Analytics REST API.
    - If only a dashboard label is provided, the script shall query the CRM Analytics REST API using `SF_INSTANCE_URL` and `SF_ACCESS_TOKEN` environment variables to resolve the dashboard's API name.
    - Retrieved files shall be written to a configurable output directory (default `tmp`).
 3. **Dashboard Parsing**

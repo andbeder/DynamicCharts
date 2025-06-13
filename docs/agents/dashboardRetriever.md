@@ -1,6 +1,6 @@
 # dashboardRetriever
 
-> Fetches a CRM Analytics dashboard state JSON using the Salesforce CLI.
+> Fetches a CRM Analytics dashboard state JSON using the CRM Analytics REST API.
 
 ## Script Path
 
@@ -8,7 +8,7 @@
 
 ## Description
 
-The `dashboardRetriever` agent downloads the JSON representation of a CRM Analytics dashboard so that downstream agents can parse it. It relies on the Salesforce CLI command `analytics:dashboard:export` to retrieve the dashboard state. When only a dashboard label is supplied, the script first queries the CRM Analytics REST API to look up the dashboard's API name.
+The `dashboardRetriever` agent downloads the JSON representation of a CRM Analytics dashboard so that downstream agents can parse it. It relies on direct REST API calls to retrieve the dashboard state. When only a dashboard label is supplied, the script first queries the CRM Analytics REST API to look up the dashboard's API name.
 
 ## CLI Options
 
@@ -28,11 +28,13 @@ The `dashboardRetriever` agent downloads the JSON representation of a CRM Analyt
 1. Ensure either `dashboardApiName` or `dashboardLabel` is provided.
 2. If only `dashboardLabel` is supplied, query the REST API using `SF_ACCESS_TOKEN` and `SF_INSTANCE_URL` to find the corresponding API name.
 3. Create `outputDir` if it does not exist.
-4. Execute the Salesforce CLI command:
+4. Issue a REST `GET` request:
    ```bash
-   sf analytics:dashboard:export --name <dashboardApiName> --output-dir <outputDir>
+   curl -s -H "Authorization: Bearer $SF_ACCESS_TOKEN" \
+     "$SF_INSTANCE_URL/services/data/v<apiVersion>/wave/dashboards/<dashboardApiName>"
    ```
-5. Exit with a non‑zero code on command failure.
+   and save the response to `<outputDir>/<dashboardApiName>.json`.
+5. Exit with a non-zero code on command failure.
 
 ## Preconditions
 
@@ -46,8 +48,8 @@ The `dashboardRetriever` agent downloads the JSON representation of a CRM Analyt
 
 ```bash
 # Using API name directly
-node scripts/agents/dashboardRetriever.js --dashboard-api-name CR-02 --output-dir tmp
+node scripts/agents/dashboardRetriever.js --dashboard-api-name=CR-02 --output-dir=tmp
 
 # Using dashboard label lookup
-node scripts/agents/dashboardRetriever.js --dashboard-label "Climbs By Nation" --output-dir tmp
+node scripts/agents/dashboardRetriever.js --dashboard-label="Climbs By Nation" --output-dir=tmp
 ```
