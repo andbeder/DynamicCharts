@@ -36,7 +36,7 @@ The project follows the Salesforce DX structure with source located under `force
 
 - **dynamicCharts.js**: Core logic for loading datasets, handling filter selections, generating SAQL, cross-filtering available options, and rendering six charts with ApexCharts.
 - The component applies visual effects such as drop shadows based on chart settings to enhance chart readability.
-- **dynamicCharts.html**: Presents filter controls and six chart containers arranged in multiple cards.
+- **dynamicCharts.html**: Presents filter controls and a left-hand list of chart names. Each chart pair appears on its own page that can be selected from this list.
 - **dynamicCharts.js-meta.xml**: Exposes the component to App, Record, and Home pages.
 - **DPOStateMachine.cls**: Placeholder Apex class reserved for future enhancements or server-side processing.
 - **charts.json**: Generated from the CRM Analytics dashboards to list supported charts. Primary charts are included, while `AO` variants are ignored.
@@ -48,11 +48,12 @@ The project follows the Salesforce DX structure with source located under `force
 
 1. `getDatasets` retrieves dataset IDs when the component initializes.
 2. Dual list boxes and combo box capture filter selections from the user.
-3. Option queries apply the currently selected filters (excluding the field being queried) so that each filter only displays valid values.
-4. A dynamically imported `executeQuery` runs SAQL queries for all charts using the selected filters.
-5. The first bar chart uses the filters as selected; the second applies the inverse of the `host` and `nation` filters.
-6. The **Render** button triggers `filtersUpdated`, which refreshes every chart with new query data.
-7. Chart data queries are executed sequentially to honor the CRM Analytics limit of five concurrent queries. The module is loaded at runtime so the ESLint wire adapter rules do not apply.
+3. A left-hand navigation list allows the user to switch between chart pages.
+4. Option queries apply the currently selected filters (excluding the field being queried) so that each filter only displays valid values.
+5. A dynamically imported `executeQuery` runs SAQL queries for all charts using the selected filters.
+6. The first bar chart uses the filters as selected; the second applies the inverse of the `host` and `nation` filters.
+7. The **Render** button triggers `filtersUpdated`, which refreshes every chart with new query data.
+8. Chart data queries are executed sequentially to honor the CRM Analytics limit of five concurrent queries. The module is loaded at runtime so the ESLint wire adapter rules do not apply.
 
 ## Dependencies
 

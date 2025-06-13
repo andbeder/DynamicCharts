@@ -1,5 +1,8 @@
 import { LightningElement, wire, api } from "lwc";
-import { getDatasets, executeQuery as wiredExecuteQuery } from "lightning/analyticsWaveApi";
+import {
+  getDatasets,
+  executeQuery as wiredExecuteQuery
+} from "lightning/analyticsWaveApi";
 import apexchartJs from "@salesforce/resourceUrl/ApexCharts";
 import { loadScript } from "lightning/platformResourceLoader";
 
@@ -24,6 +27,18 @@ export default class SacCharts extends LightningElement {
 
   chartObject = {};
   _chartsInitialized = false;
+
+  activePage = "ClimbsByNation";
+
+  get climbsPageClass() {
+    return this.activePage === "ClimbsByNation" ? "slds-show" : "slds-hide";
+  }
+  get campsPageClass() {
+    return this.activePage === "CampsByPeak" ? "slds-show" : "slds-hide";
+  }
+  get timePageClass() {
+    return this.activePage === "TimeByPeak" ? "slds-show" : "slds-hide";
+  }
 
   chartSettings = {
     ClimbsByNation: {
@@ -385,6 +400,13 @@ export default class SacCharts extends LightningElement {
   }
   handleSkiChange(event) {
     this.skiSelection = event.detail.value;
+  }
+  handleNavClick(event) {
+    event.preventDefault();
+    const id = event.target.dataset.id;
+    if (id) {
+      this.activePage = id;
+    }
   }
   async filtersUpdated() {
     await this.runChartQueries();
