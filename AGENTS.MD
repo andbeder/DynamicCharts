@@ -70,7 +70,7 @@ automation commands can locate it.
 **Outputs**: Test reports and deployment logs. 
 
 
-### end-to-emnd\:charts
+### end-to-end\:charts
 
 
    1. **sfdcAuthorizer**
