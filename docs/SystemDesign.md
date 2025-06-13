@@ -50,10 +50,10 @@ The project follows the Salesforce DX structure with source located under `force
 2. Dual list boxes and combo box capture filter selections from the user.
 3. A left-hand navigation list allows the user to switch between chart pages.
 4. Option queries apply the currently selected filters (excluding the field being queried) so that each filter only displays valid values.
-5. A dynamically imported `executeQuery` runs SAQL queries for all charts using the selected filters.
+5. Chart queries are placed into a queue and executed via a single `executeQuery` wire adapter using the `nextQuery` getter.
 6. The first bar chart uses the filters as selected; the second applies the inverse of the `host` and `nation` filters.
 7. The **Render** button triggers `filtersUpdated`, which refreshes every chart with new query data.
-8. Chart data queries are executed sequentially to honor the CRM Analytics limit of five concurrent queries. The module is loaded at runtime so the ESLint wire adapter rules do not apply.
+8. The queue ensures no more than one CRM Analytics query runs at a time so the five-concurrent limit is never exceeded.
 
 ## Dependencies
 
