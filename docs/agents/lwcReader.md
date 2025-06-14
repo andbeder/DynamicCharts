@@ -1,6 +1,6 @@
 # lwcReader
 
-> Generates Lightning Web Component files from normalized chart definitions for use in Salesforce LWC.
+> Parses the `dynamicCharts` Lightning Web Component to produce `revEngCharts.json` containing the currently implemented chart definitions.
 
 ## Script Path
 
@@ -8,88 +8,67 @@
 
 ## Description
 
-This agent reads the normalized chart definitions from `charts.json` and generates a corresponding directory of Lightning Web Components, including `.js`, `.html`, and `.js-meta.xml` files for each chart. It uses templating to produce standardized component scaffolding ready for deployment.
+This agent inspects `force-app/main/default/lwc/dynamicCharts/dynamicCharts.js` and `dynamicCharts.html` to reverse engineer chart metadata. The extracted information is normalized according to `CHART_JSON_DEFINITION.MD` and written to `revEngCharts.json`.
 
 ## CLI Options
 
-- `--charts-file <file>` (optional, default: `charts.json`): Path to the JSON file containing chart definitions.
-- `--output-dir <directory>` (optional, default: `lwc`): Directory in which to generate component folders.
-- `--template-dir <directory>` (optional, default: `templates/lwc`): Directory containing component templates.
+- `--js-file <file>` (optional, default: `force-app/main/default/lwc/dynamicCharts/dynamicCharts.js`): Path to the component JavaScript file.
+- `--html-file <file>` (optional, default: `force-app/main/default/lwc/dynamicCharts/dynamicCharts.html`): Path to the component template file.
+- `--output-file <file>` (optional, default: `revEngCharts.json`): Destination for the generated chart definitions.
 - `--silent` (optional): Suppress informational output.
 - `-h, --help`: Display help information.
 
 ## Inputs
 
-- _(Optional)_ `chartsFile`: Path to the chart definitions JSON.
-- _(Optional)_ `outputDir`: Target directory for generated LWC components.
-- _(Optional)_ `templateDir`: Source directory for template files.
+- `jsFile`: Path to the LWC JavaScript file.
+- `htmlFile`: Path to the LWC template file.
+- _(Optional)_ `outputFile`: Location of the resulting JSON file.
 - _(Optional)_ `silent`: Flag to suppress logs.
 
 ## Behavior
 
-1. **Validate Preconditions**
-
-   - Ensure `chartsFile` exists and is valid JSON.
-   - Create `outputDir` if it does not exist.
-
-2. **Load Templates**
-
-   - Load component templates from `templateDir` for `.js`, `.html`, and `.js-meta.xml`.
-
-3. **Generate Components**  
-   For each chart definition in `chartsFile`:
-
-   - Create a subdirectory `<outputDir>/<chart.id>` (kebab-case).
-   - Render templates by injecting chart-specific variables:
-     - `chart.id` → component folder and class name.
-     - `chart.type` → component logic type.
-     - `chart.title` → readable label.
-     - `chart.fieldMappings` and `chart.style` → passed as component properties.
-   - Write files:
-     - `<chart.id>.js`
-     - `<chart.id>.html`
-     - `<chart.id>.js-meta.xml`
-
-4. **Post-Generation**
-   - Log generated components summary.
-   - Exit with code `0` on success.
+1. **Extract Chart Settings**
+   - Locate and evaluate the `chartSettings` object in the JavaScript file.
+   - Detect the `initChart` calls to determine which chart option set (`chartAOptions`, `chartBoxOptions`, etc.) applies to each chart.
+2. **Normalize Data**
+   - Map option sets to chart `type` values (`chartAOptions` → `bar`, `chartBoxOptions` → `box-and-whisker`).
+   - Convert `colors` arrays to a comma-separated `style.seriesColors` value and default the `font` to `"default"`.
+3. **Write Output**
+   - Assemble an object following `CHART_JSON_DEFINITION.MD` and write it to `revEngCharts.json`.
+   - Log the number of charts written unless the `silent` flag is provided.
 
 ## Assumptions
 
-- Chart definitions include valid `id`, `type`, and metadata required by templates.
-- Template placeholders follow `{{placeholderName}}` syntax.
-- Output directory is writeable.
+- The LWC defines a single `chartSettings` object listing chart metadata.
+- Each chart is initialized via `this.initChart('.<name>', this.<optionsVar>, '<name>')`.
 
 ## Error Handling
 
-- Skips chart definitions missing required fields and logs a warning.
-- Exits with non-zero code if template files are missing or write errors occur.
+- Throws if the specified source files are missing.
+- Propagates JSON and file system errors.
 
 ## Dependencies
 
 - Node.js (v14+)
-- `fs-extra` for file operations
-- `mustache` or similar templating library
+- `fs`, `path`
 
 ## Preconditions
 
-- Previous agents (`dashboardRetriever` and `dashboardReader`) have produced `charts.json`.
-- Template directory (`templates/lwc`) contains the necessary template files.
+- The `dynamicCharts` component exists under `force-app/main/default/lwc`.
 
 ## Output
 
-- the file `revEngCharts.json`
+- `revEngCharts.json`
 
 ## Examples
-
-### Basic Usage
 
 ```bash
 node scripts/agents/lwcReader.js
 ```
 
-### Custom Paths
-
 ```bash
-node scripts/agents/lwcReader.js --charts-file revEngCharts.json --output-dir force-app/main/default/lwc --template-dir tools/lwc-templates
+node scripts/agents/lwcReader.js \
+  --js-file lwc/dynamicCharts.js \
+  --html-file lwc/dynamicCharts.html \
+  --output-file data/revEngCharts.json
 ```

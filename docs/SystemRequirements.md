@@ -17,8 +17,8 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - A `dashboardReader` script shall convert exported dashboard JSON into normalized chart definitions.
    - The parser must handle dashboard files where the `widgets` section is either an array or a keyed object.
    - Parsed charts shall be written to `charts.json`, replacing previous definitions.
-4. **Component Generation**
-   - A `lwcReader` script shall read `charts.json` and generate Lightning Web Component folders under `force-app/main/default/lwc`.
+4. **Component Analysis**
+   - A `lwcReader` script shall parse the existing Lightning Web Component source and output `revEngCharts.json` describing the charts implemented.
 5. **Filter Options**
    - Users shall filter chart results by `host`, `nation`, `season`, and `ski` attributes.
    - Dual list boxes shall be provided for `host`, `nation`, and `season` selections.
