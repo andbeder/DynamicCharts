@@ -62,4 +62,28 @@ describe('syncCharts', () => {
     expect(updated).toMatch(/colors:\s*\[\s*"#175F68"\s*\]/);
     expect(updated).toMatch(/effects:\s*\[\s*"shadow"\s*\]/);
   });
+
+  test('uses default file paths when options are omitted', () => {
+    const cwd = process.cwd();
+    const defaultDir = path.join(tmpDir, 'proj');
+    const defaultLwcDir = path.join(
+      defaultDir,
+      'force-app/main/default/lwc/dynamicCharts'
+    );
+    fs.mkdirSync(defaultLwcDir, { recursive: true });
+    fs.copyFileSync(htmlPath, path.join(defaultLwcDir, 'dynamicCharts.html'));
+    fs.copyFileSync(jsPath, path.join(defaultLwcDir, 'dynamicCharts.js'));
+    fs.copyFileSync(inputPath, path.join(defaultDir, 'changeRequests.json'));
+    process.chdir(defaultDir);
+    try {
+      syncCharts();
+      const updated = fs.readFileSync(
+        path.join(defaultLwcDir, 'dynamicCharts.js'),
+        'utf8'
+      );
+      expect(updated).toContain('dashboard: "CR_02"');
+    } finally {
+      process.chdir(cwd);
+    }
+  });
 });
