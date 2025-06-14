@@ -67,8 +67,9 @@ All automation scripts assume a Node.js 18 or later runtime (tested with Node.js
  - **dashboardReader**: Parses exported dashboard JSON into normalized chart definitions written to `charts.json`. The parser now supports dashboard files where the `widgets` section is expressed as an object rather than an array.
  - **lwcReader**: Parses the existing `dynamicCharts` component to generate `revEngCharts.json` describing the charts currently implemented.
  - **changeRequestGenerator**: Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json` and a detailed `changeRequestInstructions.txt` file for developers.
- - **syncCharts**: Reads `changeRequests.json` and updates the `dynamicCharts` LWC by modifying the HTML and JS files via AST transforms. The agent applies each change request's mismatched properties directly to the `chartSettings` object so dashboard references, titles, field mappings and style options remain aligned with the CRM Analytics definitions.
+- **syncCharts**: Reads `changeRequests.json` and updates the `dynamicCharts` LWC by modifying the HTML and JS files via AST transforms. The agent applies each change request's mismatched properties directly to the `chartSettings` object so dashboard references, titles, field mappings and style options remain aligned with the CRM Analytics definitions.
 - **sfdcDeployer**: Deploys metadata in `force-app/main/default` to the target org using the `sf` CLI and writes a JSON report under `reports/`.
+- **endToEndCharts.js**: Runs all agents in sequence. Executed via `npm run end-to-end:charts` to authenticate, retrieve dashboards, parse them, sync charts, run tests and deploy.
 - **Salesforce CLI** and **Jest** are included in `devDependencies` so running `npm install` prepares the full toolchain automatically.
 
 ## Testing
