@@ -9,8 +9,8 @@
   "scripts": {
     "preinstall": "node scripts/checkNodeVersion.js",
     "auth": "node scripts/agents/sfdcAuthorizer.js",
-    "fetch-dash": "node scripts/agents/dashboardRetriever.js",
-    "read-dash": "node scripts/agents/dashboardReader.js",
+    "fetch-dash": "node scripts/agents/dashboardRetriever.js --dashboard-api-name=$npm_config_dashboard",
+    "read-dash": "node scripts/agents/dashboardReader.js --dashboard-api-name=$npm_config_dashboard",
     "read-lwc": "node scripts/agents/lwcReader.js",
     "gen-changes": "node scripts/agents/changeRequestGenerator.js",
     "sync": "node scripts/agents/syncCharts.js",
@@ -30,7 +30,7 @@
     "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "postinstall": "husky install",
     "precommit": "lint-staged",
-    "generate:charts": "node scripts/agents/sfdcAuthorizer.js && node scripts/agents/dashboardRetriever.js && node scripts/agents/dashboardReader.js && node scripts/agents/lwcReader.js && node scripts/agents/changeRequestGenerator.js",
+    "generate:charts": "node scripts/agents/sfdcAuthorizer.js && node scripts/agents/dashboardRetriever.js --dashboard-api-name=$npm_config_dashboard && node scripts/agents/dashboardReader.js --dashboard-api-name=$npm_config_dashboard && node scripts/agents/lwcReader.js && node scripts/agents/changeRequestGenerator.js",
     "sync:charts": "node scripts/agents/syncCharts.js",
     "deploy:charts": "npm run test:unit && node scripts/agents/lwcTester.js && node scripts/agents/sfdcDeployer.js",
     "end-to-end:charts": "node scripts/endToEndCharts.js",
@@ -41,7 +41,15 @@
     "test:changeRequestGenerator": "jest test/changeRequestGenerator.test.js",
     "test:syncCharts": "jest test/syncCharts.test.js",
     "test:lwcTester": "jest test/lwcTester.test.js",
-    "test:sfdcDeployer": "jest test/sfdcDeployer.test.js"
+    "test:sfdcDeployer": "jest test/sfdcDeployer.test.js",
+    "sfdcAuthorizer": "node scripts/agents/sfdcAuthorizer.js",
+    "dashboardRetriever": "node scripts/agents/dashboardRetriever.js --dashboard-api-name=$npm_config_dashboard",
+    "dashboardReader": "node scripts/agents/dashboardReader.js --dashboard-api-name=$npm_config_dashboard",
+    "lwcReader": "node scripts/agents/lwcReader.js",
+    "changeRequestGenerator": "node scripts/agents/changeRequestGenerator.js",
+    "syncCharts": "node scripts/agents/syncCharts.js",
+    "lwcTester": "node scripts/agents/lwcTester.js",
+    "sfdcDeployer": "node scripts/agents/sfdcDeployer.js"
   },
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^2.2.0",

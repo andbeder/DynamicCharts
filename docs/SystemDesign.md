@@ -72,6 +72,10 @@ All automation scripts assume a Node.js 18 or later runtime (tested with Node.js
 - **endToEndCharts.js**: Runs all agents in sequence. Executed via `npm run end-to-end:charts` to authenticate, retrieve dashboards, parse them, sync charts, run tests and deploy.
 - **Salesforce CLI** and **Jest** are included in `devDependencies` so running `npm install` prepares the full toolchain automatically.
 
+Each agent also has a dedicated npm script named after the agent. For example,
+`npm run dashboardRetriever --dashboard=CR_02` passes the dashboard API name to
+`dashboardRetriever.js` and `dashboardReader.js` uses the same parameter.
+
 ## Testing
 
 Unit tests reside under `force-app/main/default/lwc/dynamicCharts/__tests__` and use `sfdx-lwc-jest`. Additional Apex test classes are stored in the `force-app/test` package to validate server-side code. The root `test` directory contains integration checks—for example, verifying that chart container IDs (and their `AO` counterparts) match the chart definitions in `charts.json`.

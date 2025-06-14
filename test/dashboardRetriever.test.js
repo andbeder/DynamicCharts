@@ -1,6 +1,13 @@
-const fs = require("fs");
 const path = require("path");
 jest.mock("child_process", () => ({ execSync: jest.fn() }));
+jest.mock("fs", () => ({
+  readFileSync: jest.fn(() => "token"),
+  existsSync: jest.fn(() => true),
+  rmSync: jest.fn(),
+  mkdirSync: jest.fn(),
+  writeFileSync: jest.fn(),
+}));
+const fs = require("fs");
 const { execSync } = require("child_process");
 
 const retrieve = require("../scripts/agents/dashboardRetriever");
@@ -26,7 +33,7 @@ describe("dashboardRetriever", () => {
     retrieve({ dashboardApiName: "CR-02", outputDir: tempDir });
 
     const expectedCmd =
-      'curl -s -H "Authorization: Bearer token" "https://example.my.salesforce.com/services/data/v59.0/wave/dashboards/CR-02"';
+      'curl -s -H "Authorization: Bearer token" "https://example.my.salesforce.com/services/data/v60.0/wave/dashboards/CR-02"';
     expect(execSync).toHaveBeenCalledWith(expectedCmd, { encoding: "utf8" });
     expect(fs.existsSync(path.join(tempDir, "CR-02.json"))).toBe(true);
   });
@@ -44,7 +51,7 @@ describe("dashboardRetriever", () => {
     const queryCmd =
       'curl -s -H "Authorization: Bearer token" "https://example.my.salesforce.com/services/data/v59.0/wave/dashboards"';
     const getCmd =
-      'curl -s -H "Authorization: Bearer token" "https://example.my.salesforce.com/services/data/v59.0/wave/dashboards/MY_DASH"';
+      'curl -s -H "Authorization: Bearer token" "https://example.my.salesforce.com/services/data/v60.0/wave/dashboards/MY_DASH"';
 
     expect(execSync).toHaveBeenNthCalledWith(1, queryCmd, { encoding: "utf8" });
     expect(execSync).toHaveBeenNthCalledWith(2, getCmd, { encoding: "utf8" });
