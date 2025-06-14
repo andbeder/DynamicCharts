@@ -82,7 +82,7 @@ This agent reads the upstream dashboard definitions (`charts.json`) and the reve
 
 ## Output
 
-- `changeRequests.json`: An array of change-request objects outlining fine-grained add/remove/update instructions.
+- `changeRequestInstructions.txt`: Human and machine-readable instructions detailing exactly what changes an LWC developer needs to make to the current LWC. Adding charts should include all detail required to build the chart including type, colors, style, etc. Updates should be specific and actionable. Deletes should be targeted.
 
 ## Examples
 
