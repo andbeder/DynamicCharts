@@ -46,8 +46,8 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - Development tooling shall run on Node.js 18 LTS. Using unsupported Node versions may prevent `npm install` from completing successfully.
 10. **Change Request Generation**
 
-- A Node script named `changeRequestGenerator` shall compare `charts.json` with `revEngCharts.json` and output `changeRequests.json` listing required code updates.
-- A follow-on script shall convert `changeRequests.json` into a human-readable `changeRequestInstructions.txt` file for developers, translating style changes into their corresponding ApexCharts option paths.
+- A Node script named `changeRequestGenerator` shall compare `charts.json` with `revEngCharts.json` and output both `changeRequests.json` and a developer-oriented `changeRequestInstructions.txt` file.
+- The instructions file shall translate style changes into their corresponding ApexCharts option paths so developers can implement updates precisely.
 - A Node script named `syncCharts` shall apply `changeRequests.json` to update `dynamicCharts.html` and `dynamicCharts.js` automatically.
 
 ## Non‑Functional Requirements

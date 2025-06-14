@@ -43,9 +43,9 @@ automation commands can locate it.
 
    5. **changeRequestGenerator**
 
-      * Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json`.
+      * Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json` and `changeRequestInstructions.txt`.
 
-   **Outputs**: `charts.json`, `changeRequests.json` 
+   **Outputs**: `charts.json`, `changeRequests.json`, `changeRequestInstructions.txt`
 
    ---
 
@@ -89,7 +89,7 @@ automation commands can locate it.
       * Reads `charts.json` and generates LWC component files (`.js`, `.html`, `.js-meta.xml`).
    5. **changeRequestGenerator**
 
-      * Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json`.
+      * Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json` and `changeRequestInstructions.txt`.
    6. **syncCharts**
 
       * Reads `changeRequests.json`.
@@ -101,5 +101,5 @@ automation commands can locate it.
 
       * Deploys changes in `force-app/main/default` to the Salesforce org.
 
-  **Outputs**: `charts.json`, `changeRequests.json`, Updated LWC source files. 
+  **Outputs**: `charts.json`, `changeRequests.json`, `changeRequestInstructions.txt`, Updated LWC source files.
 
