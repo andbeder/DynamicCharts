@@ -41,6 +41,13 @@ function serializeSettings(obj) {
   return str;
 }
 
+function toPascal(id) {
+  return id
+    .split(/[-_]/)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join('');
+}
+
 function updateJs(jsPath, changes) {
   let content = fs.readFileSync(jsPath, 'utf8');
   const { obj: settings, open, end } = parseChartSettings(content);
@@ -74,15 +81,45 @@ function updateJs(jsPath, changes) {
 
 function updateHtml(htmlPath, changes) {
   let lines = fs.readFileSync(htmlPath, 'utf8').split(/\r?\n/);
+  const ulStart = lines.findIndex((l) => l.includes('<ul') && l.includes('slds-list_dotted'));
+  let ulEnd = lines.findIndex((l, i) => i > ulStart && l.includes('</ul>'));
+  const layoutEnd = lines.lastIndexOf('</lightning-layout-item>');
   changes.changes.forEach((change) => {
     if (change.targetFile !== 'dynamicCharts.js') return;
     const id = change.chartId;
     if (change.action === 'remove') {
       lines = lines.filter(
-        (l) => !l.includes(`class=\"${id} `) && !l.includes(`class=\"${id}AO`)
+        (l) =>
+          !l.includes(`class=\"${id} `) &&
+          !l.includes(`class=\"${id}AO`) &&
+          !l.includes(`data-id=\"${id}`)
       );
+    } else if (change.action === 'add') {
+      const pascal = toPascal(id);
+      const nav = [
+        '        <li>',
+        `          <a href="javascript:void(0);" data-id="${pascal}" onclick={handleNavClick}>${pascal}</a>`,
+        '        </li>'
+      ];
+      lines.splice(ulEnd, 0, ...nav);
+      ulEnd += nav.length;
+      const block = [
+        `      <div data-page="${pascal}">`,
+        '        <lightning-card title="Chart Series" icon-name="custom:custom1">',
+        '          <lightning-layout>',
+        '            <lightning-layout-item size="6">',
+        `              <div class="${pascal} slds-var-m-around_medium" lwc:dom="manual"></div>`,
+        '            </lightning-layout-item>',
+        '            <lightning-layout-item size="6">',
+        `              <div class="${pascal}AO slds-var-m-around_medium" lwc:dom="manual"></div>`,
+        '            </lightning-layout-item>',
+        '          </lightning-layout>',
+        '        </lightning-card>',
+        '      </div>'
+      ];
+      lines.splice(layoutEnd, 0, ...block);
+      layoutEnd += block.length;
     }
-    // add not implemented for brevity
   });
   fs.writeFileSync(htmlPath, lines.join('\n'));
 }
