@@ -33,6 +33,7 @@
     "generate:charts": "node scripts/agents/sfdcAuthorizer.js && node scripts/agents/dashboardRetriever.js && node scripts/agents/dashboardReader.js && node scripts/agents/lwcReader.js && node scripts/agents/changeRequestGenerator.js",
     "sync:charts": "node scripts/agents/syncCharts.js",
     "deploy:charts": "npm run test:unit && node scripts/agents/lwcTester.js && node scripts/agents/sfdcDeployer.js",
+    "end-to-end:charts": "node scripts/endToEndCharts.js",
     "test:sfdcAuthorizer": "jest test/sfdcAuthorizer.test.js",
     "test:dashboardRetriever": "jest test/dashboardRetriever.test.js",
     "test:dashboardReader": "jest test/dashboardReader.test.js",
