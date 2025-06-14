@@ -43,7 +43,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - A vertical unordered list on the left shall allow users to select which chart page is displayed. Each chart pair occupies its own page.
 9. **Compatibility**
    - The application shall be compatible with Salesforce API version 59.0 as specified in the `sfdx-project.json` configuration.
-   - Development tooling shall run on Node.js 18 LTS. Using unsupported Node versions may prevent `npm install` from completing successfully.
+   - Development tooling shall run on Node.js 18 or later (tested with Node.js 22). Using unsupported Node versions may prevent `npm install` from completing successfully.
 10. **Change Request Generation**
 
 - A Node script named `changeRequestGenerator` shall compare `charts.json` with `revEngCharts.json` and output both `changeRequests.json` and a developer-oriented `changeRequestInstructions.txt` file.

@@ -10,7 +10,7 @@ The objective of this system is twofold:
    Because the reporting lifecycle is to be kept separate from the application lifecycle, with no audit trail necessary, specific dashboard requrirements are meant to be left out of SDD and SRDs
 
 The project follows the Salesforce DX structure with source located under `force-app/main/default` and uses `sfdx-lwc-jest` for unit testing.
-All automation scripts assume a Node.js 18 runtime. Using older or unsupported versions may cause `npm install` failures or other issues with the Salesforce CLI.
+All automation scripts assume a Node.js 18 or later runtime (tested with Node.js 22). Using older or unsupported versions may cause `npm install` failures or other issues with the Salesforce CLI.
 
 ## Architecture
 

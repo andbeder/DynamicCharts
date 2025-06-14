@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Salesforce App",
   "engines": {
-    "node": ">=18 <21"
+    "node": ">=18 <23"
   },
   "scripts": {
     "preinstall": "node scripts/checkNodeVersion.js",
