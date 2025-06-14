@@ -78,7 +78,7 @@ This agent reads the normalized chart definitions from `charts.json` and generat
 
 ## Output
 
-- A directory tree under `outputDir` containing one LWC component folder per chart, each with `.js`, `.html`, and `.js-meta.xml`.
+- the file `revEngCharts.json`
 
 ## Examples
 
@@ -91,8 +91,5 @@ node scripts/agents/lwcReader.js
 ### Custom Paths
 
 ```bash
-node scripts/agents/lwcReader.js \
-  --charts-file output/charts.json \
-  --output-dir force-app/main/default/lwc \
-  --template-dir tools/lwc-templates
+node scripts/agents/lwcReader.js --charts-file revEngCharts.json --output-dir force-app/main/default/lwc --template-dir tools/lwc-templates
 ```

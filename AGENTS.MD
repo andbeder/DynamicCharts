@@ -38,7 +38,9 @@ automation commands can locate it.
       * Parses dashboard JSON into normalized chart definitions and writes `charts.json`.
    4. **lwcReader**
 
-      * Reads `charts.json` and generates LWC component files (`.js`, `.html`, `.js-meta.xml`).
+      * Reads `force-app\main\default\lwc\dynamicCharts\dynamicCharts.js` and `force-app\main\default\lwc\dynamicCharts\dynamicCharts.html` for chart components and ApexCharts options driving them
+      * Writes `revEndCharts.json` based on `CHART_JSON_DEFINITION.MD` 
+
    5. **changeRequestGenerator**
 
       * Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json`.
