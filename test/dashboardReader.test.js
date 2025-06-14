@@ -14,8 +14,10 @@ describe('dashboardReader', () => {
 
   test('parses widgets and writes charts.json', () => {
     const dashboard = {
-      widgets: {
+      state: {
+        widgets: {
         w1: {
+          saql: 'saql1',
           parameters: {
             title: {
               label: 'Climbs By Nation',
@@ -26,6 +28,7 @@ describe('dashboardReader', () => {
           fieldMappings: { nation: 'Nation', Climbs: 'Climbs' }
         },
         w2: {
+          saql: 'saql2',
           parameters: {
             title: {
               label: 'Time By Peak',
@@ -43,10 +46,23 @@ describe('dashboardReader', () => {
           }
         },
         w3: { saql: 'invalid' }
-      },
-      steps: {
-        step1: { query: 'saql1' },
-        step2: { query: 'saql2' }
+        },
+        steps: {
+          step1: { query: 'saql1' },
+          step2: { query: 'saql2' }
+        },
+        gridLayouts: [
+          {
+            pages: [
+              {
+                widgets: [
+                  { name: 'w1', column: 1, row: 1 },
+                  { name: 'w2', column: 1, row: 2 }
+                ]
+              }
+            ]
+          }
+        ]
       }
     };
     fs.writeFileSync(inputFile, JSON.stringify(dashboard));

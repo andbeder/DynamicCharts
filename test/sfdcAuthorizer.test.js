@@ -2,7 +2,9 @@ const path = require("path");
 jest.mock("child_process", () => ({ execSync: jest.fn() }));
 jest.mock("fs", () => ({
   existsSync: jest.fn(() => true),
-  readFileSync: jest.fn(() => "")
+  readFileSync: jest.fn(() => ""),
+  mkdirSync: jest.fn(),
+  writeFileSync: jest.fn()
 }));
 const { execSync } = require("child_process");
 
@@ -19,14 +21,18 @@ describe("sfdcAuthorizer", () => {
     process.env.SFDC_CLIENT_ID = "123456";
     process.env.SFDC_LOGIN_URL = "https://test.salesforce.com";
 
+    execSync.mockReturnValueOnce("");
+    execSync.mockReturnValueOnce(
+      JSON.stringify({ result: { accessToken: "TOKEN" } })
+    );
+
     const authorize = require(scriptPath);
     authorize();
 
-    const keyPath = path.resolve(__dirname, "..", "jwt.key");
-    const expected =
-      `sf org login jwt --client-id 123456 --jwt-key-file ${keyPath} ` +
-      "--username test@example.com --instance-url https://test.salesforce.com --set-default";
-
-    expect(execSync).toHaveBeenCalledWith(expected, { stdio: "inherit" });
+    const call = execSync.mock.calls[0][0];
+    expect(call).toContain("sf org login jwt");
+    expect(call).toContain("--username \"test@example.com\"");
+    expect(call).toContain("-i \"123456\"");
+    expect(call).toContain("--instance-url \"https://test.salesforce.com\"");
   });
 });

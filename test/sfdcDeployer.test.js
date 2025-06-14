@@ -23,7 +23,10 @@ describe('sfdcDeployer', () => {
       wait: 5
     });
     const expectedCmd = `sf project deploy start --source-dir ${path.resolve('src')} --wait 5 --json --verbose`;
-    expect(execSync).toHaveBeenCalledWith(expectedCmd, { encoding: 'utf8' });
+    expect(execSync).toHaveBeenCalledWith(expectedCmd, {
+      encoding: 'utf8',
+      env: expect.any(Object)
+    });
     expect(fs.existsSync(reportPath)).toBe(true);
     expect(cmd).toBe(expectedCmd);
   });

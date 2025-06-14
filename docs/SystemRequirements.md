@@ -67,8 +67,9 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
 5. **Testing**
    - Automated tests shall verify that each chart container successfully initializes an ApexCharts instance.
 - A Node script named `lwcTester` shall run Jest unit and integration tests from `test/lwcTester` and enforce minimum coverage of 80% statements, 75% branches, 80% functions, and 80% lines before deployment.
-- Each agent's tests shall be runnable individually via npm scripts such as `npm run test:changeRequestGenerator`.
-- A Node script named `sfdcDeployer` shall deploy metadata using the `sf` CLI and write a deployment report under `reports`.
+  - Each agent's tests shall be runnable individually via npm scripts such as `npm run test:changeRequestGenerator`.
+  - Each agent shall have a dedicated npm script. Pass the dashboard API name using `--dashboard=<name>` when running `dashboardRetriever` or `dashboardReader`.
+  - A Node script named `sfdcDeployer` shall deploy metadata using the `sf` CLI and write a deployment report under `reports`.
 - Development tooling such as the Salesforce CLI and Jest shall be listed under `devDependencies` in `package.json` so `npm install` fully sets up the environment.
 
 ## Out of Scope

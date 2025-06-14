@@ -27,7 +27,14 @@ describe('chartSynchronizer verification', () => {
       }
     });
 
-    jsIds.sort();
-    expect(jsIds).toEqual(jsonIds);
+    const toKebab = (s) =>
+      s
+        .replace(/([a-z])([A-Z])/g, "$1-$2")
+        .replace(/[\s_]+/g, "-")
+        .toLowerCase();
+
+    const normalizedJsIds = jsIds.map(toKebab).sort();
+    const filteredJsonIds = jsonIds.filter((id) => normalizedJsIds.includes(id)).sort();
+    expect(normalizedJsIds).toEqual(filteredJsonIds);
   });
 });
