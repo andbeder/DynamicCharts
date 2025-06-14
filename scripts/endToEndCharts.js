@@ -9,10 +9,10 @@ const syncCharts = require('./agents/syncCharts');
 const lwcTester = require('./agents/lwcTester');
 const sfdcDeployer = require('./agents/sfdcDeployer');
 
-function runEndToEnd() {
+function runEndToEnd({ dashboard } = {}) {
   sfdcAuthorizer();
-  dashboardRetriever();
-  dashboardReader();
+  dashboardRetriever({ dashboardApiName: dashboard });
+  dashboardReader({ dashboardApiName: dashboard });
   lwcReader();
   changeRequestGenerator();
   syncCharts();
@@ -21,7 +21,15 @@ function runEndToEnd() {
 }
 
 if (require.main === module) {
-  runEndToEnd();
+  const opts = {};
+  process.argv.slice(2).forEach((arg) => {
+    if (arg.startsWith('--dashboard=')) {
+      opts.dashboard = arg.split('=')[1];
+    } else if (arg.startsWith('--dashboard-api-name=')) {
+      opts.dashboard = arg.split('=')[1];
+    }
+  });
+  runEndToEnd(opts);
 }
 
 module.exports = runEndToEnd;
