@@ -32,7 +32,8 @@ function parseChartSettings(jsText) {
   const objText = jsText.slice(open, idx);
   const obj = vm.runInNewContext('(' + objText + ')');
   const semicolonIdx = jsText.indexOf(';', idx);
-  return { obj, start, open, end: semicolonIdx + 1 };
+  const end = semicolonIdx === -1 ? idx : semicolonIdx + 1;
+  return { obj, start, open, end };
 }
 
 function serializeSettings(obj) {
@@ -83,7 +84,7 @@ function updateHtml(htmlPath, changes) {
   let lines = fs.readFileSync(htmlPath, 'utf8').split(/\r?\n/);
   const ulStart = lines.findIndex((l) => l.includes('<ul') && l.includes('slds-list_dotted'));
   let ulEnd = lines.findIndex((l, i) => i > ulStart && l.includes('</ul>'));
-  const layoutEnd = lines.lastIndexOf('</lightning-layout-item>');
+  let layoutEnd = lines.lastIndexOf('</lightning-layout-item>');
   changes.changes.forEach((change) => {
     if (change.targetFile !== 'dynamicCharts.js') return;
     const id = change.chartId;

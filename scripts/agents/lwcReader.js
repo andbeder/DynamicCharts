@@ -5,14 +5,32 @@ const fs = require('fs');
 const path = require('path');
 
 function extractChartSettings(jsContent) {
-  const start = jsContent.indexOf('chartSettings = {');
+  const marker = 'chartSettings =';
+  const start = jsContent.indexOf(marker);
   if (start === -1) {
     return {};
   }
-  const end = jsContent.indexOf('};', start);
-  const objectSource = jsContent.slice(start + 'chartSettings = '.length, end + 1);
+  const open = jsContent.indexOf('{', start);
+  if (open === -1) {
+    return {};
+  }
+  let idx = open;
+  let depth = 0;
+  while (idx < jsContent.length) {
+    const ch = jsContent[idx];
+    if (ch === '{') depth += 1;
+    else if (ch === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        idx += 1;
+        break;
+      }
+    }
+    idx += 1;
+  }
+  const objText = jsContent.slice(open, idx);
   // eslint-disable-next-line no-new-func
-  return new Function(`return ${objectSource}`)();
+  return new Function(`return (${objText})`)();
 }
 
 function extractTypes(jsContent) {
