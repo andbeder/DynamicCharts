@@ -1,6 +1,6 @@
 # changeRequestGenerator
 
-> Compares the authoritative chart definitions in `charts.json` against the current LWC state in `revEngCharts.json`, generating a `changeRequests.json` file with detailed add/remove/update instructions.
+> Compares the authoritative chart definitions in `charts.json` against the current LWC state in `revEngCharts.json`, generating a `changeRequestInstructions.txt` file with step-by-step developer guidance.
 
 ## Script Path
 
@@ -14,7 +14,8 @@ This agent reads the upstream dashboard definitions (`charts.json`) and the reve
 
 - `--charts-file <file>` (optional, default: `charts.json`): Path to the authoritative chart definitions file.
 - `--rev-eng-charts-file <file>` (optional, default: `revEngCharts.json`): Path to the reverse-engineered chart definitions.
-- `--output-file <file>` (optional, default: `changeRequests.json`): Path where the change requests JSON will be written.
+- `--json-file <file>` (optional, default: `changeRequests.json`): Path where the raw change request data will be written.
+- `--output-file <file>` (optional, default: `changeRequestInstructions.txt`): Path where developer instructions will be written.
 - `--silent` (optional): Suppress informational logging.
 - `-h, --help`: Show help information.
 
@@ -22,7 +23,8 @@ This agent reads the upstream dashboard definitions (`charts.json`) and the reve
 
 - `chartsFile`: Authoritative charts definitions JSON.
 - `revEngChartsFile`: Current LWC chart definitions JSON.
-- _(Optional)_ `outputFile`: Destination for change requests.
+- _(Optional)_ `jsonFile`: Destination path for the raw change request data.
+- _(Optional)_ `outputFile`: Destination for the developer instructions text file.
 - _(Optional)_ `silent`: Flag to silence logs.
 
 ## Behavior
@@ -66,7 +68,8 @@ This agent reads the upstream dashboard definitions (`charts.json`) and the reve
      ```
 
 7. **Write Output**
-   - Serialize and write the array to `changeRequests.json`.
+   - Write the raw change data to `changeRequests.json`.
+   - Convert the change data into detailed developer instructions and save them to `changeRequestInstructions.txt`.
 
 ## Dependencies
 
@@ -82,6 +85,7 @@ This agent reads the upstream dashboard definitions (`charts.json`) and the reve
 
 ## Output
 
+- `changeRequests.json`: Raw change request data consumed by automation tools.
 - `changeRequestInstructions.txt`: Human and machine-readable instructions detailing exactly what changes an LWC developer needs to make to the current LWC. Adding charts should include all detail required to build the chart including type, colors, style, etc. Updates should be specific and actionable. Deletes should be targeted.
 
 ## Examples
@@ -98,5 +102,6 @@ node scripts/agents/changeRequestGenerator.js
 node scripts/agents/changeRequestGenerator.js \
   --charts-file data/charts.json \
   --rev-eng-charts-file data/revEngCharts.json \
-  --output-file generated/changeRequests.json
+  --json-file tmp/changeRequests.json \
+  --output-file generated/changeRequestInstructions.txt
 ```

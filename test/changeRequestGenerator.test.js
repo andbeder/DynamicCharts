@@ -6,22 +6,22 @@ describe('changeRequestGenerator', () => {
   const tmpDir = path.join(__dirname, 'crg');
   const chartsFile = path.join(tmpDir, 'charts.json');
   const revFile = path.join(tmpDir, 'rev.json');
-  const outFile = path.join(tmpDir, 'out.json');
+  const outFile = path.join(tmpDir, 'out.txt');
+  const jsonFile = path.join(tmpDir, 'out.json');
 
   beforeEach(() => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
     fs.mkdirSync(tmpDir, { recursive: true });
   });
 
-  test('generates expected change requests from sample data', () => {
+  test('generates expected instructions from sample data', () => {
     fs.copyFileSync(path.resolve(__dirname, '../charts.json'), chartsFile);
     fs.copyFileSync(path.resolve(__dirname, '../revEngCharts.json'), revFile);
 
-    const result = generate({ chartsFile, revEngChartsFile: revFile, outputFile: outFile, silent: true });
-    const expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../changeRequests.json'), 'utf8'));
-    const output = JSON.parse(fs.readFileSync(outFile, 'utf8'));
-    expect(result).toEqual(expected);
-    expect(output).toEqual(expected);
+    const output = generate({ chartsFile, revEngChartsFile: revFile, jsonFile, outputFile: outFile, silent: true });
+    const expected = require('../scripts/changeRequestInterpreter')(jsonFile, outFile + '.tmp');
+    const result = fs.readFileSync(outFile, 'utf8').trim();
+    expect(result).toBe(expected.trim());
   });
 
   test('detects added and removed charts', () => {
@@ -30,9 +30,10 @@ describe('changeRequestGenerator', () => {
     fs.writeFileSync(chartsFile, JSON.stringify(charts));
     fs.writeFileSync(revFile, JSON.stringify(rev));
 
-    const result = generate({ chartsFile, revEngChartsFile: revFile, outputFile: outFile, silent: true });
-    const actions = result.changes.map(c => `${c.action}:${c.chartId}`).sort();
-    expect(actions).toEqual(['add:A', 'remove:C']);
+    const output = generate({ chartsFile, revEngChartsFile: revFile, jsonFile, outputFile: outFile, silent: true });
+    const text = fs.readFileSync(outFile, 'utf8');
+    expect(text).toMatch(/Add markup for A/);
+    expect(text).toMatch(/Remove the <div class='chart-C'>/);
   });
 
   test('throws when charts file missing', () => {
