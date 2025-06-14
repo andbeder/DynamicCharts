@@ -15,8 +15,14 @@ describe('checkNodeVersion', () => {
     expect(code).toBe(1);
   });
 
-  test('succeeds for supported version', () => {
+  test('succeeds for supported version 18', () => {
     const cmd = `node -e "Object.defineProperty(process,'version',{value:'v18.0.0',configurable:true});require('${script.replace(/\\/g,'\\\\')}');"`;
+    const result = execSync(cmd, {stdio: 'pipe'});
+    expect(result.toString()).toBe('');
+  });
+
+  test('succeeds for supported version 22', () => {
+    const cmd = `node -e "Object.defineProperty(process,'version',{value:'v22.0.0',configurable:true});require('${script.replace(/\\/g,'\\\\')}');"`;
     const result = execSync(cmd, {stdio: 'pipe'});
     expect(result.toString()).toBe('');
   });
