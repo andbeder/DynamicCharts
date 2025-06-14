@@ -32,7 +32,15 @@
     "precommit": "lint-staged",
     "generate:charts": "node scripts/agents/sfdcAuthorizer.js && node scripts/agents/dashboardRetriever.js && node scripts/agents/dashboardReader.js && node scripts/agents/lwcReader.js && node scripts/agents/changeRequestGenerator.js",
     "sync:charts": "node scripts/agents/syncCharts.js",
-    "deploy:charts": "npm run test:unit && node scripts/agents/lwcTester.js && node scripts/agents/sfdcDeployer.js"
+    "deploy:charts": "npm run test:unit && node scripts/agents/lwcTester.js && node scripts/agents/sfdcDeployer.js",
+    "test:sfdcAuthorizer": "jest test/sfdcAuthorizer.test.js",
+    "test:dashboardRetriever": "jest test/dashboardRetriever.test.js",
+    "test:dashboardReader": "jest test/dashboardReader.test.js",
+    "test:lwcReader": "jest test/lwcReader.test.js",
+    "test:changeRequestGenerator": "jest test/changeRequestGenerator.test.js",
+    "test:syncCharts": "jest test/syncCharts.test.js",
+    "test:lwcTester": "jest test/lwcTester.test.js",
+    "test:sfdcDeployer": "jest test/sfdcDeployer.test.js"
   },
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^2.2.0",

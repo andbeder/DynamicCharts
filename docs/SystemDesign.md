@@ -76,6 +76,7 @@ All automation scripts assume a Node.js 18 runtime. Using older or unsupported v
 Unit tests reside under `force-app/main/default/lwc/dynamicCharts/__tests__` and use `sfdx-lwc-jest`. Additional Apex test classes are stored in the `force-app/test` package to validate server-side code. The root `test` directory contains integration checks—for example, verifying that chart container IDs (and their `AO` counterparts) match the chart definitions in `charts.json`.
 The suite also verifies that each chart container creates an ApexCharts instance by mocking `lightning/platformResourceLoader` to load the real library.
 Test execution is orchestrated by the `lwcTester` agent which installs required dev dependencies, scaffolds `test/lwcTester`, and runs Jest with coverage thresholds prior to deployment.
+Each agent's tests can be run individually using npm scripts such as `npm run test:changeRequestGenerator`.
 
 ## Future Considerations
 
