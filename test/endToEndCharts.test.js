@@ -27,8 +27,10 @@ describe('endToEndCharts workflow', () => {
     jest.clearAllMocks();
   });
 
-  test('runs agents in sequence', () => {
-    runEndToEnd();
+  test('runs agents in sequence with dashboard parameter', () => {
+    runEndToEnd({ dashboard: 'CR_02' });
+    expect(dashboardRetriever).toHaveBeenCalledWith({ dashboardApiName: 'CR_02' });
+    expect(dashboardReader).toHaveBeenCalledWith({ dashboardApiName: 'CR_02' });
     const order = [
       sfdcAuthorizer,
       dashboardRetriever,
