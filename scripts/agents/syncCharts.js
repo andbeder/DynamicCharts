@@ -124,7 +124,11 @@ function updateHtml(htmlPath, changes) {
   fs.writeFileSync(htmlPath, lines.join('\n'));
 }
 
-function syncCharts({ input = 'changeRequests.json', html, js }) {
+function syncCharts({
+  input = 'changeRequests.json',
+  html = 'force-app/main/default/lwc/dynamicCharts/dynamicCharts.html',
+  js = 'force-app/main/default/lwc/dynamicCharts/dynamicCharts.js'
+} = {}) {
   if (!html || !js) {
     throw new Error('html and js options are required');
   }

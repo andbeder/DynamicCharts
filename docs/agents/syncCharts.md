@@ -36,9 +36,9 @@ The `syncCharts` agent merges the functionality of the `changeRequestInterpreter
 node scripts/agents/syncCharts.js --input changeRequests.json --html force-app/main/default/lwc/dynamicCharts/dynamicCharts.html --js force-app/main/default/lwc/dynamicCharts/dynamicCharts.js
 ```
 
-- `--input` (`-i`): Path to `changeRequests.json`.
-- `--html` (`-h`): Path to `dynamicCharts.html`.
-- `--js` (`-j`): Path to `dynamicCharts.js`.
+- `--input` (`-i`): Path to `changeRequests.json`. Defaults to `changeRequests.json`.
+- `--html` (`-h`): Path to `dynamicCharts.html`. Defaults to `force-app/main/default/lwc/dynamicCharts/dynamicCharts.html`.
+- `--js` (`-j`): Path to `dynamicCharts.js`. Defaults to `force-app/main/default/lwc/dynamicCharts/dynamicCharts.js`.
 
 ## Example
 
