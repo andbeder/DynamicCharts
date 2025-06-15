@@ -1,10 +1,12 @@
 const fs = require('fs');
 const path = require('path');
+jest.mock('child_process', () => ({ execSync: jest.fn(() => '<h1>colors</h1>') }));
 const readDashboard = require('../scripts/agents/dashboardReader');
 
 describe('dashboardReader', () => {
   const tmpDir = path.join(__dirname, 'dash');
   const chartsFile = path.join(tmpDir, 'charts.json');
+  const stylesFile = path.join(tmpDir, 'chartStyles.txt');
   const inputFile = path.join(tmpDir, 'CR-02.json');
 
   beforeEach(() => {
@@ -17,25 +19,28 @@ describe('dashboardReader', () => {
       state: {
         widgets: {
         w1: {
+          type: 'chart',
           saql: 'saql1',
           parameters: {
-            title: {
-              label: 'Climbs By Nation',
-              subtitleLabel: 'type=bar; colors=red; title=Top 20 Climbs by Nation'
-            },
-            step: 'step1'
+            title: { label: 'Climbs By Nation' },
+            step: 'step1',
+            columnMap: { dimensionAxis: ['nation'], plots: ['A'] }
           },
           fieldMappings: { nation: 'Nation', Climbs: 'Climbs' }
         },
+        w1desc: {
+          type: 'text',
+          parameters: {
+            content: { richTextContent: [{ insert: 'type: bar; colors: red; title: Top 20 Climbs by Nation' }] }
+          }
+        },
         w2: {
+          type: 'chart',
           saql: 'saql2',
           parameters: {
-            title: {
-              label: 'Time By Peak',
-              subtitleLabel:
-                'type=box-and-whisker; colors=light blue,dark blue; title=Days per Peak by Top 20 Climbs'
-            },
-            step: 'step2'
+            title: { label: 'Time By Peak' },
+            step: 'step2',
+            columnMap: { dimensionAxis: ['peakid'], plots: ['A','B','C','D'] }
           },
           fieldMappings: {
             peakid: 'Peak ID',
@@ -43,6 +48,12 @@ describe('dashboardReader', () => {
             B: 'Q1',
             C: 'Q3',
             D: 'Max'
+          }
+        },
+        w2desc: {
+          type: 'text',
+          parameters: {
+            content: { richTextContent: [{ insert: 'type: box-and-whisker; colors: light blue,dark blue; title: Days per Peak by Top 20 Climbs' }] }
           }
         },
         w3: { saql: 'invalid' }
@@ -56,8 +67,10 @@ describe('dashboardReader', () => {
             pages: [
               {
                 widgets: [
-                  { name: 'w1', column: 1, row: 1 },
-                  { name: 'w2', column: 1, row: 2 }
+                  { name: 'w1', column: 0, row: 1 },
+                  { name: 'w1desc', column: 1, row: 1 },
+                  { name: 'w2', column: 0, row: 2 },
+                  { name: 'w2desc', column: 1, row: 2 }
                 ]
               }
             ]
@@ -70,7 +83,8 @@ describe('dashboardReader', () => {
     const result = readDashboard({
       dashboardApiName: 'CR-02',
       inputDir: tmpDir,
-      chartsFile
+      chartsFile,
+      chartStylesFile: stylesFile
     });
 
     const data = JSON.parse(fs.readFileSync(chartsFile, 'utf8'));
@@ -80,6 +94,8 @@ describe('dashboardReader', () => {
     expect(ids).toEqual(['climbs-by-nation', 'time-by-peak']);
     expect(data.charts[0].style.seriesColors).toBe('#EF6B4D');
     expect(data.charts[1].style.seriesColors).toBe('#97C1DA,#002060');
+    const stylesText = fs.readFileSync(stylesFile, 'utf8');
+    expect(stylesText).toMatch(/colors/);
   });
 
   test('throws when file missing', () => {
