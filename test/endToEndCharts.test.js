@@ -46,4 +46,11 @@ describe('endToEndCharts workflow', () => {
       expect(order[i]).toBeLessThan(order[i + 1]);
     }
   });
+
+  test('reads dashboard from npm_config_dashboard env var', () => {
+    process.env.npm_config_dashboard = 'ENV_02';
+    runEndToEnd();
+    expect(dashboardRetriever).toHaveBeenCalledWith({ dashboardApiName: 'ENV_02' });
+    expect(dashboardReader).toHaveBeenCalledWith({ dashboardApiName: 'ENV_02' });
+  });
 });

@@ -10,9 +10,10 @@ const lwcTester = require('./agents/lwcTester');
 const sfdcDeployer = require('./agents/sfdcDeployer');
 
 function runEndToEnd({ dashboard } = {}) {
+  const dash = dashboard || process.env.npm_config_dashboard;
   sfdcAuthorizer();
-  dashboardRetriever({ dashboardApiName: dashboard });
-  dashboardReader({ dashboardApiName: dashboard });
+  dashboardRetriever({ dashboardApiName: dash });
+  dashboardReader({ dashboardApiName: dash });
   lwcReader();
   changeRequestGenerator();
   syncCharts();

@@ -50,7 +50,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
 - The instructions file shall translate style changes into their corresponding ApexCharts option paths so developers can implement updates precisely.
 - A Node script named `syncCharts` shall apply `changeRequests.json` to update `dynamicCharts.html` and `dynamicCharts.js` automatically. The script defaults to `force-app/main/default/lwc/dynamicCharts/dynamicCharts.html` and `force-app/main/default/lwc/dynamicCharts/dynamicCharts.js` when paths are not provided.
 - The `syncCharts` agent shall modify the `chartSettings` object when mismatched properties specify new dashboard names, titles, field mappings, or style values.
-- A Node script named `endToEndCharts` shall run all agents sequentially. It shall be exposed through the npm command `end-to-end:charts`. The command accepts `--dashboard=<name>` to pass the dashboard API name to `dashboardRetriever` and `dashboardReader`.
+ - A Node script named `endToEndCharts` shall run all agents sequentially. It shall be exposed through the npm command `end-to-end:charts`. The command accepts `--dashboard=<name>` or reads the `npm_config_dashboard` environment variable to pass the dashboard API name to `dashboardRetriever` and `dashboardReader`.
 
 ## Non‑Functional Requirements
 
