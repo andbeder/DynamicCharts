@@ -69,7 +69,7 @@ All automation scripts assume a Node.js 18 or later runtime (tested with Node.js
  - **changeRequestGenerator**: Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json` and a detailed `changeRequestInstructions.txt` file for developers.
 - **syncCharts**: Reads `changeRequests.json` and updates the `dynamicCharts` LWC by modifying the HTML and JS files via AST transforms. The agent applies each change request's mismatched properties directly to the `chartSettings` object so dashboard references, titles, field mappings and style options remain aligned with the CRM Analytics definitions.
 - **sfdcDeployer**: Deploys metadata in `force-app/main/default` to the target org using the `sf` CLI and writes a JSON report under `reports/`.
-- **endToEndCharts.js**: Runs all agents in sequence. Executed via `npm run end-to-end:charts --dashboard=CR_02` to authenticate, retrieve dashboards, parse them, sync charts, run tests and deploy.
+ - **endToEndCharts.js**: Runs all agents in sequence. Executed via `npm run end-to-end:charts -- --dashboard=CR_02` (or set `--dashboard=CR_02` so npm populates `npm_config_dashboard`) to authenticate, retrieve dashboards, parse them, sync charts, run tests and deploy.
 - **Salesforce CLI** and **Jest** are included in `devDependencies` so running `npm install` prepares the full toolchain automatically.
 
 Each agent also has a dedicated npm script named after the agent. For example,
