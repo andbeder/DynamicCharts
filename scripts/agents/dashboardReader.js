@@ -3,6 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
 // Color name to hex mapping
 const COLOR_MAP = {
@@ -34,12 +35,51 @@ function toKebab(str) {
     .toLowerCase();
 }
 
-function parseSubtitle(subtitle) {
+const STYLES_FILE = "chartStyles.txt";
+let knownStyleKeys = new Set();
+if (fs.existsSync(STYLES_FILE)) {
+  fs
+    .readFileSync(STYLES_FILE, "utf8")
+    .split(/\r?\n/)
+    .forEach((l) => {
+      const key = l.split("-")[0].trim();
+      if (key) knownStyleKeys.add(key);
+    });
+}
+
+function fetchStyleDescription(key) {
+  try {
+    const result = execSync(
+      `curl -Ls https://apexcharts.com/docs/options/${key}/`
+    ).toString();
+    const match = result.match(
+      /<meta name="description" content="([^"]+)"/i
+    );
+    if (match) return match[1];
+  } catch (e) {
+    // ignore network errors
+  }
+  return "";
+}
+
+function ensureStyleKey(key) {
+  if (!knownStyleKeys.has(key)) {
+    const desc = fetchStyleDescription(key);
+    fs.appendFileSync(STYLES_FILE, `${key} - ${desc}\n`);
+    knownStyleKeys.add(key);
+  }
+}
+
+function parseStyleString(str) {
   const meta = {};
-  if (!subtitle) return meta;
-  subtitle.split(";").forEach((pair) => {
-    const [key, value] = pair.split("=").map((s) => s.trim());
-    if (key) meta[key.toLowerCase()] = value;
+  if (!str) return meta;
+  str.split(";").forEach((pair) => {
+    const [k, v] = pair.split(/[:=]/).map((s) => s.trim());
+    if (k) {
+      const key = k.toLowerCase();
+      meta[key] = v;
+      ensureStyleKey(key);
+    }
   });
   return meta;
 }
@@ -132,8 +172,8 @@ function readDashboard({
       state.gridLayouts[0].pages[0].widgets) ||
     [];
 
-  // Sort by column then row
-  layoutWidgets.sort((a, b) => a.column - b.column || a.row - b.row);
+  // Sort by row then column to keep charts left and text widgets right
+  layoutWidgets.sort((a, b) => a.row - b.row || a.column - b.column);
 
   // Default datasetId
   const defaultDatasetId =
@@ -142,17 +182,40 @@ function readDashboard({
 
   const charts = [];
 
-  layoutWidgets.forEach(({ name: widgetName }) => {
+  for (let i = 0; i < layoutWidgets.length; i++) {
+    const { name: widgetName, row, column } = layoutWidgets[i];
     const w = widgetsByName[widgetName];
-    if (!w) return;
+    if (!w) continue;
+    if (w.type === "text") continue;
+
     const title =
       w.title ||
       (w.parameters && w.parameters.title && w.parameters.title.label) ||
       (w.properties && w.properties.title);
+
+    let textMeta = {};
+    const next = layoutWidgets[i + 1];
+    if (next && next.row === row) {
+      const tw = widgetsByName[next.name];
+      if (tw && tw.type === "text") {
+        const content =
+          (tw.parameters &&
+            tw.parameters.content &&
+            (tw.parameters.content.plainText ||
+              (Array.isArray(tw.parameters.content.richTextContent)
+                ? tw.parameters.content.richTextContent
+                    .map((r) => r.insert)
+                    .join("")
+                : ""))) || "";
+        textMeta = parseStyleString(content);
+        i++; // skip paired text widget
+      }
+    }
+
     const subtitle =
       w.subtitle ||
       (w.parameters && w.parameters.title && w.parameters.title.subtitleLabel);
-    const meta = parseSubtitle(subtitle);
+    const meta = Object.assign({}, parseStyleString(subtitle), textMeta);
 
     const stepName =
       (typeof w.step === "string" && w.step) ||
@@ -203,7 +266,7 @@ function readDashboard({
       saql: rawQuery,
       style
     });
-  });
+  }
 
   const output = { charts };
   fs.writeFileSync(chartsFile, JSON.stringify(output, null, 2));

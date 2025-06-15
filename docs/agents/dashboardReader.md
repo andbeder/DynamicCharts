@@ -33,7 +33,8 @@ This agent reads an extracted dashboard `state` JSON file and produces normalize
 2. **Parse Chart Definitions**
 
    - Applies parsing rules defined in `DASHBOARD_PARSING_INSTRUCTIONS.MD`.
-   - Normalizes each widget into a chart entry with `id`, `type`, `title`, `fieldMappings`, `saql`, and `style`.
+   - Widgets are sorted by row and then column so that each chart is immediately followed by its description widget.
+   - Normalizes each chart widget into an entry with `id`, `type`, `title`, `fieldMappings`, `saql`, and `style`.
 
 3. **Update `charts.json`**
    - Replaces or appends entries in `charts.json` keyed by `chart.id`.
@@ -41,8 +42,8 @@ This agent reads an extracted dashboard `state` JSON file and produces normalize
 
 ## Assumptions
 
-- `title` is converted to kebab-case and used as `chart.id`.
-- `subtitle` metadata contains chart configurations as semi-colon-separated key-value pairs.
+ - `title` is converted to kebab-case and used as `chart.id`.
+ - Style metadata is stored in a text widget positioned to the right of each chart. The parser expects `kebab-case: value` pairs separated by semicolons.
 - Color names not in the defined scheme are treated as valid CSS colors.
 - Missing charts in the new dashboard cause removal of their entries from `charts.json`. fileciteturn2file0
 

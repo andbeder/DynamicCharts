@@ -16,6 +16,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
 3. **Dashboard Parsing**
    - A `dashboardReader` script shall convert exported dashboard JSON into normalized chart definitions.
    - The parser must handle dashboard files where the `widgets` section is either an array or a keyed object.
+   - Widgets are processed row-by-row so that each chart widget is paired with a following text widget describing the chart. Style directives within the text widget use `kebab-case: value` syntax separated by semicolons.
    - Parsed charts shall be written to `charts.json`, replacing previous definitions.
 4. **Component Analysis**
    - A `lwcReader` script shall parse the existing Lightning Web Component source and output `revEngCharts.json` describing the charts implemented.
@@ -29,6 +30,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - Filters shall be combined using the `filter q by` SAQL syntax.
 7. **Chart Rendering**
    - The system shall load the ApexCharts library from a static resource only once during component initialization.
+   - Dashboards organize widgets in two columns: charts on the left and text widgets on the right. The first layout is sorted by row then column so the parser reads chart then description.
    - All charts shall be shown in pairs side-by-side:
      - The original chart bound to the filters so that it is applying a positive filter
      - A clone of the original chart with `AO` appended to the ID which shows 'All Others' or the inverse (!=) of the filters applied

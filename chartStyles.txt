@@ -1,0 +1,3 @@
+type - 
+colors - 
+title - Set the title of the chart
