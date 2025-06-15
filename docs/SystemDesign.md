@@ -37,7 +37,7 @@ All automation scripts assume a Node.js 18 or later runtime (tested with Node.js
 
 - **dynamicCharts.js**: Core logic for loading datasets, handling filter selections, generating SAQL, cross-filtering available options, and rendering six charts with ApexCharts.
 - The component applies visual effects such as drop shadows based on chart settings to enhance chart readability.
-- **dynamicCharts.html**: Presents filter controls and a left-hand list of chart names. Each chart pair appears on its own page that can be selected from this list.
+- **dynamicCharts.html**: Presents filter controls and a left-hand list of chart names. Each chart pair appears on its own page that can be selected from this list. Dashboards now use a two-column layout where each chart widget is followed by a text widget describing the chart. The text widget holds style metadata formerly stored in the subtitle.
 - **dynamicCharts.js-meta.xml**: Exposes the component to App, Record, and Home pages.
 - **DPOStateMachine.cls**: Placeholder Apex class reserved for future enhancements or server-side processing.
 - **charts.json**: Generated from the CRM Analytics dashboards to list supported charts. Primary charts are included, while `AO` variants are ignored.
@@ -51,11 +51,12 @@ All automation scripts assume a Node.js 18 or later runtime (tested with Node.js
 1. `getDatasets` retrieves dataset IDs when the component initializes.
 2. Dual list boxes and combo box capture filter selections from the user.
 3. A left-hand navigation list allows the user to switch between chart pages.
-4. Option queries apply the currently selected filters (excluding the field being queried) so that each filter only displays valid values.
-5. Chart queries are placed into a queue and executed via a single `executeQuery` wire adapter using the `nextQuery` getter.
-6. The first bar chart uses the filters as selected; the second applies the inverse of the `host` and `nation` filters.
-7. The **Render** button triggers `filtersUpdated`, which refreshes every chart with new query data.
-8. The queue ensures no more than one CRM Analytics query runs at a time so the five-concurrent limit is never exceeded.
+4. Widgets in the first dashboard layout are sorted by row then column so that each chart is followed by its companion text widget on the same row.
+5. Option queries apply the currently selected filters (excluding the field being queried) so that each filter only displays valid values.
+6. Chart queries are placed into a queue and executed via a single `executeQuery` wire adapter using the `nextQuery` getter.
+7. The first bar chart uses the filters as selected; the second applies the inverse of the `host` and `nation` filters.
+8. The **Render** button triggers `filtersUpdated`, which refreshes every chart with new query data.
+9. The queue ensures no more than one CRM Analytics query runs at a time so the five-concurrent limit is never exceeded.
 
 ## Dependencies
 

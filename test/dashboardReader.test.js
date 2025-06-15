@@ -20,20 +20,23 @@ describe('dashboardReader', () => {
           saql: 'saql1',
           parameters: {
             title: {
-              label: 'Climbs By Nation',
-              subtitleLabel: 'type=bar; colors=red; title=Top 20 Climbs by Nation'
+              label: 'Climbs By Nation'
             },
             step: 'step1'
           },
           fieldMappings: { nation: 'Nation', Climbs: 'Climbs' }
         },
+        t1: {
+          type: 'text',
+          parameters: {
+            content: { plainText: 'type: bar; colors: red; title: Top 20 Climbs by Nation' }
+          }
+        },
         w2: {
           saql: 'saql2',
           parameters: {
             title: {
-              label: 'Time By Peak',
-              subtitleLabel:
-                'type=box-and-whisker; colors=light blue,dark blue; title=Days per Peak by Top 20 Climbs'
+              label: 'Time By Peak'
             },
             step: 'step2'
           },
@@ -43,6 +46,12 @@ describe('dashboardReader', () => {
             B: 'Q1',
             C: 'Q3',
             D: 'Max'
+          }
+        },
+        t2: {
+          type: 'text',
+          parameters: {
+            content: { plainText: 'type: box-and-whisker; colors: light blue,dark blue; title: Days per Peak by Top 20 Climbs' }
           }
         },
         w3: { saql: 'invalid' }
@@ -56,8 +65,10 @@ describe('dashboardReader', () => {
             pages: [
               {
                 widgets: [
-                  { name: 'w1', column: 1, row: 1 },
-                  { name: 'w2', column: 1, row: 2 }
+                  { name: 'w1', column: 0, row: 1 },
+                  { name: 't1', column: 1, row: 1 },
+                  { name: 'w2', column: 0, row: 2 },
+                  { name: 't2', column: 1, row: 2 }
                 ]
               }
             ]
