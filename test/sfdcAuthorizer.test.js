@@ -1,19 +1,25 @@
 const path = require("path");
 jest.mock("child_process", () => ({ execSync: jest.fn() }));
 jest.mock("fs", () => ({
-  existsSync: jest.fn(() => true),
+  existsSync: jest.fn(() => false),
   readFileSync: jest.fn(() => ""),
   mkdirSync: jest.fn(),
   writeFileSync: jest.fn()
 }));
 const { execSync } = require("child_process");
+const exitSpy = jest.spyOn(process, "exit").mockImplementation(() => {});
 
 describe("sfdcAuthorizer", () => {
   const originalEnv = { ...process.env };
   const scriptPath = "../scripts/agents/sfdcAuthorizer";
   afterEach(() => {
-    jest.resetModules();
+    jest.clearAllMocks();
     Object.assign(process.env, originalEnv);
+    exitSpy.mockClear();
+  });
+
+  afterAll(() => {
+    exitSpy.mockRestore();
   });
 
   test("builds correct sf command with env vars", () => {
@@ -34,5 +40,42 @@ describe("sfdcAuthorizer", () => {
     expect(call).toContain("--username \"test@example.com\"");
     expect(call).toContain("-i \"123456\"");
     expect(call).toContain("--instance-url \"https://test.salesforce.com\"");
+  });
+
+  test("reuses token when valid", () => {
+    const fs = require("fs");
+    fs.existsSync.mockReturnValue(true);
+    fs.readFileSync.mockReturnValue("cached");
+    execSync.mockImplementationOnce(() => "200");
+
+    const authorize = require(scriptPath);
+    authorize();
+
+    expect(execSync).toHaveBeenCalledTimes(1);
+    expect(execSync.mock.calls[0][0]).toContain("curl");
+  });
+
+  test("logs in when cached token rejected", () => {
+    const fs = require("fs");
+    fs.existsSync.mockReturnValue(true);
+    fs.readFileSync.mockReturnValue("old");
+    execSync
+      .mockImplementationOnce(() => "401")
+      .mockImplementationOnce(() => "")
+      .mockImplementationOnce(() =>
+        JSON.stringify({ result: { accessToken: "NEW" } })
+      )
+      .mockImplementation(() => "200");
+
+    const authorize = require(scriptPath);
+    authorize();
+
+    const loginCall = execSync.mock.calls[1][0];
+    expect(loginCall).toContain("sf org login jwt");
+    expect(fs.writeFileSync).toHaveBeenCalledWith(
+      path.join(path.resolve("tmp"), "access_token.txt"),
+      "NEW",
+      "utf8"
+    );
   });
 });

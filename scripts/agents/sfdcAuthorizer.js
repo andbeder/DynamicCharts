@@ -5,16 +5,40 @@ const fs = require("fs");
 const path = require("path");
 
 /**
- * Performs a JWT-based SFDX login and writes the access token to tmp/accessToken.txt
+ * Performs a JWT-based SFDX login and writes the access token to tmp/access_token.txt
  */
+function isTokenAccepted(token, instanceUrl) {
+  try {
+    const status = execSync(
+      `curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${token}" "${instanceUrl}/services/data/v60.0"`,
+      { encoding: "utf8" }
+    ).trim();
+    return status === "200";
+  } catch (err) {
+    return false;
+  }
+}
+
 function authorize() {
   const alias = "myJwtOrg";
   const clientId = process.env.SFDC_CLIENT_ID;
   const keyFile = "./jwt.key";
   const username = process.env.SFDC_USERNAME;
   const instanceUrl = process.env.SFDC_LOGIN_URL;
+  const tokenPath = path.resolve(process.cwd(), "tmp", "access_token.txt");
 
   try {
+    // 0) Reuse existing token when possible
+    if (fs.existsSync(tokenPath)) {
+      const existing = fs.readFileSync(tokenPath, "utf8").trim();
+      if (existing && isTokenAccepted(existing, instanceUrl)) {
+        console.log("✔ Reusing existing access token");
+        process.env.SF_ACCESS_TOKEN = existing;
+        return;
+      }
+      console.log("ℹ Existing access token rejected; obtaining new token...");
+    }
+
     // 1) Log in via JWT
     execSync(
       `sf org login jwt \
@@ -40,8 +64,8 @@ function authorize() {
     const tmpDir = path.resolve(process.cwd(), "tmp");
     fs.mkdirSync(tmpDir, { recursive: true });
 
-    // 4) Write token to tmp/accessToken.txt
-    const outPath = path.join(tmpDir, "accessToken.txt");
+    // 4) Write token to tmp/access_token.txt
+    const outPath = path.join(tmpDir, "access_token.txt");
     fs.writeFileSync(outPath, token, "utf8");
     console.log(`✔ Access token written to ${outPath}`);
   } catch (err) {
