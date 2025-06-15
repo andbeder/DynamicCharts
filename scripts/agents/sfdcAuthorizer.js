@@ -24,7 +24,8 @@ function authorize() {
   const clientId = process.env.SFDC_CLIENT_ID;
   const keyFile = "./jwt.key";
   const username = process.env.SFDC_USERNAME;
-  const instanceUrl = process.env.SFDC_LOGIN_URL;
+  const loginUrl = process.env.SFDC_LOGIN_URL;
+  const instanceUrl = process.env.SF_INSTANCE_URL || loginUrl;
   const tokenPath = path.resolve(process.cwd(), "tmp", "access_token.txt");
 
   try {
@@ -34,20 +35,23 @@ function authorize() {
       if (existing && isTokenAccepted(existing, instanceUrl)) {
         console.log("✔ Reusing existing access token");
         process.env.SF_ACCESS_TOKEN = existing;
+        if (!process.env.SF_INSTANCE_URL) {
+          process.env.SF_INSTANCE_URL = instanceUrl;
+        }
         return;
       }
       console.log("ℹ Existing access token rejected; obtaining new token...");
     }
 
     // 1) Log in via JWT
-    execSync(
-      `sf org login jwt \
-        -i "${clientId}" \
-        --jwt-key-file "${keyFile}" \
-        --username "${username}" \
-        --alias "${alias}" \
-        --instance-url "${instanceUrl}" \
-        --set-default`,
+      execSync(
+        `sf org login jwt \
+          -i "${clientId}" \
+          --jwt-key-file "${keyFile}" \
+          --username "${username}" \
+          --alias "${alias}" \
+          --instance-url "${loginUrl}" \
+          --set-default`,
       { stdio: "inherit" }
     );
 
@@ -56,9 +60,13 @@ function authorize() {
       `sf org display --target-org "${alias}" --json`,
       { encoding: "utf8" }
     );
-    const token = JSON.parse(displayJson).result?.accessToken;
+    const info = JSON.parse(displayJson).result || {};
+    const token = info.accessToken;
     if (!token)
       throw new Error("No accessToken found in sf org display output.");
+    if (info.instanceUrl) {
+      process.env.SF_INSTANCE_URL = info.instanceUrl;
+    }
 
     // 3) Ensure tmp directory exists
     const tmpDir = path.resolve(process.cwd(), "tmp");
