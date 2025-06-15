@@ -2,14 +2,14 @@
 
 // scripts/agents/dashboardRetriever.js
 // Retrieves a CRM Analytics dashboard state JSON using the Salesforce REST API only,
-// reading the access token from tmp/accessToken.txt
+// reading the access token from tmp/access_token.txt
 
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
 // Path to the file where your JWT login script writes the token
-const TOKEN_PATH = path.resolve(process.cwd(), "tmp", "accessToken.txt");
+const TOKEN_PATH = path.resolve(process.cwd(), "tmp", "access_token.txt");
 
 /**
  * Read the access token from disk.

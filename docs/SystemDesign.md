@@ -62,7 +62,7 @@ All automation scripts assume a Node.js 18 or later runtime (tested with Node.js
 - **ApexCharts**: Loaded once from the static resource `ApexCharts` on first render and reused for all charts.
 - **lightning/analyticsWaveApi**: Provides `getDatasets` and `executeQuery` wire adapters.
 - **Salesforce LWC**: Standard library for creating Lightning Web Components.
-- **sfdcAuthorizer**: Node script that performs JWT-based authentication so other automation agents can access the org.
+- **sfdcAuthorizer**: Node script that performs JWT-based authentication so other automation agents can access the org. The script first checks for `./tmp/access_token.txt` and verifies the token against Salesforce. If the token is accepted, the cached value is reused and login is skipped.
  - **dashboardRetriever**: Downloads dashboard state JSON using the CRM Analytics REST API so parsing agents can generate `charts.json`. When a dashboard label is supplied, it first queries the REST API to determine the API name.
  - **dashboardReader**: Parses exported dashboard JSON into normalized chart definitions written to `charts.json`. The parser now supports dashboard files where the `widgets` section is expressed as an object rather than an array.
  - **lwcReader**: Parses the existing `dynamicCharts` component to generate `revEngCharts.json` describing the charts currently implemented.

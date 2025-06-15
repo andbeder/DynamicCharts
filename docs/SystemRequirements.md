@@ -60,6 +60,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
 2. **Security**
    - The LWC shall operate with sharing enforced through Salesforce security mechanisms.
    - A Node script named `sfdcAuthorizer` shall authenticate to Salesforce via JWT and set the default CLI username for deployment and testing automation.
+   - If `./tmp/access_token.txt` exists, the authorizer shall validate the token against Salesforce and reuse it when accepted, skipping the login step.
 3. **Maintainability**
    - Code shall be written in modern JavaScript and Apex standards to ease future modifications.
 4. **Extensibility**

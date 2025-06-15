@@ -4,7 +4,7 @@
 
 ## Description
 
-The `sfdcAuthorizer` agent performs a JWT-based login using the Salesforce CLI. It sets the default username for subsequent automation commands so other agents can interact with the target org.
+The `sfdcAuthorizer` agent performs a JWT-based login using the Salesforce CLI. It sets the default username for subsequent automation commands so other agents can interact with the target org. Before initiating the login flow, the agent looks for `./tmp/access_token.txt` and validates the token against Salesforce. When accepted, the token is reused and the login step is skipped.
 
 ## Installation Script
 

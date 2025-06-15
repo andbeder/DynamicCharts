@@ -29,7 +29,7 @@ function sfdcDeployer({
   authorize();
 
   // 2) Read the access token written by authorize()
-  const tokenPath = path.resolve(process.cwd(), "tmp", "accessToken.txt");
+  const tokenPath = path.resolve(process.cwd(), "tmp", "access_token.txt");
   let accessToken;
   try {
     accessToken = fs.readFileSync(tokenPath, "utf8").trim();
