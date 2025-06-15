@@ -46,13 +46,33 @@ describe("sfdcAuthorizer", () => {
     const fs = require("fs");
     fs.existsSync.mockReturnValue(true);
     fs.readFileSync.mockReturnValue("cached");
+    process.env.SF_INSTANCE_URL = "https://example.my.salesforce.com";
     execSync.mockImplementationOnce(() => "200");
 
     const authorize = require(scriptPath);
     authorize();
 
     expect(execSync).toHaveBeenCalledTimes(1);
-    expect(execSync.mock.calls[0][0]).toContain("curl");
+    expect(execSync.mock.calls[0][0]).toContain(
+      "https://example.my.salesforce.com/services/data/v60.0"
+    );
+  });
+
+  test("reuses token using login URL when instance not set", () => {
+    const fs = require("fs");
+    fs.existsSync.mockReturnValue(true);
+    fs.readFileSync.mockReturnValue("cached");
+    process.env.SFDC_LOGIN_URL = "https://test.salesforce.com";
+    delete process.env.SF_INSTANCE_URL;
+    execSync.mockImplementationOnce(() => "200");
+
+    const authorize = require(scriptPath);
+    authorize();
+
+    expect(execSync).toHaveBeenCalledTimes(1);
+    expect(execSync.mock.calls[0][0]).toContain(
+      "https://test.salesforce.com/services/data/v60.0"
+    );
   });
 
   test("logs in when cached token rejected", () => {
