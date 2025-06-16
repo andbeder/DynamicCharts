@@ -161,6 +161,13 @@ function readDashboard({
   }
 
   const dashboard = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  if (
+    dashboard.errorCode ||
+    (Array.isArray(dashboard) && dashboard[0]?.errorCode)
+  ) {
+    const msg = dashboard.message || dashboard[0]?.message || "Unknown error";
+    throw new Error(`Invalid dashboard JSON: ${msg}`);
+  }
   const state = dashboard.state || {};
   const steps = state.steps || {};
   const widgetsByName = state.widgets || {};
