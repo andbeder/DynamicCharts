@@ -18,7 +18,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - A `dashboardReader` script shall convert exported dashboard JSON into normalized chart definitions.
    - The parser must handle dashboard files where the `widgets` section is either an array or a keyed object.
    - The parser shall detect error responses (objects with `errorCode`) and throw `Invalid dashboard JSON` to halt processing.
-   - Metadata describing each chart is now read from a text widget placed in the column to the right of the chart. The text widget uses CSS-style strings (`key: value;`) instead of the subtitle field.
+   - Metadata describing each chart is now read from a text widget placed in the column to the right of the chart. The text widget uses CSS-style strings (`key: value`) separated by semicolons or newlines instead of the subtitle field.
    - Parsed charts shall be written to `charts.json`, replacing previous definitions. Style attribute keys discovered in the text widgets shall be tracked in `chartStyles.txt`.
    - Widgets are processed in row-major order so chart widgets are encountered before their companion text widgets.
 4. **Component Analysis**

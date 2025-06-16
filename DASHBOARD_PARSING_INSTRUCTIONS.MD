@@ -14,7 +14,8 @@
 5. **Text Widget** The widget immediately to the right of each chart contains the chart style configuration.
 
     * Style Format:
-        - Semi-colon separated fields using CSS-like syntax: `type: bar; colors: red,blue; title: Monthly Revenue; x-axis-font-size: 10pt; y-axis-font-size: 10pt; font-color: dark grey`
+        - Fields may be separated by semicolons **or** newlines using CSS-like syntax: `type: bar; colors: red,blue`.
+        - Example: `title: Monthly Revenue\nfont-color: dark grey` is equivalent to using semicolons.
 
 6. **Color Schema** Use the `Color Schema` below to map color names to specific hex values. Any colors not mentioned should be assumed to be CSS colors and passed through as they are
 
