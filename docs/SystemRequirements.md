@@ -56,7 +56,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
 - The instructions file shall translate style changes into their corresponding ApexCharts option paths so developers can implement updates precisely.
 - A Node script named `syncCharts` shall apply `changeRequests.json` to update `dynamicCharts.html` and `dynamicCharts.js` automatically. The script defaults to `force-app/main/default/lwc/dynamicCharts/dynamicCharts.html` and `force-app/main/default/lwc/dynamicCharts/dynamicCharts.js` when paths are not provided.
 - The `syncCharts` agent shall modify the `chartSettings` object when mismatched properties specify new dashboard names, titles, field mappings, or style values.
- - A Node script named `endToEndCharts` shall run all agents sequentially. It shall be exposed through the npm command `end-to-end:charts`. The command accepts `--dashboard=<name>` or reads the `npm_config_dashboard` environment variable to pass the dashboard API name to `dashboardRetriever` and `dashboardReader`.
+- A Node script named `endToEndCharts` shall run all agents sequentially. It shall be exposed through the npm command `end-to-end:charts`. The command accepts `--dashboard=<name>` or reads the `npm_config_dashboard` environment variable to pass the dashboard API name to `dashboardRetriever` and `dashboardReader`.
 
 ## Non‑Functional Requirements
 
@@ -74,10 +74,11 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - The system should allow additional chart types and datasets to be introduced with minimal code changes.
 5. **Testing**
    - Automated tests shall verify that each chart container successfully initializes an ApexCharts instance.
-- A Node script named `lwcTester` shall run Jest unit and integration tests from `test/lwcTester` and enforce minimum coverage of 80% statements, 75% branches, 80% functions, and 80% lines before deployment.
-  - Each agent's tests shall be runnable individually via npm scripts such as `npm run test:changeRequestGenerator`.
-  - Each agent shall have a dedicated npm script. Pass the dashboard API name using `--dashboard=<name>` when running `dashboardRetriever` or `dashboardReader`.
-  - A Node script named `sfdcDeployer` shall deploy metadata using the `sf` CLI and write a deployment report under `reports`.
+
+- A Node script named `lwcTester` shall verify that `sfdx-lwc-jest`, `apexcharts`, and `jest-canvas-mock` are installed in `node_modules`, install any missing packages, run Jest unit and integration tests from `test/lwcTester`, and enforce minimum coverage of 80% statements, 75% branches, 80% functions, and 80% lines before deployment.
+- Each agent's tests shall be runnable individually via npm scripts such as `npm run test:changeRequestGenerator`.
+- Each agent shall have a dedicated npm script. Pass the dashboard API name using `--dashboard=<name>` when running `dashboardRetriever` or `dashboardReader`.
+- A Node script named `sfdcDeployer` shall deploy metadata using the `sf` CLI and write a deployment report under `reports`.
 - Development tooling such as the Salesforce CLI and Jest shall be listed under `devDependencies` in `package.json` so `npm install` fully sets up the environment.
 
 ## Out of Scope

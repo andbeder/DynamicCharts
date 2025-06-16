@@ -65,13 +65,13 @@ All automation scripts assume a Node.js 18 or later runtime (tested with Node.js
 - **lightning/analyticsWaveApi**: Provides `getDatasets` and `executeQuery` wire adapters.
 - **Salesforce LWC**: Standard library for creating Lightning Web Components.
 - **sfdcAuthorizer**: Node script that performs JWT-based authentication so other automation agents can access the org. The script first checks for `./tmp/access_token.txt` and verifies the token against Salesforce. If the token is accepted, the cached value is reused and login is skipped. The validation uses `SF_INSTANCE_URL` when available (falling back to `SFDC_LOGIN_URL`) so tokens are not refreshed unnecessarily.
- - **dashboardRetriever**: Downloads dashboard state JSON using the CRM Analytics REST API so parsing agents can generate `charts.json`. When a dashboard label is supplied, it first queries the REST API to determine the API name and validates the REST response for errors before saving.
- - **dashboardReader**: Parses exported dashboard JSON into normalized chart definitions written to `charts.json`. The parser now supports dashboard files where the `widgets` section is expressed as an object rather than an array and throws an error when the JSON contains an `errorCode` field.
- - **lwcReader**: Parses the existing `dynamicCharts` component to generate `revEngCharts.json` describing the charts currently implemented.
- - **changeRequestGenerator**: Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json` and a detailed `changeRequestInstructions.txt` file for developers.
+- **dashboardRetriever**: Downloads dashboard state JSON using the CRM Analytics REST API so parsing agents can generate `charts.json`. When a dashboard label is supplied, it first queries the REST API to determine the API name and validates the REST response for errors before saving.
+- **dashboardReader**: Parses exported dashboard JSON into normalized chart definitions written to `charts.json`. The parser now supports dashboard files where the `widgets` section is expressed as an object rather than an array and throws an error when the JSON contains an `errorCode` field.
+- **lwcReader**: Parses the existing `dynamicCharts` component to generate `revEngCharts.json` describing the charts currently implemented.
+- **changeRequestGenerator**: Compares `charts.json` with `revEngCharts.json` to produce `changeRequests.json` and a detailed `changeRequestInstructions.txt` file for developers.
 - **syncCharts**: Reads `changeRequests.json` and updates the `dynamicCharts` LWC by modifying the HTML and JS files via AST transforms. The agent applies each change request's mismatched properties directly to the `chartSettings` object so dashboard references, titles, field mappings and style options remain aligned with the CRM Analytics definitions.
 - **sfdcDeployer**: Deploys metadata in `force-app/main/default` to the target org using the `sf` CLI and writes a JSON report under `reports/`.
- - **endToEndCharts.js**: Runs all agents in sequence. Executed via `npm run end-to-end:charts -- --dashboard=CR_02` (or set `--dashboard=CR_02` so npm populates `npm_config_dashboard`) to authenticate, retrieve dashboards, parse them, sync charts, run tests and deploy.
+- **endToEndCharts.js**: Runs all agents in sequence. Executed via `npm run end-to-end:charts -- --dashboard=CR_02` (or set `--dashboard=CR_02` so npm populates `npm_config_dashboard`) to authenticate, retrieve dashboards, parse them, sync charts, run tests and deploy.
 - **Salesforce CLI** and **Jest** are included in `devDependencies` so running `npm install` prepares the full toolchain automatically.
 
 Each agent also has a dedicated npm script named after the agent. For example,
@@ -84,7 +84,7 @@ agents operate on the specified dashboard.
 
 Unit tests reside under `force-app/main/default/lwc/dynamicCharts/__tests__` and use `sfdx-lwc-jest`. Additional Apex test classes are stored in the `force-app/test` package to validate server-side code. The root `test` directory contains integration checks—for example, verifying that chart container IDs (and their `AO` counterparts) match the chart definitions in `charts.json`.
 The suite also verifies that each chart container creates an ApexCharts instance by mocking `lightning/platformResourceLoader` to load the real library.
-Test execution is orchestrated by the `lwcTester` agent which installs required dev dependencies, scaffolds `test/lwcTester`, and runs Jest with coverage thresholds prior to deployment.
+Test execution is orchestrated by the `lwcTester` agent which verifies that required dev dependencies are present in `node_modules`, installs any missing packages, scaffolds `test/lwcTester`, and runs Jest with coverage thresholds prior to deployment.
 Each agent's tests can be run individually using npm scripts such as `npm run test:changeRequestGenerator`.
 
 ## Future Considerations

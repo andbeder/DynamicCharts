@@ -18,7 +18,7 @@ Automates building, maintaining, and enhancing Jest-based unit and integration t
 ## Behavior
 
 1. **Authenticate**: Verifies Salesforce org authentication via `sfdcAuthorizer`.
-2. **Install & Update Tooling**: Installs/updates devDependencies (`sfdx-lwc-jest`, `apexcharts`, `jest-canvas-mock`). fileciteturn1file0
+2. **Install & Update Tooling**: Verifies `sfdx-lwc-jest`, `apexcharts`, and `jest-canvas-mock` exist under `node_modules` and installs them when missing. fileciteturn1file0
 3. **Scaffold Test Structure**: Creates `test/lwcTester/` with `unit/`, `integration/`, and `__mocks__/`.
 4. **Generate & Update Test Templates**: For each chart definition in `dynamicCharts.js` or `charts.json`, generates or refreshes parameterized Jest test files, verifying SAQL assembly, ApexCharts instantiation, filter UI interactions, and snapshot updates. fileciteturn1file0
 5. **Maintain Existing Tests**: Detects outdated or missing assertions, offers snapshot updates or placeholder specs. fileciteturn1file0
