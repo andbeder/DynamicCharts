@@ -23,7 +23,15 @@ function compareCharts(authoritative, current) {
 
   for (const [id, chart] of mapA.entries()) {
     if (!mapB.has(id)) {
-      changes.push({ chartId: id, action: 'add', targetFile: 'dynamicCharts.js' });
+      const mismatches = ['dashboard', 'title', 'fieldMappings', 'style'].map(
+        (prop) => ({ property: prop, currentValue: undefined, expectedValue: chart[prop] })
+      );
+      changes.push({
+        chartId: id,
+        action: 'add',
+        targetFile: 'dynamicCharts.js',
+        mismatches
+      });
     } else {
       const cur = mapB.get(id);
       const mismatches = [];
