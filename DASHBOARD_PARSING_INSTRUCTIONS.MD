@@ -11,10 +11,10 @@
     - `dimensions` which are shown and which are hidden
     Ignore all other fields.
 4. **Step** Read the step as a SAQL query. If it is in compact format, convert to a SAQL query
-5. **Subtitle** Contains instructions for setting up the ApexCharts chart type and styling.
+5. **Text Widget** The widget immediately to the right of each chart contains the chart style configuration.
 
-    * Subtitle Format:
-        - Semi-colon separated fields: `type=bar; colors=red,blue; title=Monthly Revenue; x-axis-font-size=10pt; y-axis-font-size=10pt; font-color=dark grey`
+    * Style Format:
+        - Semi-colon separated fields using CSS-like syntax: `type: bar; colors: red,blue; title: Monthly Revenue; x-axis-font-size: 10pt; y-axis-font-size: 10pt; font-color: dark grey`
 
 6. **Color Schema** Use the `Color Schema` below to map color names to specific hex values. Any colors not mentioned should be assumed to be CSS colors and passed through as they are
 

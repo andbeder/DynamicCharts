@@ -33,7 +33,8 @@ This agent reads an extracted dashboard `state` JSON file and produces normalize
 2. **Parse Chart Definitions**
 
    - Applies parsing rules defined in `DASHBOARD_PARSING_INSTRUCTIONS.MD`.
-   - Normalizes each widget into a chart entry with `id`, `type`, `title`, `fieldMappings`, `saql`, and `style`.
+   - Widgets are sorted by row and then column so that each chart is immediately followed by its description widget.
+   - Normalizes each chart widget into an entry with `id`, `type`, `title`, `fieldMappings`, `saql`, and `style`.
 
 3. **Update `charts.json`**
    - Replaces or appends entries in `charts.json` keyed by `chart.id`.

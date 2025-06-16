@@ -31,6 +31,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - Filters shall be combined using the `filter q by` SAQL syntax.
 7. **Chart Rendering**
    - The system shall load the ApexCharts library from a static resource only once during component initialization.
+   - Dashboards organize widgets in two columns: charts on the left and text widgets on the right. The first layout is sorted by row then column so the parser reads chart then description.
    - All charts shall be shown in pairs side-by-side:
      - The original chart bound to the filters so that it is applying a positive filter
      - A clone of the original chart with `AO` appended to the ID which shows 'All Others' or the inverse (!=) of the filters applied
