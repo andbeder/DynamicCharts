@@ -109,4 +109,14 @@ describe('dashboardReader', () => {
       /dashboardApiName is required/
     );
   });
+
+  test('throws when JSON contains error message', () => {
+    fs.writeFileSync(
+      inputFile,
+      JSON.stringify({ errorCode: 'NOT_FOUND', message: 'not found' })
+    );
+    expect(() =>
+      readDashboard({ dashboardApiName: 'CR-02', inputDir: tmpDir, chartsFile })
+    ).toThrow('Invalid dashboard JSON: not found');
+  });
 });

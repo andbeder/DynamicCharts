@@ -52,6 +52,8 @@ This agent reads an extracted dashboard `state` JSON file and produces normalize
 
 - Skips and logs charts missing required fields or containing invalid metadata.
 - Gracefully handles missing input files or parsing errors, exiting with a non-zero code. fileciteturn2file0
+- Detects when the dashboard JSON represents an error response (contains
+  `errorCode`) and throws `Invalid dashboard JSON` to halt processing.
 
 ## Dependencies
 

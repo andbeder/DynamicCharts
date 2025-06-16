@@ -13,9 +13,11 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - A `dashboardRetriever` script shall download dashboard state JSON using the CRM Analytics REST API.
    - If only a dashboard label is provided, the script shall query the CRM Analytics REST API using `SF_INSTANCE_URL` and `SF_ACCESS_TOKEN` environment variables to resolve the dashboard's API name.
    - Retrieved files shall be written to a configurable output directory (default `tmp`).
+   - The script shall validate the REST response and fail when it contains an `errorCode` field so that invalid dashboards are not saved.
 3. **Dashboard Parsing**
    - A `dashboardReader` script shall convert exported dashboard JSON into normalized chart definitions.
    - The parser must handle dashboard files where the `widgets` section is either an array or a keyed object.
+   - The parser shall detect error responses (objects with `errorCode`) and throw `Invalid dashboard JSON` to halt processing.
    - Metadata describing each chart is now read from a text widget placed in the column to the right of the chart. The text widget uses CSS-style strings (`key: value;`) instead of the subtitle field.
    - Parsed charts shall be written to `charts.json`, replacing previous definitions. Style attribute keys discovered in the text widgets shall be tracked in `chartStyles.txt`.
    - Widgets are processed in row-major order so chart widgets are encountered before their companion text widgets.

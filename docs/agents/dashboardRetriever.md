@@ -34,7 +34,9 @@ The `dashboardRetriever` agent downloads the JSON representation of a CRM Analyt
      "$SF_INSTANCE_URL/services/data/v<apiVersion>/wave/dashboards/<dashboardApiName>"
    ```
    and save the response to `<outputDir>/<dashboardApiName>.json`.
-5. Exit with a non-zero code on command failure.
+5. Validate the parsed JSON and throw an error when the response contains an
+   `errorCode` field so invalid data is never written to disk.
+6. Exit with a non-zero code on command failure.
 
 ## Preconditions
 
