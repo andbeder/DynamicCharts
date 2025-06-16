@@ -92,6 +92,17 @@ function retrieveDashboard({
 
   // Fetch JSON from REST API
   const json = execSync(curlCmd, { encoding: "utf8" });
+  let parsed;
+  try {
+    parsed = JSON.parse(json);
+  } catch (err) {
+    throw new Error(`Failed to parse dashboard JSON: ${err.message}`);
+  }
+
+  if (parsed.errorCode || (Array.isArray(parsed) && parsed[0]?.errorCode)) {
+    const msg = parsed.message || parsed[0]?.message || "Unknown error";
+    throw new Error(`Dashboard retrieval failed: ${msg}`);
+  }
 
   const outPath = path.join(outDir, `${dashboardApiName}.json`);
   fs.writeFileSync(outPath, json, "utf8");
