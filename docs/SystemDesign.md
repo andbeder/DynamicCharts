@@ -37,7 +37,7 @@ All automation scripts assume a Node.js 18 or later runtime (tested with Node.js
 
 - **dynamicCharts.js**: Core logic for loading datasets, handling filter selections, generating SAQL, cross-filtering available options, and rendering six charts with ApexCharts.
 - The component applies visual effects such as drop shadows based on chart settings to enhance chart readability.
-- **dynamicCharts.html**: Presents filter controls and a left-hand list of chart names. Each chart pair appears on its own page that can be selected from this list. Pages are rendered with a two-column grid: charts on the left and a text widget on the right that supplies style metadata.
+- **dynamicCharts.html**: Presents filter controls and a left-hand list of chart names. Each chart pair appears on its own page that can be selected from this list. Pages are rendered with a two-column grid: charts on the left and a text widget on the right that supplies style metadata separated by semicolons or newlines.
 - **dynamicCharts.js-meta.xml**: Exposes the component to App, Record, and Home pages.
 - **DPOStateMachine.cls**: Placeholder Apex class reserved for future enhancements or server-side processing.
 - **charts.json**: Generated from the CRM Analytics dashboards to list supported charts. Primary charts are included, while `AO` variants are ignored.
