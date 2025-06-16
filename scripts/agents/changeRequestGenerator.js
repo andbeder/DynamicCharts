@@ -13,27 +13,26 @@ function loadJson(file) {
   return JSON.parse(text);
 }
 
+function toKebab(str) {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-')
+    .toLowerCase();
+}
+
 function compareCharts(authoritative, current) {
   const mapA = new Map();
   const mapB = new Map();
-  (authoritative.charts || []).forEach((c) => mapA.set(c.id, c));
-  (current.charts || []).forEach((c) => mapB.set(c.id, c));
+  (authoritative.charts || []).forEach((c) => mapA.set(toKebab(c.id), c));
+  (current.charts || []).forEach((c) => mapB.set(toKebab(c.id), c));
 
   const changes = [];
 
-  for (const [id, chart] of mapA.entries()) {
-    if (!mapB.has(id)) {
-      const mismatches = ['dashboard', 'title', 'fieldMappings', 'style'].map(
-        (prop) => ({ property: prop, currentValue: undefined, expectedValue: chart[prop] })
-      );
-      changes.push({
-        chartId: id,
-        action: 'add',
-        targetFile: 'dynamicCharts.js',
-        mismatches
-      });
+  for (const [normId, chart] of mapA.entries()) {
+    if (!mapB.has(normId)) {
+      changes.push({ chartId: chart.id, action: 'add', targetFile: 'dynamicCharts.js' });
     } else {
-      const cur = mapB.get(id);
+      const cur = mapB.get(normId);
       const mismatches = [];
       ['dashboard', 'title', 'type', 'saql', 'fieldMappings', 'style'].forEach((prop) => {
         const aVal = chart[prop];
@@ -44,19 +43,19 @@ function compareCharts(authoritative, current) {
       });
       if (mismatches.length) {
         changes.push({
-          chartId: id,
+          chartId: chart.id,
           action: 'update',
           targetFile: 'dynamicCharts.js',
           mismatches,
-          instructions: mismatches.map((m) => `Update ${id} ${m.property}`)
+          instructions: mismatches.map((m) => `Update ${chart.id} ${m.property}`)
         });
       }
     }
   }
 
-  for (const [id] of mapB.entries()) {
-    if (!mapA.has(id)) {
-      changes.push({ chartId: id, action: 'remove', targetFile: 'dynamicCharts.js' });
+  for (const [normId, cur] of mapB.entries()) {
+    if (!mapA.has(normId)) {
+      changes.push({ chartId: cur.id, action: 'remove', targetFile: 'dynamicCharts.js' });
     }
   }
 
@@ -69,6 +68,13 @@ function buildInstructions(changeData) {
   const addLine = (line) => {
     lines.push(`${step}. ${line}`);
     step += 1;
+  };
+
+  const formatValue = (value) => {
+    if (typeof value === 'string') {
+      return `"${value}"`;
+    }
+    return JSON.stringify(value);
   };
 
   changeData.changes.forEach((change) => {
@@ -106,8 +112,8 @@ function buildInstructions(changeData) {
             );
           }
         } else {
-          const curVal = JSON.stringify(m.currentValue);
-          const expVal = JSON.stringify(m.expectedValue);
+          const curVal = formatValue(m.currentValue);
+          const expVal = formatValue(m.expectedValue);
           addLine(
             `In ${change.targetFile}, update ${change.chartId} ${m.property} from ${curVal} to ${expVal}.`
           );

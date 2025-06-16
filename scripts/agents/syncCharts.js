@@ -75,7 +75,7 @@ function updateJs(jsPath, changes) {
     settings[id] = entry;
   });
 
-  const newObj = serializeSettings(settings);
+  const newObj = serializeSettings(settings) + ';';
   content = content.slice(0, open) + newObj + content.slice(end);
   fs.writeFileSync(jsPath, content);
 }
