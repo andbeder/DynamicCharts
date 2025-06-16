@@ -63,4 +63,26 @@ describe("dashboardRetriever", () => {
       "dashboardApiName or dashboardLabel is required"
     );
   });
+
+  test("throws when REST response contains error", () => {
+    process.env.SF_ACCESS_TOKEN = "token";
+    process.env.SF_INSTANCE_URL = "https://example.my.salesforce.com";
+    execSync.mockReturnValueOnce(
+      JSON.stringify({ errorCode: "NOT_FOUND", message: "not found" })
+    );
+
+    expect(() =>
+      retrieve({ dashboardApiName: "BAD", outputDir: tempDir })
+    ).toThrow("Dashboard retrieval failed: not found");
+  });
+
+  test("throws when JSON cannot be parsed", () => {
+    process.env.SF_ACCESS_TOKEN = "token";
+    process.env.SF_INSTANCE_URL = "https://example.my.salesforce.com";
+    execSync.mockReturnValueOnce("<html></html>");
+
+    expect(() =>
+      retrieve({ dashboardApiName: "CR-02", outputDir: tempDir })
+    ).toThrow(/Failed to parse dashboard JSON/);
+  });
 });
