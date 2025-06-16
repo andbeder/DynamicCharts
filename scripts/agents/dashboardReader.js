@@ -28,6 +28,32 @@ const saqlMapping = {
   limit: "limit <limit>;"
 };
 
+function fetchDescription(key) {
+  try {
+    const html = execSync(`curl -s https://apexcharts.com/docs/options/${key}/`, {
+      encoding: "utf8"
+    });
+    const m = html.match(/<h1[^>]*>(.*?)<\/h1>/i) || html.match(/<title>(.*?)<\/title>/i);
+    return m ? m[1].trim() : "ApexCharts option";
+  } catch {
+    return "ApexCharts option";
+  }
+}
+
+function updateChartStyles(meta, file) {
+  if (!file) return;
+  const seen = fs.existsSync(file)
+    ? fs.readFileSync(file, "utf8").split(/\n/).map((l) => l.split(" - ")[0])
+    : [];
+  Object.keys(meta || {}).forEach((k) => {
+    if (!seen.includes(k)) {
+      const desc = fetchDescription(k);
+      fs.appendFileSync(file, `${k} - ${desc}\n`);
+      seen.push(k);
+    }
+  });
+}
+
 function toKebab(str) {
   return str
     .replace(/([a-z])([A-Z])/g, "$1-$2")
@@ -35,53 +61,25 @@ function toKebab(str) {
     .toLowerCase();
 }
 
-const STYLES_FILE = "chartStyles.txt";
-let knownStyleKeys = new Set();
-if (fs.existsSync(STYLES_FILE)) {
-  fs
-    .readFileSync(STYLES_FILE, "utf8")
-    .split(/\r?\n/)
-    .forEach((l) => {
-      const key = l.split("-")[0].trim();
-      if (key) knownStyleKeys.add(key);
-    });
-}
-
-function fetchStyleDescription(key) {
-  try {
-    const result = execSync(
-      `curl -Ls https://apexcharts.com/docs/options/${key}/`
-    ).toString();
-    const match = result.match(
-      /<meta name="description" content="([^"]+)"/i
-    );
-    if (match) return match[1];
-  } catch (e) {
-    // ignore network errors
-  }
-  return "";
-}
-
-function ensureStyleKey(key) {
-  if (!knownStyleKeys.has(key)) {
-    const desc = fetchStyleDescription(key);
-    fs.appendFileSync(STYLES_FILE, `${key} - ${desc}\n`);
-    knownStyleKeys.add(key);
-  }
-}
-
 function parseStyleString(str) {
   const meta = {};
   if (!str) return meta;
   str.split(";").forEach((pair) => {
-    const [k, v] = pair.split(/[:=]/).map((s) => s.trim());
-    if (k) {
-      const key = k.toLowerCase();
-      meta[key] = v;
-      ensureStyleKey(key);
-    }
+    const [key, value] = pair.split(pair.includes(":") ? ":" : "=").map((s) => s.trim());
+    if (key) meta[key.toLowerCase()] = value;
   });
   return meta;
+}
+
+function parseTextWidget(widget) {
+  const content =
+    widget &&
+    widget.parameters &&
+    widget.parameters.content &&
+    widget.parameters.content.richTextContent;
+  if (!Array.isArray(content)) return null;
+  const text = content.map((c) => c.insert).join("");
+  return parseStyleString(text);
 }
 
 function mapColors(str) {
@@ -150,6 +148,7 @@ function readDashboard({
   dashboardApiName,
   inputDir = "tmp",
   chartsFile = "charts.json",
+  chartStylesFile = "chartStyles.txt",
   silent = false
 }) {
   if (!dashboardApiName) {
@@ -172,7 +171,7 @@ function readDashboard({
       state.gridLayouts[0].pages[0].widgets) ||
     [];
 
-  // Sort by row then column to keep charts left and text widgets right
+  // Sort by row then column so charts appear before their text widgets
   layoutWidgets.sort((a, b) => a.row - b.row || a.column - b.column);
 
   // Default datasetId
@@ -183,39 +182,30 @@ function readDashboard({
   const charts = [];
 
   for (let i = 0; i < layoutWidgets.length; i++) {
-    const { name: widgetName, row, column } = layoutWidgets[i];
+    const widgetName = layoutWidgets[i].name;
     const w = widgetsByName[widgetName];
-    if (!w) continue;
-    if (w.type === "text") continue;
-
+    if (!w || w.type === "text") continue;
     const title =
       w.title ||
       (w.parameters && w.parameters.title && w.parameters.title.label) ||
       (w.properties && w.properties.title);
-
-    let textMeta = {};
+    let meta = {};
     const next = layoutWidgets[i + 1];
-    if (next && next.row === row) {
-      const tw = widgetsByName[next.name];
-      if (tw && tw.type === "text") {
-        const content =
-          (tw.parameters &&
-            tw.parameters.content &&
-            (tw.parameters.content.plainText ||
-              (Array.isArray(tw.parameters.content.richTextContent)
-                ? tw.parameters.content.richTextContent
-                    .map((r) => r.insert)
-                    .join("")
-                : ""))) || "";
-        textMeta = parseStyleString(content);
-        i++; // skip paired text widget
+    if (next && next.row === layoutWidgets[i].row) {
+      const textWidget = widgetsByName[next.name];
+      if (textWidget && textWidget.type === "text") {
+        meta = parseTextWidget(textWidget);
+        updateChartStyles(meta, chartStylesFile);
+        i++; // skip text widget
       }
     }
-
-    const subtitle =
-      w.subtitle ||
-      (w.parameters && w.parameters.title && w.parameters.title.subtitleLabel);
-    const meta = Object.assign({}, parseStyleString(subtitle), textMeta);
+    if (Object.keys(meta).length === 0) {
+      const subtitle =
+        w.subtitle ||
+        (w.parameters && w.parameters.title && w.parameters.title.subtitleLabel);
+      meta = parseStyleString(subtitle);
+      updateChartStyles(meta, chartStylesFile);
+    }
 
     const stepName =
       (typeof w.step === "string" && w.step) ||
@@ -284,11 +274,13 @@ if (require.main === module) {
       opts.inputDir = arg.split("=")[1];
     } else if (arg.startsWith("--charts-file=")) {
       opts.chartsFile = arg.split("=")[1];
+    } else if (arg.startsWith("--chart-styles-file=")) {
+      opts.chartStylesFile = arg.split("=")[1];
     } else if (arg === "--silent") {
       opts.silent = true;
     } else if (arg === "--help" || arg === "-h") {
       console.log(
-        "Usage: node dashboardReader.js --dashboard-api-name <name> [--input-dir dir] [--charts-file file] [--silent]"
+        "Usage: node dashboardReader.js --dashboard-api-name <name> [--input-dir dir] [--charts-file file] [--chart-styles-file file] [--silent]"
       );
       process.exit(0);
     }

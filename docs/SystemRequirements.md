@@ -16,8 +16,9 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
 3. **Dashboard Parsing**
    - A `dashboardReader` script shall convert exported dashboard JSON into normalized chart definitions.
    - The parser must handle dashboard files where the `widgets` section is either an array or a keyed object.
-   - Widgets are processed row-by-row so that each chart widget is paired with a following text widget describing the chart. Style directives within the text widget use `kebab-case: value` syntax separated by semicolons.
-   - Parsed charts shall be written to `charts.json`, replacing previous definitions.
+   - Metadata describing each chart is now read from a text widget placed in the column to the right of the chart. The text widget uses CSS-style strings (`key: value;`) instead of the subtitle field.
+   - Parsed charts shall be written to `charts.json`, replacing previous definitions. Style attribute keys discovered in the text widgets shall be tracked in `chartStyles.txt`.
+   - Widgets are processed in row-major order so chart widgets are encountered before their companion text widgets.
 4. **Component Analysis**
    - A `lwcReader` script shall parse the existing Lightning Web Component source and output `revEngCharts.json` describing the charts implemented.
 5. **Filter Options**
@@ -43,6 +44,7 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - The component shall expose a Lightning App Page, Record Page, and Home Page target as defined in the metadata file.
    - Chart content shall appear within `<lightning-card>` containers that include `<div>` elements with classes matching the titles of charts within CRM Analytics dashboards.
    - A vertical unordered list on the left shall allow users to select which chart page is displayed. Each chart pair occupies its own page.
+   - Dashboard pages use a two-column layout: charts appear on the left and a text widget on the right displays the chart description and style metadata.
 9. **Compatibility**
    - The application shall be compatible with Salesforce API version 59.0 as specified in the `sfdx-project.json` configuration.
    - Development tooling shall run on Node.js 18 or later (tested with Node.js 22). Using unsupported Node versions may prevent `npm install` from completing successfully.
