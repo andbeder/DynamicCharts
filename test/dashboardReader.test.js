@@ -98,6 +98,57 @@ describe('dashboardReader', () => {
     expect(stylesText).toMatch(/colors/);
   });
 
+  test('parses text widget styles separated by newlines', () => {
+    const dashboard = {
+      state: {
+        widgets: {
+          w1: {
+            type: 'chart',
+            saql: 'saql1',
+            parameters: {
+              title: { label: 'Climbs By Nation' },
+              step: 'step1',
+              columnMap: { dimensionAxis: ['nation'], plots: ['A'] }
+            },
+            fieldMappings: { nation: 'Nation', Climbs: 'Climbs' }
+          },
+          w1desc: {
+            type: 'text',
+            parameters: {
+              content: { richTextContent: [{ insert: 'type: bar\ncolors: red\nshadow: true' }] }
+            }
+          }
+        },
+        steps: { step1: { query: 'saql1' } },
+        gridLayouts: [
+          {
+            pages: [
+              {
+                widgets: [
+                  { name: 'w1', column: 0, row: 1 },
+                  { name: 'w1desc', column: 1, row: 1 }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    };
+    fs.writeFileSync(inputFile, JSON.stringify(dashboard));
+
+    const result = readDashboard({
+      dashboardApiName: 'CR-02',
+      inputDir: tmpDir,
+      chartsFile,
+      chartStylesFile: stylesFile
+    });
+
+    const data = JSON.parse(fs.readFileSync(chartsFile, 'utf8'));
+    expect(data).toEqual(result);
+    expect(data.charts[0].style.seriesColors).toBe('#EF6B4D');
+    expect(data.charts[0].style.effects).toEqual(['shadow']);
+  });
+
   test('throws when file missing', () => {
     expect(() =>
       readDashboard({ dashboardApiName: 'CR-02', inputDir: tmpDir, chartsFile })

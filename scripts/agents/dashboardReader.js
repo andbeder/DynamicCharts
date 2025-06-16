@@ -64,10 +64,14 @@ function toKebab(str) {
 function parseStyleString(str) {
   const meta = {};
   if (!str) return meta;
-  str.split(";").forEach((pair) => {
-    const [key, value] = pair.split(pair.includes(":") ? ":" : "=").map((s) => s.trim());
-    if (key) meta[key.toLowerCase()] = value;
-  });
+  str
+    .split(/(?:;|\r?\n)+/)
+    .forEach((pair) => {
+      const [key, value] = pair
+        .split(pair.includes(":") ? ":" : "=")
+        .map((s) => s.trim());
+      if (key) meta[key.toLowerCase()] = value;
+    });
   return meta;
 }
 

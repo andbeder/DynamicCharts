@@ -43,7 +43,7 @@ This agent reads an extracted dashboard `state` JSON file and produces normalize
 ## Assumptions
 
 - `title` is converted to kebab-case and used as `chart.id`.
-- Style metadata is stored in a text widget positioned to the right of each chart. The text uses CSS-style syntax (`key: value;` pairs) and replaces the previous use of the subtitle field.
+- Style metadata is stored in a text widget positioned to the right of each chart. The text uses CSS-style syntax (`key: value`) and fields may be separated by semicolons or newlines. This replaces the previous use of the subtitle field.
 - Widgets are processed in row-major order so that each chart widget is followed by its companion text widget.
 - Color names not in the defined scheme are treated as valid CSS colors.
 - Missing charts in the new dashboard cause removal of their entries from `charts.json`. fileciteturn2file0
