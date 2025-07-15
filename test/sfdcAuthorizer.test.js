@@ -26,6 +26,7 @@ describe("sfdcAuthorizer", () => {
     process.env.SFDC_USERNAME = "test@example.com";
     process.env.SFDC_CLIENT_ID = "123456";
     process.env.SFDC_LOGIN_URL = "https://test.salesforce.com";
+    delete process.env.SF_ACCESS_TOKEN;
 
     execSync.mockReturnValueOnce("");
     execSync.mockReturnValueOnce(
@@ -37,9 +38,9 @@ describe("sfdcAuthorizer", () => {
 
     const call = execSync.mock.calls[0][0];
     expect(call).toContain("sf org login jwt");
-    expect(call).toContain("--username \"test@example.com\"");
-    expect(call).toContain("-i \"123456\"");
-    expect(call).toContain("--instance-url \"https://test.salesforce.com\"");
+    expect(call).toContain('--username "test@example.com"');
+    expect(call).toContain('-i "123456"');
+    expect(call).toContain('--instance-url "https://test.salesforce.com"');
   });
 
   test("reuses token when valid", () => {
@@ -47,6 +48,7 @@ describe("sfdcAuthorizer", () => {
     fs.existsSync.mockReturnValue(true);
     fs.readFileSync.mockReturnValue("cached");
     process.env.SF_INSTANCE_URL = "https://example.my.salesforce.com";
+    delete process.env.SF_ACCESS_TOKEN;
     execSync.mockImplementationOnce(() => "200");
 
     const authorize = require(scriptPath);
@@ -64,6 +66,7 @@ describe("sfdcAuthorizer", () => {
     fs.readFileSync.mockReturnValue("cached");
     process.env.SFDC_LOGIN_URL = "https://test.salesforce.com";
     delete process.env.SF_INSTANCE_URL;
+    delete process.env.SF_ACCESS_TOKEN;
     execSync.mockImplementationOnce(() => "200");
 
     const authorize = require(scriptPath);
@@ -86,6 +89,7 @@ describe("sfdcAuthorizer", () => {
         JSON.stringify({ result: { accessToken: "NEW" } })
       )
       .mockImplementation(() => "200");
+    delete process.env.SF_ACCESS_TOKEN;
 
     const authorize = require(scriptPath);
     authorize();

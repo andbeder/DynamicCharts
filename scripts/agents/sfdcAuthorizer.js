@@ -29,6 +29,18 @@ function authorize() {
   const tokenPath = path.resolve(process.cwd(), "tmp", "access_token.txt");
 
   try {
+    // -1) Allow token to be provided via environment to support offline usage
+    if (process.env.SF_ACCESS_TOKEN) {
+      console.log("✔ Using SF_ACCESS_TOKEN from environment");
+      const tmpDir = path.dirname(tokenPath);
+      fs.mkdirSync(tmpDir, { recursive: true });
+      fs.writeFileSync(tokenPath, process.env.SF_ACCESS_TOKEN, "utf8");
+      if (!process.env.SF_INSTANCE_URL && loginUrl) {
+        process.env.SF_INSTANCE_URL = loginUrl;
+      }
+      return;
+    }
+
     // 0) Reuse existing token when possible
     if (fs.existsSync(tokenPath)) {
       const existing = fs.readFileSync(tokenPath, "utf8").trim();
@@ -44,8 +56,8 @@ function authorize() {
     }
 
     // 1) Log in via JWT
-      execSync(
-        `sf org login jwt \
+    execSync(
+      `sf org login jwt \
           -i "${clientId}" \
           --jwt-key-file "${keyFile}" \
           --username "${username}" \
