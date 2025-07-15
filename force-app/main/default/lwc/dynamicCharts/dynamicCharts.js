@@ -1,20 +1,25 @@
 import { LightningElement, wire, api } from "lwc";
-import {
-  getDatasets,
-  executeQuery
-} from "lightning/analyticsWaveApi";
+import { getDatasets } from "lightning/analyticsWaveApi";
 import apexchartJs from "@salesforce/resourceUrl/ApexCharts";
 import { loadScript } from "lightning/platformResourceLoader";
 
 const MAX_CONCURRENT_QUERIES = 5;
 let runningQueries = 0;
 const queuedQueries = [];
+let executeQueryFn;
 
 function runQueuedQueries() {
   while (runningQueries < MAX_CONCURRENT_QUERIES && queuedQueries.length) {
-    const { fn, callback } = queuedQueries.shift();
+    const { query, callback } = queuedQueries.shift();
     runningQueries++;
-    fn()
+    const promise =
+      executeQueryFn
+        ? Promise.resolve(executeQueryFn(query))
+        : import("lightning/analyticsWaveApi").then((mod) => {
+            executeQueryFn = mod.executeQuery;
+            return executeQueryFn(query);
+          });
+    promise
       .then((data) => callback({ data }))
       .catch((error) => callback({ error }))
       .finally(() => {
@@ -24,8 +29,8 @@ function runQueuedQueries() {
   }
 }
 
-function enqueueQuery(fn, callback) {
-  queuedQueries.push({ fn, callback });
+function enqueueQuery(query, callback) {
+  queuedQueries.push({ query, callback });
   runQueuedQueries();
 }
 
@@ -420,7 +425,7 @@ export default class SacCharts extends LightningElement {
     ];
     for (const [q, cb] of queries) {
       if (q) {
-        enqueueQuery(() => executeQuery(q), cb);
+        enqueueQuery(q, cb);
       }
     }
   }
@@ -466,7 +471,7 @@ export default class SacCharts extends LightningElement {
     ];
     for (const [query, callback] of pairs) {
       if (query) {
-        enqueueQuery(() => executeQuery(query), callback);
+        enqueueQuery(query, callback);
       }
     }
   }
