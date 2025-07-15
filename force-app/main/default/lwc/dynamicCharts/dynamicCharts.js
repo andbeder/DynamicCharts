@@ -7,32 +7,16 @@ import apexchartJs from "@salesforce/resourceUrl/ApexCharts";
 import { loadScript } from "lightning/platformResourceLoader";
 
 const MAX_CONCURRENT_QUERIES = 5;
-let runningQueries = 0;
-const queuedQueries = [];
-
-function runQueuedQueries() {
-  while (runningQueries < MAX_CONCURRENT_QUERIES && queuedQueries.length) {
-    const { fn, callback } = queuedQueries.shift();
-    runningQueries++;
-    fn()
-      .then((data) => callback({ data }))
-      .catch((error) => callback({ error }))
-      .finally(() => {
-        runningQueries--;
-        runQueuedQueries();
-      });
-  }
-}
-
-function enqueueQuery(fn, callback) {
-  queuedQueries.push({ fn, callback });
-  runQueuedQueries();
-}
 
 let apexChartsPromise;
 
 export default class SacCharts extends LightningElement {
   datasetIds;
+
+  queryQueue = [];
+  runningQueries = 0;
+  nextQuery;
+  currentCallback;
 
   hostSelections = [];
   nationSelections = [];
@@ -61,6 +45,24 @@ export default class SacCharts extends LightningElement {
   }
   get timePageClass() {
     return this.activePage === "TimeByPeak" ? "slds-show" : "slds-hide";
+  }
+
+  enqueueQuery(query, callback) {
+    this.queryQueue.push({ query, callback });
+    this.runQueuedQueries();
+  }
+
+  runQueuedQueries() {
+    if (
+      this.runningQueries < MAX_CONCURRENT_QUERIES &&
+      this.queryQueue.length &&
+      !this.nextQuery
+    ) {
+      const { query, callback } = this.queryQueue.shift();
+      this.runningQueries++;
+      this.currentCallback = callback;
+      this.nextQuery = query;
+    }
   }
 
   chartSettings = {
@@ -92,6 +94,22 @@ export default class SacCharts extends LightningElement {
       effects: ["shadow"]
     }
   };
+
+  @wire(executeQuery, { query: '$nextQuery' })
+  wiredExecuteQuery(result) {
+    if (!this.nextQuery) {
+      return;
+    }
+    if (this.currentCallback) {
+      this.currentCallback(result);
+    }
+    if (this.runningQueries > 0) {
+      this.runningQueries--;
+    }
+    this.currentCallback = undefined;
+    this.nextQuery = undefined;
+    this.runQueuedQueries();
+  }
 
   @api
   applySettings(options, chartId) {
@@ -420,7 +438,7 @@ export default class SacCharts extends LightningElement {
     ];
     for (const [q, cb] of queries) {
       if (q) {
-        enqueueQuery(() => executeQuery(q), cb);
+        this.enqueueQuery(q, cb);
       }
     }
   }
@@ -466,7 +484,7 @@ export default class SacCharts extends LightningElement {
     ];
     for (const [query, callback] of pairs) {
       if (query) {
-        enqueueQuery(() => executeQuery(query), callback);
+        this.enqueueQuery(query, callback);
       }
     }
   }
