@@ -6,6 +6,29 @@ import {
 import apexchartJs from "@salesforce/resourceUrl/ApexCharts";
 import { loadScript } from "lightning/platformResourceLoader";
 
+const MAX_CONCURRENT_QUERIES = 5;
+let runningQueries = 0;
+const queuedQueries = [];
+
+function runQueuedQueries() {
+  while (runningQueries < MAX_CONCURRENT_QUERIES && queuedQueries.length) {
+    const { fn, callback } = queuedQueries.shift();
+    runningQueries++;
+    fn()
+      .then((data) => callback({ data }))
+      .catch((error) => callback({ error }))
+      .finally(() => {
+        runningQueries--;
+        runQueuedQueries();
+      });
+  }
+}
+
+function enqueueQuery(fn, callback) {
+  queuedQueries.push({ fn, callback });
+  runQueuedQueries();
+}
+
 let apexChartsPromise;
 
 export default class SacCharts extends LightningElement {
@@ -27,14 +50,6 @@ export default class SacCharts extends LightningElement {
 
   chartObject = {};
   _chartsInitialized = false;
-
-  @api
-  queryQueue = [];
-
-  @api
-  get nextQuery() {
-    return this.queryQueue[0]?.query;
-  }
 
   activePage = "ClimbsByNation";
 
@@ -111,6 +126,7 @@ export default class SacCharts extends LightningElement {
       data.datasets.forEach((ds) => {
         this.datasetIds[ds.name] = `${ds.id}/${ds.currentVersionId}`;
       });
+      this.fetchFilterOptions();
     } else if (error) {
       console.error("getDatasets ERROR:", error);
     }
@@ -151,7 +167,6 @@ export default class SacCharts extends LightningElement {
     return undefined;
   }
 
-  @wire(executeQuery, { query: "$hostQuery" })
   onHostQuery({ data }) {
     if (data) {
       this.hostOptions = data.results.records.map((r) => ({
@@ -160,7 +175,7 @@ export default class SacCharts extends LightningElement {
       }));
     }
   }
-  @wire(executeQuery, { query: "$nationQuery" })
+
   onNationQuery({ data }) {
     if (data) {
       this.nationOptions = data.results.records.map((r) => ({
@@ -169,7 +184,7 @@ export default class SacCharts extends LightningElement {
       }));
     }
   }
-  @wire(executeQuery, { query: "$seasonQuery" })
+
   onSeasonQuery({ data }) {
     if (data) {
       this.seasonOptions = data.results.records.map((r) => ({
@@ -179,17 +194,6 @@ export default class SacCharts extends LightningElement {
     }
   }
 
-  @wire(executeQuery, { query: "$nextQuery" })
-  handleQueuedQuery({ data, error }) {
-    if (!this.queryQueue.length || (!data && !error)) {
-      return;
-    }
-    const { callback } = this.queryQueue[0];
-    if (callback) {
-      callback({ data, error });
-    }
-    this.queryQueue.shift();
-  }
 
   // ---- Chart data queries ----
   get climbsByNationQuery() {
@@ -408,18 +412,35 @@ export default class SacCharts extends LightningElement {
     this.chartObject[name] = chart;
   }
 
+  fetchFilterOptions() {
+    const queries = [
+      [this.hostQuery, this.onHostQuery.bind(this)],
+      [this.nationQuery, this.onNationQuery.bind(this)],
+      [this.seasonQuery, this.onSeasonQuery.bind(this)]
+    ];
+    for (const [q, cb] of queries) {
+      if (q) {
+        enqueueQuery(() => executeQuery(q), cb);
+      }
+    }
+  }
+
   // ---- UI event handlers ----
   handleHostChange(event) {
     this.hostSelections = event.detail.value;
+    this.fetchFilterOptions();
   }
   handleNationChange(event) {
     this.nationSelections = event.detail.value;
+    this.fetchFilterOptions();
   }
   handleSeasonChange(event) {
     this.seasonSelections = event.detail.value;
+    this.fetchFilterOptions();
   }
   handleSkiChange(event) {
     this.skiSelection = event.detail.value;
+    this.fetchFilterOptions();
   }
   handleNavClick(event) {
     event.preventDefault();
@@ -429,6 +450,7 @@ export default class SacCharts extends LightningElement {
     }
   }
   filtersUpdated() {
+    this.fetchFilterOptions();
     this.runChartQueries();
   }
 
@@ -444,7 +466,7 @@ export default class SacCharts extends LightningElement {
     ];
     for (const [query, callback] of pairs) {
       if (query) {
-        this.queryQueue.push({ query, callback });
+        enqueueQuery(() => executeQuery(query), callback);
       }
     }
   }
