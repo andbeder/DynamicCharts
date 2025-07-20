@@ -49,7 +49,8 @@
     "changeRequestGenerator": "node scripts/agents/changeRequestGenerator.js",
     "syncCharts": "node scripts/agents/syncCharts.js",
     "lwcTester": "node scripts/agents/lwcTester.js",
-    "sfdcDeployer": "node scripts/agents/sfdcDeployer.js"
+    "sfdcDeployer": "node scripts/agents/sfdcDeployer.js",
+    "lwcBuilder": "node scripts/agents/lwcBuilder.js"
   },
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^2.2.0",
