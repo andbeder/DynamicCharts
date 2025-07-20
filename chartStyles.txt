@@ -3,3 +3,12 @@ font-color - Color applied to chart text
 x-axis-font-size - Font size of labels on the X axis
 y-axis-font-size - Font size of labels on the Y axis
 drop-shadow - Enables a drop shadow effect
+title - title
+type - 404 - Not Found
+data-labels - 404 - Not Found
+data-label-format - 404 - Not Found
+data-label-background-drop-shadow - 404 - Not Found
+data-label-background-color - 404 - Not Found
+font-size - 404 - Not Found
+color - 404 - Not Found
+dropshadow - 404 - Not Found

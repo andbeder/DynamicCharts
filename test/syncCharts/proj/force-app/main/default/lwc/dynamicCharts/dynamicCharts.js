@@ -67,22 +67,18 @@ export default class SacCharts extends LightningElement {
 
   chartSettings = {
   ClimbsByNation: {
-    dashboard: "CR_02",
-    title: "Top 20 Climbs by Nation",
+    dashboard: "Unknown",
+    title: "Climbs By Nation",
     fieldMappings: {
       nation: "Nation",
       Climbs: "Climbs"
     },
-    colors: [
-      "#002060"
-    ],
-    effects: [
-      "shadow"
-    ]
+    colors: [],
+    effects: []
   },
   TimeByPeak: {
-    dashboard: "CR_02",
-    title: "Days per Peak by Top 20 Climbs",
+    dashboard: "Unknown",
+    title: "Time By Peak",
     fieldMappings: {
       peakid: "Peak ID",
       A: "Min",
@@ -90,27 +86,18 @@ export default class SacCharts extends LightningElement {
       C: "Q3",
       D: "Max"
     },
-    colors: [
-      "#97C1DA",
-      "#002060"
-    ],
-    effects: [
-      "shadow"
-    ]
+    colors: [],
+    effects: []
   },
   CampsByPeak: {
-    dashboard: "CR_02",
-    title: "Average Number of Camps per Peak",
+    dashboard: "Unknown",
+    title: "Camps By Peak",
     fieldMappings: {
       peakid: "Peak ID",
       A: "Average Camps"
     },
-    colors: [
-      "#175F68"
-    ],
-    effects: [
-      "shadow"
-    ]
+    colors: [],
+    effects: []
   },
   "climbs-by-nation": {
     fieldMappings: {

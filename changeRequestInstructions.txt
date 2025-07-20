@@ -1,17 +1,31 @@
-1. In dynamicCharts.js, update ClimbsByNation dashboard from "Unknown" to "CR_02".
-2. In dynamicCharts.js, update ClimbsByNation title using chart.updateOptions({ title: { text: "Top 20 Climbs by Nation" } });
-3. In dynamicCharts.js, update ClimbsByNation fieldMappings from {"nation":"nation","Climbs":"Climbs"} to {"nation":"Nation","Climbs":"Climbs"}.
-4. In dynamicCharts.js, set ClimbsByNation ApexCharts option "colors" to ['#002060'].
-5. In dynamicCharts.js, enable drop shadow for ClimbsByNation by setting chart.dropShadow options.
-6. In dynamicCharts.js, update TimeByPeak dashboard from "Unknown" to "CR_02".
-7. In dynamicCharts.js, update TimeByPeak title using chart.updateOptions({ title: { text: "Days per Peak by Top 20 Climbs" } });
-8. In dynamicCharts.js, update TimeByPeak fieldMappings from {"peakid":"peakid","A":"A","B":"B","C":"C","D":"D"} to {"peakid":"Peak ID","A":"Min","B":"Q1","C":"Q3","D":"Max"}.
-9. In dynamicCharts.js, set TimeByPeak ApexCharts option "colors" to ['#97C1DA', '#002060'].
-10. In dynamicCharts.js, enable drop shadow for TimeByPeak by setting chart.dropShadow options.
-11. In dynamicCharts.js, update CampsByPeak dashboard from "Unknown" to "CR_02".
-12. In dynamicCharts.js, update CampsByPeak title using chart.updateOptions({ title: { text: "Average Number of Camps per Peak" } });
-13. In dynamicCharts.js, update CampsByPeak fieldMappings from {"peakid":"peakid","A":"A"} to {"peakid":"Peak ID","A":"Average Camps"}.
-14. In dynamicCharts.js, set CampsByPeak ApexCharts option "colors" to ['#175F68'].
-15. In dynamicCharts.js, enable drop shadow for CampsByPeak by setting chart.dropShadow options.
-16. Remove the <div class='chart-DaysPerPeak'>...</div> block from dynamicCharts.html.
-17. Remove the corresponding SAQL and render call for DaysPerPeak in dynamicCharts.js.
+1. In dynamicCharts.js, update climbs-by-nation dashboard from undefined to "CR_02".
+2. In dynamicCharts.js, update climbs-by-nation title using chart.updateOptions({ title: { text: "Top 20 Climbs by Nation" } });
+3. In dynamicCharts.js, update climbs-by-nation saql from undefined to "q = load "0Fbaj0000017XbNCAU";
+q = group q by nation;
+q = foreach q generate count(*) as A;
+q = order q by A desc;
+limit 20;".
+4. In dynamicCharts.js, update time-by-peak dashboard from undefined to "CR_02".
+5. In dynamicCharts.js, update time-by-peak title using chart.updateOptions({ title: { text: "Days per Peak by Top 20 Climbs" } });
+6. In dynamicCharts.js, update time-by-peak type from "bar" to "box-and-whisker".
+7. In dynamicCharts.js, update time-by-peak saql from undefined to "q = load "0Fbaj0000017XbNCAU";
+q = group q by peakid;
+q = foreach q generate min(totdays) as A, percentile_disc(0.25) within group (order by totdays) as B, percentile_disc(0.75) within group (order by totdays) as C, max(totdays) as D, count(*) as E;
+q = order q by E desc;
+limit 20;".
+8. In dynamicCharts.js, update camps-by-peak dashboard from undefined to "CR_02".
+9. In dynamicCharts.js, update camps-by-peak title using chart.updateOptions({ title: { text: "Average Number of Camps per Peak" } });
+10. In dynamicCharts.js, update camps-by-peak saql from undefined to "q = load "0Fbaj0000017XbNCAU";
+q = group q by peakid;
+q = foreach q generate avg(camps) as A, count(*) as B;
+q = order q by B desc;
+limit 20;".
+11. In dynamicCharts.js, update deaths-by-peak dashboard from undefined to "CR_02".
+12. In dynamicCharts.js, update deaths-by-peak title using chart.updateOptions({ title: { text: "Total Number of Deaths per Peak" } });
+13. In dynamicCharts.js, update deaths-by-peak saql from undefined to "q = load "0Fbaj0000017XbNCAU";
+q = group q by peakid;
+q = foreach q generate sum(hdeaths) as A, count(*) as B;
+q = order q by B desc;
+limit 20;".
+14. In dynamicCharts.js, update deaths-by-peak fieldMappings from undefined to {"A":"A","peakid":"peakid"}.
+15. In dynamicCharts.js, enable drop shadow for deaths-by-peak by setting chart.dropShadow options.

@@ -12,7 +12,9 @@
       "style": {
         "seriesColors": "#002060",
         "font": "default",
-        "effects": ["shadow"]
+        "effects": [
+          "shadow"
+        ]
       }
     },
     {
@@ -30,7 +32,9 @@
       "style": {
         "seriesColors": "#97C1DA,#002060",
         "font": "default",
-        "effects": ["shadow"]
+        "effects": [
+          "shadow"
+        ]
       }
     },
     {
@@ -45,7 +49,69 @@
       "style": {
         "seriesColors": "#175F68",
         "font": "default",
-        "effects": ["shadow"]
+        "effects": [
+          "shadow"
+        ]
+      }
+    },
+    {
+      "dashboard": "CR_02",
+      "id": "climbs-by-nation",
+      "type": "bar",
+      "title": "Top 20 Climbs by Nation",
+      "fieldMappings": {
+        "A": "A",
+        "nation": "nation"
+      },
+      "style": {
+        "seriesColors": "#002060",
+        "font": "default"
+      }
+    },
+    {
+      "dashboard": "CR_02",
+      "id": "time-by-peak",
+      "type": "bar",
+      "title": "Days per Peak by Top 20 Climbs",
+      "fieldMappings": {
+        "A": "A",
+        "B": "B",
+        "C": "C",
+        "D": "D",
+        "peakid": "peakid"
+      },
+      "style": {
+        "seriesColors": "#97C1DA,#002060",
+        "font": "default"
+      }
+    },
+    {
+      "dashboard": "CR_02",
+      "id": "camps-by-peak",
+      "type": "bar",
+      "title": "Average Number of Camps per Peak",
+      "fieldMappings": {
+        "A": "A",
+        "peakid": "peakid"
+      },
+      "style": {
+        "font": "default"
+      }
+    },
+    {
+      "dashboard": "CR_02",
+      "id": "deaths-by-peak",
+      "type": "bar",
+      "title": "Total Number of Deaths per Peak",
+      "fieldMappings": {
+        "A": "A",
+        "peakid": "peakid"
+      },
+      "style": {
+        "font": "default",
+        "effects": [
+          "shadow"
+        ]
       }
     }
   ]
