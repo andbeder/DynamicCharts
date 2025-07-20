@@ -43,22 +43,6 @@
       },
       "saql": "q = load \"0Fbaj0000017XbNCAU\";\nq = group q by peakid;\nq = foreach q generate avg(camps) as A, count(*) as B;\nq = order q by B desc;\nlimit 20;",
       "style": {}
-    },
-    {
-      "dashboard": "CR_02",
-      "id": "deaths-by-peak",
-      "type": "bar",
-      "title": "Total Number of Deaths per Peak",
-      "fieldMappings": {
-        "A": "A",
-        "peakid": "peakid"
-      },
-      "saql": "q = load \"0Fbaj0000017XbNCAU\";\nq = group q by peakid;\nq = foreach q generate sum(hdeaths) as A, count(*) as B;\nq = order q by B desc;\nlimit 20;",
-      "style": {
-        "effects": [
-          "shadow"
-        ]
-      }
     }
   ]
 }
