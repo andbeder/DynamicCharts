@@ -5,6 +5,17 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+const TEMPLATE_DIR = path.join(
+  __dirname,
+  '..',
+  '..',
+  'force-app',
+  'main',
+  'default',
+  'lwc',
+  'dynamicCharts'
+);
+
 function fetchDescription(key) {
   try {
     const html = execSync(`curl -s https://apexcharts.com/docs/options/${key}/`, {
@@ -34,6 +45,41 @@ function updateStyleReference(charts, file) {
   });
 }
 
+function toPascalCase(str) {
+  return str
+    .split(/[-_\s]+/)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join('');
+}
+
+function replaceChartSettings(jsContent, settings) {
+  const marker = 'chartSettings =';
+  const start = jsContent.indexOf(marker);
+  if (start === -1) return jsContent;
+  const open = jsContent.indexOf('{', start);
+  if (open === -1) return jsContent;
+  let idx = open;
+  let depth = 0;
+  while (idx < jsContent.length) {
+    const ch = jsContent[idx];
+    if (ch === '{') depth += 1;
+    else if (ch === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        idx += 1;
+        break;
+      }
+    }
+    idx += 1;
+  }
+  const end = jsContent.indexOf(';', idx);
+  if (end === -1) return jsContent;
+  const before = jsContent.slice(0, open);
+  const after = jsContent.slice(end);
+  const objText = JSON.stringify(settings, null, 2);
+  return `${before}${objText}${after}`;
+}
+
 function buildLwc({ chartsFile = 'charts.json', outputDir = 'force-app/main/default/lwc/dynamicCharts', silent = false } = {}) {
   if (!fs.existsSync(chartsFile)) {
     throw new Error(`Charts file not found: ${chartsFile}`);
@@ -48,45 +94,27 @@ function buildLwc({ chartsFile = 'charts.json', outputDir = 'force-app/main/defa
   const jsPath = path.join(outDir, 'dynamicCharts.js');
   const metaPath = path.join(outDir, 'dynamicCharts.js-meta.xml');
 
-  const htmlLines = ['<template>'];
-  charts.forEach(c => {
-    htmlLines.push(`  <div class="${c.id} slds-var-m-around_medium" lwc:dom="manual"></div>`);
-  });
-  htmlLines.push('</template>');
-  fs.writeFileSync(htmlPath, htmlLines.join('\n'));
+  fs.copyFileSync(path.join(TEMPLATE_DIR, 'dynamicChartsExample.html'), htmlPath);
 
   const settings = {};
-  charts.forEach(c => {
+  charts.forEach((c) => {
     const style = c.style || {};
     const entry = {
       dashboard: c.dashboard,
       title: c.title,
-      fieldMappings: c.fieldMappings
+      fieldMappings: c.fieldMappings,
     };
     if (style.seriesColors) entry.colors = style.seriesColors.split(',');
     if (style.effects) entry.effects = style.effects;
-    settings[c.id] = entry;
+    settings[toPascalCase(c.id)] = { ...entry };
+    settings[c.id] = { ...entry };
   });
 
-  const jsContent = `import { LightningElement } from 'lwc';
+  let jsTemplate = fs.readFileSync(path.join(TEMPLATE_DIR, 'dynamicChartsExample.js'), 'utf8');
+  jsTemplate = replaceChartSettings(jsTemplate, settings);
+  fs.writeFileSync(jsPath, jsTemplate);
 
-export default class DynamicCharts extends LightningElement {
-  chartSettings = ${JSON.stringify(settings, null, 2)};
-}
-`;
-  fs.writeFileSync(jsPath, jsContent);
-
-  const metaContent = `<?xml version="1.0" encoding="UTF-8"?>
-<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-  <apiVersion>60.0</apiVersion>
-  <isExposed>true</isExposed>
-  <targets>
-    <target>lightning__AppPage</target>
-    <target>lightning__RecordPage</target>
-    <target>lightning__HomePage</target>
-  </targets>
-</LightningComponentBundle>`;
-  fs.writeFileSync(metaPath, metaContent);
+  fs.copyFileSync(path.join(TEMPLATE_DIR, 'dynamicCharts.js-meta.xml'), metaPath);
 
   updateStyleReference(charts, 'chartStyles.txt');
 
