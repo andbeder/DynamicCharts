@@ -25,9 +25,11 @@ describe('lwcReader', () => {
     const result = parseLWC({ jsFile, htmlFile, outputFile: outFile, silent: true });
     const data = JSON.parse(fs.readFileSync(outFile, 'utf8'));
     expect(data).toEqual(result);
-    expect(data.charts.length).toBe(3);
+    expect(data.charts.length).toBe(7);
     const ids = data.charts.map(c => c.id).sort();
-    expect(ids).toEqual(['CampsByPeak', 'ClimbsByNation', 'TimeByPeak'].sort());
+    expect(ids).toEqual(
+      ['ClimbsByNation', 'TimeByPeak', 'CampsByPeak', 'climbs-by-nation', 'time-by-peak', 'camps-by-peak', 'deaths-by-peak'].sort()
+    );
   });
 
   test('throws when js file missing', () => {

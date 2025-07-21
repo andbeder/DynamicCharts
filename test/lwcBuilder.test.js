@@ -20,8 +20,8 @@ describe('lwcBuilder', () => {
     const js = fs.readFileSync(result.jsFile, 'utf8');
     const html = fs.readFileSync(result.htmlFile, 'utf8');
     expect(js).toMatch(/chartSettings/);
-    expect(js).toMatch(/climbs-by-nation/);
-    expect(html).toMatch(/climbs-by-nation/);
+    expect(js).toMatch(/ClimbsByNation/);
+    expect(html).toMatch(/ClimbsByNation/);
   });
 
   test('throws when charts file missing', () => {
