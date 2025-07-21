@@ -10,8 +10,8 @@
               source-label="Available"
               selected-label="Selected"
               field-level-help="Select Hosts to filter to"
-              options={hostOptions}
-              onchange={handleHostChange}
+              options="{hostOptions}"
+              onchange="{handleHostChange}"
             ></lightning-dual-listbox>
           </td>
           <td width="25%">
@@ -21,8 +21,8 @@
               source-label="Available"
               selected-label="Selected"
               field-level-help="Select Nations to filter to"
-              options={nationOptions}
-              onchange={handleNationChange}
+              options="{nationOptions}"
+              onchange="{handleNationChange}"
             ></lightning-dual-listbox>
           </td>
           <td width="25%">
@@ -32,8 +32,8 @@
               source-label="Available"
               selected-label="Selected"
               field-level-help="Select Seasons to filter to"
-              options={seasonOptions}
-              onchange={handleSeasonChange}
+              options="{seasonOptions}"
+              onchange="{handleSeasonChange}"
             ></lightning-dual-listbox>
           </td>
           <td>
@@ -42,8 +42,8 @@
               label="Ski"
               value="in all"
               placeholder="Select Ski"
-              options={skiOptions}
-              onchange={handleSkiChange}
+              options="{skiOptions}"
+              onchange="{handleSkiChange}"
             ></lightning-combobox>
           </td>
         </tr>
@@ -53,7 +53,7 @@
               variant="brand"
               label="Render"
               title="Primary action"
-              onclick={filtersUpdated}
+              onclick="{filtersUpdated}"
               class="slds-var-m-left_x-small"
             ></lightning-button>
           </td>
@@ -69,7 +69,7 @@
           <a
             href="javascript:void(0);"
             data-id="ClimbsByNation"
-            onclick={handleNavClick}
+            onclick="{handleNavClick}"
             >ClimbsByNation</a
           >
         </li>
@@ -77,7 +77,7 @@
           <a
             href="javascript:void(0);"
             data-id="CampsByPeak"
-            onclick={handleNavClick}
+            onclick="{handleNavClick}"
             >CampsByPeak</a
           >
         </li>
@@ -85,7 +85,7 @@
           <a
             href="javascript:void(0);"
             data-id="TimeByPeak"
-            onclick={handleNavClick}
+            onclick="{handleNavClick}"
             >TimeByPeak</a
           >
         </li>
@@ -93,14 +93,14 @@
           <a
             href="javascript:void(0);"
             data-id="DeathsByPeak"
-            onclick={handleNavClick}
+            onclick="{handleNavClick}"
             >DeathsByPeak</a
           >
         </li>
       </ul>
     </lightning-layout-item>
     <lightning-layout-item size="10">
-      <div class={climbsPageClass} data-page="ClimbsByNation">
+      <div class="{climbsPageClass}" data-page="ClimbsByNation">
         <lightning-card title="Chart Series" icon-name="custom:custom1">
           <lightning-layout>
             <lightning-layout-item size="6">
@@ -118,7 +118,7 @@
           </lightning-layout>
         </lightning-card>
       </div>
-      <div class={campsPageClass} data-page="CampsByPeak">
+      <div class="{campsPageClass}" data-page="CampsByPeak">
         <lightning-card title="Chart Series" icon-name="custom:custom1">
           <lightning-layout>
             <lightning-layout-item size="6">
@@ -136,7 +136,7 @@
           </lightning-layout>
         </lightning-card>
       </div>
-      <div class={timePageClass} data-page="TimeByPeak">
+      <div class="{timePageClass}" data-page="TimeByPeak">
         <lightning-card title="Box Plot Series" icon-name="custom:custom2">
           <lightning-layout>
             <lightning-layout-item size="6">
@@ -157,21 +157,3 @@
     </lightning-layout-item>
   </lightning-layout>
 </template>
-<div data-page="DeathsByPeak">
-  <lightning-card title="Chart Series" icon-name="custom:custom1">
-    <lightning-layout>
-      <lightning-layout-item size="6">
-        <div
-          class="DeathsByPeak slds-var-m-around_medium"
-          lwc:dom="manual"
-        ></div>
-      </lightning-layout-item>
-      <lightning-layout-item size="6">
-        <div
-          class="DeathsByPeakAO slds-var-m-around_medium"
-          lwc:dom="manual"
-        ></div>
-      </lightning-layout-item>
-    </lightning-layout>
-  </lightning-card>
-</div>

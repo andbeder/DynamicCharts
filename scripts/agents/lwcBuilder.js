@@ -1,44 +1,43 @@
 #!/usr/bin/env node
 // scripts/agents/lwcBuilder.js
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
 
 // LWC templates live in the project under force-app/main/default/lwc/dynamicCharts.
 // `dynamicChartsExample.html` and `dynamicChartsExample.js` provide the full
 // component implementation used as the basis for generated output.
-const TEMPLATE_DIR = path.join(
-  __dirname,
-  '..',
-  '..',
-  'force-app',
-  'main',
-  'default',
-  'lwc',
-  'dynamicCharts'
-);
+const TEMPLATE_DIR = path.join(__dirname, "..", "..", "templates");
 
 function fetchDescription(key) {
   try {
-    const html = execSync(`curl -s https://apexcharts.com/docs/options/${key}/`, {
-      encoding: 'utf8'
-    });
-    const m = html.match(/<h1[^>]*>(.*?)<\/h1>/i) || html.match(/<title>(.*?)<\/title>/i);
-    return m ? m[1].trim() : 'ApexCharts option';
+    const html = execSync(
+      `curl -s https://apexcharts.com/docs/options/${key}/`,
+      {
+        encoding: "utf8"
+      }
+    );
+    const m =
+      html.match(/<h1[^>]*>(.*?)<\/h1>/i) ||
+      html.match(/<title>(.*?)<\/title>/i);
+    return m ? m[1].trim() : "ApexCharts option";
   } catch {
-    return 'ApexCharts option';
+    return "ApexCharts option";
   }
 }
 
 function updateStyleReference(charts, file) {
   if (!file) return;
   const seen = fs.existsSync(file)
-    ? fs.readFileSync(file, 'utf8').split(/\n/).map(l => l.split(' - ')[0])
+    ? fs
+        .readFileSync(file, "utf8")
+        .split(/\n/)
+        .map((l) => l.split(" - ")[0])
     : [];
-  charts.forEach(chart => {
+  charts.forEach((chart) => {
     const style = chart.style || {};
-    Object.keys(style).forEach(k => {
+    Object.keys(style).forEach((k) => {
       if (!seen.includes(k)) {
         const desc = fetchDescription(k);
         fs.appendFileSync(file, `${k} - ${desc}\n`);
@@ -52,21 +51,21 @@ function toPascalCase(str) {
   return str
     .split(/[-_\s]+/)
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-    .join('');
+    .join("");
 }
 
 function replaceChartSettings(jsContent, settings) {
-  const marker = 'chartSettings =';
+  const marker = "chartSettings =";
   const start = jsContent.indexOf(marker);
   if (start === -1) return jsContent;
-  const open = jsContent.indexOf('{', start);
+  const open = jsContent.indexOf("{", start);
   if (open === -1) return jsContent;
   let idx = open;
   let depth = 0;
   while (idx < jsContent.length) {
     const ch = jsContent[idx];
-    if (ch === '{') depth += 1;
-    else if (ch === '}') {
+    if (ch === "{") depth += 1;
+    else if (ch === "}") {
       depth -= 1;
       if (depth === 0) {
         idx += 1;
@@ -75,7 +74,7 @@ function replaceChartSettings(jsContent, settings) {
     }
     idx += 1;
   }
-  const end = jsContent.indexOf(';', idx);
+  const end = jsContent.indexOf(";", idx);
   if (end === -1) return jsContent;
   const before = jsContent.slice(0, open);
   const after = jsContent.slice(end);
@@ -83,21 +82,28 @@ function replaceChartSettings(jsContent, settings) {
   return `${before}${objText}${after}`;
 }
 
-function buildLwc({ chartsFile = 'charts.json', outputDir = 'force-app/main/default/lwc/dynamicCharts', silent = false } = {}) {
+function buildLwc({
+  chartsFile = "charts.json",
+  outputDir = "force-app/main/default/lwc/dynamicCharts",
+  silent = false
+} = {}) {
   if (!fs.existsSync(chartsFile)) {
     throw new Error(`Charts file not found: ${chartsFile}`);
   }
-  const chartsData = JSON.parse(fs.readFileSync(chartsFile, 'utf8'));
+  const chartsData = JSON.parse(fs.readFileSync(chartsFile, "utf8"));
   const charts = chartsData.charts || [];
 
   const outDir = path.resolve(outputDir);
   fs.mkdirSync(outDir, { recursive: true });
 
-  const htmlPath = path.join(outDir, 'dynamicCharts.html');
-  const jsPath = path.join(outDir, 'dynamicCharts.js');
-  const metaPath = path.join(outDir, 'dynamicCharts.js-meta.xml');
+  const htmlPath = path.join(outDir, "dynamicCharts.html");
+  const jsPath = path.join(outDir, "dynamicCharts.js");
+  const metaPath = path.join(outDir, "dynamicCharts.js-meta.xml");
 
-  fs.copyFileSync(path.join(TEMPLATE_DIR, 'dynamicChartsExample.html'), htmlPath);
+  fs.copyFileSync(
+    path.join(TEMPLATE_DIR, "dynamicChartsExample.html"),
+    htmlPath
+  );
 
   const settings = {};
   charts.forEach((c) => {
@@ -105,21 +111,27 @@ function buildLwc({ chartsFile = 'charts.json', outputDir = 'force-app/main/defa
     const entry = {
       dashboard: c.dashboard,
       title: c.title,
-      fieldMappings: c.fieldMappings,
+      fieldMappings: c.fieldMappings
     };
-    if (style.seriesColors) entry.colors = style.seriesColors.split(',');
+    if (style.seriesColors) entry.colors = style.seriesColors.split(",");
     if (style.effects) entry.effects = style.effects;
     settings[toPascalCase(c.id)] = { ...entry };
     settings[c.id] = { ...entry };
   });
 
-  let jsTemplate = fs.readFileSync(path.join(TEMPLATE_DIR, 'dynamicChartsExample.js'), 'utf8');
+  let jsTemplate = fs.readFileSync(
+    path.join(TEMPLATE_DIR, "dynamicChartsExample.js"),
+    "utf8"
+  );
   jsTemplate = replaceChartSettings(jsTemplate, settings);
   fs.writeFileSync(jsPath, jsTemplate);
 
-  fs.copyFileSync(path.join(TEMPLATE_DIR, 'dynamicCharts.js-meta.xml'), metaPath);
+  fs.copyFileSync(
+    path.join(TEMPLATE_DIR, "dynamicChartsExample.js-meta.xml"),
+    metaPath
+  );
 
-  updateStyleReference(charts, 'chartStyles.txt');
+  updateStyleReference(charts, "chartStyles.txt");
 
   if (!silent) {
     console.log(`✔ LWC files written to ${outDir}`);
@@ -132,20 +144,22 @@ if (require.main === module) {
   const args = process.argv.slice(2);
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
-    if (arg === '--charts-file' && args[i + 1]) {
+    if (arg === "--charts-file" && args[i + 1]) {
       opts.chartsFile = args[i + 1];
       i += 1;
-    } else if (arg.startsWith('--charts-file=')) {
-      opts.chartsFile = arg.split('=')[1];
-    } else if (arg === '--output-dir' && args[i + 1]) {
+    } else if (arg.startsWith("--charts-file=")) {
+      opts.chartsFile = arg.split("=")[1];
+    } else if (arg === "--output-dir" && args[i + 1]) {
       opts.outputDir = args[i + 1];
       i += 1;
-    } else if (arg.startsWith('--output-dir=')) {
-      opts.outputDir = arg.split('=')[1];
-    } else if (arg === '--silent') {
+    } else if (arg.startsWith("--output-dir=")) {
+      opts.outputDir = arg.split("=")[1];
+    } else if (arg === "--silent") {
       opts.silent = true;
-    } else if (arg === '--help' || arg === '-h') {
-      console.log('Usage: node lwcBuilder.js [--charts-file file] [--output-dir dir] [--silent]');
+    } else if (arg === "--help" || arg === "-h") {
+      console.log(
+        "Usage: node lwcBuilder.js [--charts-file file] [--output-dir dir] [--silent]"
+      );
       process.exit(0);
     }
   }

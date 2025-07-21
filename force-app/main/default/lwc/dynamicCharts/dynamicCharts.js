@@ -1,8 +1,5 @@
 import { LightningElement, wire, api } from "lwc";
-import {
-  getDatasets,
-  executeQuery
-} from "lightning/analyticsWaveApi";
+import { getDatasets, executeQuery } from "lightning/analyticsWaveApi";
 import apexchartJs from "@salesforce/resourceUrl/ApexCharts";
 import { loadScript } from "lightning/platformResourceLoader";
 
@@ -66,100 +63,67 @@ export default class SacCharts extends LightningElement {
   }
 
   chartSettings = {
-  ClimbsByNation: {
-    dashboard: "CR_02",
-    title: "Top 20 Climbs by Nation",
-    fieldMappings: {
-      nation: "Nation",
-      Climbs: "Climbs"
+    ClimbsByNation: {
+      dashboard: "CR_02",
+      title: "Top 20 Climbs by Nation",
+      fieldMappings: {
+        A: "A",
+        nation: "nation"
+      },
+      colors: ["#002060"]
     },
-    colors: [
-      "#002060"
-    ],
-    effects: [
-      "shadow"
-    ]
-  },
-  TimeByPeak: {
-    dashboard: "CR_02",
-    title: "Days per Peak by Top 20 Climbs",
-    fieldMappings: {
-      peakid: "Peak ID",
-      A: "Min",
-      B: "Q1",
-      C: "Q3",
-      D: "Max"
+    "climbs-by-nation": {
+      dashboard: "CR_02",
+      title: "Top 20 Climbs by Nation",
+      fieldMappings: {
+        A: "A",
+        nation: "nation"
+      },
+      colors: ["#002060"]
     },
-    colors: [
-      "#97C1DA",
-      "#002060"
-    ],
-    effects: [
-      "shadow"
-    ]
-  },
-  CampsByPeak: {
-    dashboard: "CR_02",
-    title: "Average Number of Camps per Peak",
-    fieldMappings: {
-      peakid: "Peak ID",
-      A: "Average Camps"
+    TimeByPeak: {
+      dashboard: "CR_02",
+      title: "Days per Peak by Top 20 Climbs",
+      fieldMappings: {
+        A: "A",
+        B: "B",
+        C: "C",
+        D: "D",
+        peakid: "peakid"
+      },
+      colors: ["#97C1DA", "#002060"]
     },
-    colors: [
-      "#175F68"
-    ],
-    effects: [
-      "shadow"
-    ]
-  },
-  "climbs-by-nation": {
-    fieldMappings: {
-      A: "A",
-      nation: "nation"
+    "time-by-peak": {
+      dashboard: "CR_02",
+      title: "Days per Peak by Top 20 Climbs",
+      fieldMappings: {
+        A: "A",
+        B: "B",
+        C: "C",
+        D: "D",
+        peakid: "peakid"
+      },
+      colors: ["#97C1DA", "#002060"]
     },
-    colors: [
-      "#002060"
-    ],
-    dashboard: "CR_02",
-    title: "Top 20 Climbs by Nation"
-  },
-  "time-by-peak": {
-    fieldMappings: {
-      A: "A",
-      B: "B",
-      C: "C",
-      D: "D",
-      peakid: "peakid"
+    CampsByPeak: {
+      dashboard: "CR_02",
+      title: "Average Number of Camps per Peak",
+      fieldMappings: {
+        A: "A",
+        peakid: "peakid"
+      }
     },
-    colors: [
-      "#97C1DA",
-      "#002060"
-    ],
-    dashboard: "CR_02",
-    title: "Days per Peak by Top 20 Climbs"
-  },
-  "camps-by-peak": {
-    fieldMappings: {
-      A: "A",
-      peakid: "peakid"
-    },
-    dashboard: "CR_02",
-    title: "Average Number of Camps per Peak"
-  },
-  "deaths-by-peak": {
-    dashboard: "CR_02",
-    title: "Total Number of Deaths per Peak",
-    fieldMappings: {
-      A: "A",
-      peakid: "peakid"
-    },
-    effects: [
-      "shadow"
-    ]
-  }
-};
+    "camps-by-peak": {
+      dashboard: "CR_02",
+      title: "Average Number of Camps per Peak",
+      fieldMappings: {
+        A: "A",
+        peakid: "peakid"
+      }
+    }
+  };
 
-  @wire(executeQuery, { query: '$nextQuery' })
+  @wire(executeQuery, { query: "$nextQuery" })
   wiredExecuteQuery(result) {
     if (!this.nextQuery) {
       return;
@@ -275,7 +239,6 @@ export default class SacCharts extends LightningElement {
       }));
     }
   }
-
 
   // ---- Chart data queries ----
   get climbsByNationQuery() {

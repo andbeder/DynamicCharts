@@ -90,7 +90,12 @@
           >
         </li>
         <li>
-          <a href="javascript:void(0);" data-id="DeathsByPeak" onclick={handleNavClick}>DeathsByPeak</a>
+          <a
+            href="javascript:void(0);"
+            data-id="DeathsByPeak"
+            onclick={handleNavClick}
+            >DeathsByPeak</a
+          >
         </li>
       </ul>
     </lightning-layout-item>
@@ -152,15 +157,3 @@
     </lightning-layout-item>
   </lightning-layout>
 </template>
-      <div data-page="DeathsByPeak">
-        <lightning-card title="Chart Series" icon-name="custom:custom1">
-          <lightning-layout>
-            <lightning-layout-item size="6">
-              <div class="DeathsByPeak slds-var-m-around_medium" lwc:dom="manual"></div>
-            </lightning-layout-item>
-            <lightning-layout-item size="6">
-              <div class="DeathsByPeakAO slds-var-m-around_medium" lwc:dom="manual"></div>
-            </lightning-layout-item>
-          </lightning-layout>
-        </lightning-card>
-      </div>

@@ -12,3 +12,5 @@ data-label-background-color - 404 - Not Found
 font-size - 404 - Not Found
 color - 404 - Not Found
 dropshadow - 404 - Not Found
+seriesColors - 404 - Not Found
+fontColor - 404 - Not Found
