@@ -5,6 +5,9 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+// LWC templates live in the project under force-app/main/default/lwc/dynamicCharts.
+// `dynamicChartsExample.html` and `dynamicChartsExample.js` provide the full
+// component implementation used as the basis for generated output.
 const TEMPLATE_DIR = path.join(
   __dirname,
   '..',

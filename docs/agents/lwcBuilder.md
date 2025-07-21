@@ -32,10 +32,11 @@ to populate `chartStyles.txt` with descriptions of new options.
 
 1. Parse `chartsFile` and validate the result contains a `charts` array.
 2. Create `outputDir` if it does not already exist.
-3. Write `dynamicCharts.html` with a `<div>` element for each chart id.
-4. Write `dynamicCharts.js` exporting a `LightningElement` class with a
-   `chartSettings` property reflecting the chart definitions. The style section is
-   normalized so `seriesColors` becomes `colors` and `effects` is copied as-is.
+3. Copy `dynamicChartsExample.html` to `dynamicCharts.html`.
+4. Copy `dynamicChartsExample.js` to `dynamicCharts.js` and replace its
+   `chartSettings` object with one derived from the chart definitions. The style
+   section is normalized so `seriesColors` becomes `colors` and `effects` is
+   copied as-is.
 5. Write a minimal `dynamicCharts.js-meta.xml` that exposes the component to App,
    Record and Home pages.
 6. For each style key encountered, fetch a short description from the ApexCharts
