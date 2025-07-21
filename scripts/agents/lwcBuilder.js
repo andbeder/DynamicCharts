@@ -126,9 +126,17 @@ function buildLwc({ chartsFile = 'charts.json', outputDir = 'force-app/main/defa
 
 if (require.main === module) {
   const opts = {};
-  process.argv.slice(2).forEach(arg => {
-    if (arg.startsWith('--charts-file=')) {
+  const args = process.argv.slice(2);
+  for (let i = 0; i < args.length; i += 1) {
+    const arg = args[i];
+    if (arg === '--charts-file' && args[i + 1]) {
+      opts.chartsFile = args[i + 1];
+      i += 1;
+    } else if (arg.startsWith('--charts-file=')) {
       opts.chartsFile = arg.split('=')[1];
+    } else if (arg === '--output-dir' && args[i + 1]) {
+      opts.outputDir = args[i + 1];
+      i += 1;
     } else if (arg.startsWith('--output-dir=')) {
       opts.outputDir = arg.split('=')[1];
     } else if (arg === '--silent') {
@@ -137,7 +145,7 @@ if (require.main === module) {
       console.log('Usage: node lwcBuilder.js [--charts-file file] [--output-dir dir] [--silent]');
       process.exit(0);
     }
-  });
+  }
   try {
     buildLwc(opts);
   } catch (err) {
