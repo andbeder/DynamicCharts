@@ -14,7 +14,6 @@ automation commands can locate it.
 | **sfdcAuthorizer**         | `scripts/agents/sfdcAuthorizer.js`         | `docs/agents/sfdcAuthorizer.md`         |                       |
 | **dashboardRetriever**     | `scripts/agents/dashboardRetriever.js`     | `docs/agents/dashboardRetriever.md`     |                       |
 | **dashboardReader**        | `scripts/agents/dashboardReader.js`        | `docs/agents/dashboardReader.md`        |                       |
-| **lwcReader**              | `scripts/agents/lwcReader.js`              | `docs/agents/lwcReader.md`              |                       |
 | **lwcBuilder**             | `scripts/agents/lwcBuilder.js`             | `docs/agents/lwcBuilder.md`             |                       |
 | **sfdcDeployer**           | `scripts/agents/sfdcDeployer.js`           | `docs/agents/sfdcDeployer.md`           |  |
 
@@ -34,10 +33,7 @@ automation commands can locate it.
    3. **dashboardReader**
 
       * Parses dashboard JSON into normalized chart definitions and writes `charts.json`.
-   4. **lwcReader**
 
-      * Reads `force-app\main\default\lwc\dynamicCharts\dynamicCharts.js` and `force-app\main\default\lwc\dynamicCharts\dynamicCharts.html` for chart components and ApexCharts options driving them
-      * Writes `revEndCharts.json` based on `CHART_JSON_DEFINITION.MD` 
 
    **Outputs**: `charts.json`
 
@@ -64,10 +60,8 @@ automation commands can locate it.
    3. **dashboardReader**
 
       * Parses dashboard JSON into normalized chart definitions and writes `charts.json`.
-   4. **lwcReader**
 
-      * Reads `charts.json` and generates LWC component files (`.js`, `.html`, `.js-meta.xml`).
-   5. **sfdcDeployer**
+   4. **sfdcDeployer**
 
       * Deploys changes in `force-app/main/default` to the Salesforce org.
 
