@@ -9,7 +9,6 @@ describe('package.json agent scripts', () => {
         'sfdcAuthorizer',
         'dashboardRetriever',
         'dashboardReader',
-        'lwcReader',
         'lwcBuilder',
         'sfdcDeployer'
       ];

@@ -3,10 +3,8 @@
 const sfdcAuthorizer = require('./agents/sfdcAuthorizer');
 const dashboardRetriever = require('./agents/dashboardRetriever');
 const dashboardReader = require('./agents/dashboardReader');
-const lwcReader = require('./agents/lwcReader');
 const changeRequestGenerator = require('./agents/changeRequestGenerator');
 const syncCharts = require('./agents/syncCharts');
-const lwcTester = require('./agents/lwcTester');
 const sfdcDeployer = require('./agents/sfdcDeployer');
 
 function runEndToEnd({ dashboard } = {}) {
@@ -14,10 +12,8 @@ function runEndToEnd({ dashboard } = {}) {
   sfdcAuthorizer();
   dashboardRetriever({ dashboardApiName: dash });
   dashboardReader({ dashboardApiName: dash });
-  lwcReader();
   changeRequestGenerator();
   syncCharts();
-  lwcTester();
   sfdcDeployer();
 }
 

@@ -22,7 +22,6 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
    - Parsed charts shall be written to `charts.json`, replacing previous definitions. Style attribute keys discovered in the text widgets shall be tracked in `chartStyles.txt`.
    - Widgets are processed in row-major order so chart widgets are encountered before their companion text widgets.
 4. **Component Analysis**
-   - A `lwcReader` script shall parse the existing Lightning Web Component source and output `revEngCharts.json` describing the charts implemented.
 5. **Filter Options**
    - Users shall filter chart results by `host`, `nation`, `season`, and `ski` attributes.
    - Dual list boxes shall be provided for `host`, `nation`, and `season` selections.
@@ -76,7 +75,6 @@ Dynamic Charts is a Lightning application for Salesforce that enables users to q
 5. **Testing**
    - Automated tests shall verify that each chart container successfully initializes an ApexCharts instance.
 
-- A Node script named `lwcTester` shall verify that `sfdx-lwc-jest`, `apexcharts`, and `jest-canvas-mock` are installed in `node_modules`, install any missing packages, run Jest unit and integration tests from `test/lwcTester`, and enforce minimum coverage of 80% statements, 75% branches, 80% functions, and 80% lines before deployment.
 - Each agent's tests shall be runnable individually via npm scripts such as `npm run test:changeRequestGenerator`.
 - Each agent shall have a dedicated npm script. Pass the dashboard API name using `--dashboard=<name>` when running `dashboardRetriever` or `dashboardReader`.
 - A Node script named `sfdcDeployer` shall deploy metadata using the `sf` CLI and write a deployment report under `reports`.
