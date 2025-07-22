@@ -3,8 +3,6 @@
 const sfdcAuthorizer = require('./agents/sfdcAuthorizer');
 const dashboardRetriever = require('./agents/dashboardRetriever');
 const dashboardReader = require('./agents/dashboardReader');
-const changeRequestGenerator = require('./agents/changeRequestGenerator');
-const syncCharts = require('./agents/syncCharts');
 const sfdcDeployer = require('./agents/sfdcDeployer');
 
 function runEndToEnd({ dashboard } = {}) {
@@ -12,8 +10,6 @@ function runEndToEnd({ dashboard } = {}) {
   sfdcAuthorizer();
   dashboardRetriever({ dashboardApiName: dash });
   dashboardReader({ dashboardApiName: dash });
-  changeRequestGenerator();
-  syncCharts();
   sfdcDeployer();
 }
 
