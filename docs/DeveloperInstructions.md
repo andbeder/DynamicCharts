@@ -37,5 +37,5 @@ Starting with this release, `scripts/changeRequestInterpreter.js` maps each chan
    - Delete all references to the `DaysPerPeak` chart including option objects, render calls and markup containers.
 
 4. **Validate Changes**
-   - Run `npm run test:<agent>` (for example, `npm run test:changeRequestGenerator`) to ensure all Jest tests pass.
+   - Run `npm run test:<agent>` (for example, `npm run test:sfdcDeployer`) to ensure all Jest tests pass.
 
