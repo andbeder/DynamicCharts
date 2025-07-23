@@ -2,7 +2,7 @@
 
 ## Overview
 
-SAC Charts is implemented as a Lightning Web Component (LWC) named `dynamicCharts`. The component obtains data from CRM Analytics using wire adapters, generates SAQL queries based on user-selected filters, and renders charts with the ApexCharts JavaScript library.
+Dynamic Charts is implemented as a Lightning Web Component (LWC) named `dynamicCharts`. The component obtains data from CRM Analytics using wire adapters, generates SAQL queries based on user-selected filters, and renders charts with the ApexCharts JavaScript library.
 The objective of this system is twofold:
 
 1. Manage the application lifecycle through Change Requests (CRs) which specify changes to the architecture and program flow.
@@ -28,8 +28,7 @@ All automation scripts assume a Node.js 18 or later runtime (tested with Node.js
             |
             v
 +-----------+-----------+
-| CRM Analytics (Wave)  |
-| Datasets via API      |
+| LWC Page              |
 +-----------------------+
 ```
 
