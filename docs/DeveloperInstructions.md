@@ -17,6 +17,7 @@ Starting with this release, `scripts/changeRequestInterpreter.js` maps each chan
 ## Steps
 
 1. **Update Chart Metadata**
+
    - Set `dashboard: "CR_02"` for `ClimbsByNation`, `TimeByPeak` and `CampsByPeak`.
    - Replace titles with:
      - `ClimbsByNation` → **Top 20 Climbs by Nation**
@@ -28,14 +29,15 @@ Starting with this release, `scripts/changeRequestInterpreter.js` maps each chan
      - `CampsByPeak` maps `peakid` → `Peak ID`, `A` → `Average Camps`.
 
 2. **Apply Style Updates**
+
    - Map style changes to ApexCharts options:
      - `ClimbsByNation` sets `options.colors` to `['#002060']` and enables `chart.dropShadow`.
      - `TimeByPeak` sets `options.colors` to `['#97C1DA', '#002060']` and enables `chart.dropShadow`.
      - `CampsByPeak` sets `options.colors` to `['#175F68']` and enables `chart.dropShadow`.
 
 3. **Remove Deprecated Chart**
+
    - Delete all references to the `DaysPerPeak` chart including option objects, render calls and markup containers.
 
 4. **Validate Changes**
-   - Run `npm run test:<agent>` (for example, `npm run test:changeRequestGenerator`) to ensure all Jest tests pass.
-
+   - Run `npm run test:<agent>` (for example, `npm run test:sfdcDeployer`) to ensure all Jest tests pass.

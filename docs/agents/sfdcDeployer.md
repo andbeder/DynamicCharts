@@ -78,7 +78,7 @@ Include in your `package.json` scripts:
 {
   "scripts": {
     "validate": "node scripts/agents/sfdcDeployer.js --source-dir force-app/main/default --checkonly",
-    "deploy:charts": "node scripts/agents/lwcTester.js && node scripts/agents/sfdcDeployer.js --source-dir force-app/main/default"
+    "deploy:charts": "node scripts/agents/sfdcDeployer.js --source-dir force-app/main/default"
   }
 }
 ```
