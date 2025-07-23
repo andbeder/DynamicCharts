@@ -64,7 +64,7 @@ export default class SacCharts extends LightningElement {
 
   chartSettings = {
     ClimbsByNation: {
-      dashboard: "CR_02",
+      dashboard: "CR_03",
       title: "Top 20 Climbs by Nation",
       fieldMappings: {
         A: "A",
@@ -73,7 +73,7 @@ export default class SacCharts extends LightningElement {
       colors: ["#002060"]
     },
     "climbs-by-nation": {
-      dashboard: "CR_02",
+      dashboard: "CR_03",
       title: "Top 20 Climbs by Nation",
       fieldMappings: {
         A: "A",
@@ -82,7 +82,7 @@ export default class SacCharts extends LightningElement {
       colors: ["#002060"]
     },
     TimeByPeak: {
-      dashboard: "CR_02",
+      dashboard: "CR_03",
       title: "Days per Peak by Top 20 Climbs",
       fieldMappings: {
         A: "A",
@@ -94,7 +94,7 @@ export default class SacCharts extends LightningElement {
       colors: ["#97C1DA", "#002060"]
     },
     "time-by-peak": {
-      dashboard: "CR_02",
+      dashboard: "CR_03",
       title: "Days per Peak by Top 20 Climbs",
       fieldMappings: {
         A: "A",
@@ -106,7 +106,7 @@ export default class SacCharts extends LightningElement {
       colors: ["#97C1DA", "#002060"]
     },
     CampsByPeak: {
-      dashboard: "CR_02",
+      dashboard: "CR_03",
       title: "Average Number of Camps per Peak",
       fieldMappings: {
         A: "A",
@@ -114,12 +114,30 @@ export default class SacCharts extends LightningElement {
       }
     },
     "camps-by-peak": {
-      dashboard: "CR_02",
+      dashboard: "CR_03",
       title: "Average Number of Camps per Peak",
       fieldMappings: {
         A: "A",
         peakid: "peakid"
       }
+    },
+    DeathsByPeak: {
+      dashboard: "CR_03",
+      title: "Total Number of Deaths per Peak",
+      fieldMappings: {
+        A: "A",
+        peakid: "peakid"
+      },
+      effects: ["shadow"]
+    },
+    "deaths-by-peak": {
+      dashboard: "CR_03",
+      title: "Total Number of Deaths per Peak",
+      fieldMappings: {
+        A: "A",
+        peakid: "peakid"
+      },
+      effects: ["shadow"]
     }
   };
 

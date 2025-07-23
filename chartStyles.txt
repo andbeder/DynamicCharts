@@ -14,3 +14,4 @@ color - 404 - Not Found
 dropshadow - 404 - Not Found
 seriesColors - 404 - Not Found
 fontColor - 404 - Not Found
+effects - 404 - Not Found
